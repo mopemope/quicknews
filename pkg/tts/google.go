@@ -63,8 +63,8 @@ func (c *Client) SynthesizeSpeech(ctx context.Context, text string) ([]byte, err
 		AudioConfig: &texttospeechpb.AudioConfig{
 			AudioEncoding:    texttospeechpb.AudioEncoding_MP3,
 			EffectsProfileId: []string{"small-bluetooth-speaker-class-device"},
-			SpeakingRate:     1.3,
-			Pitch:            1.4,
+			SpeakingRate:     1.4,
+			Pitch:            1.5,
 		},
 	}
 
