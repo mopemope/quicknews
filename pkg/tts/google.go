@@ -19,9 +19,12 @@ import (
 	"google.golang.org/api/option"
 )
 
-var ErrNoCredentials = errors.New("GOOGLE_APPLICATION_CREDENTIALS environment variable is not set")
-var ErrEmptyAudioData = errors.New("audio data cannot be empty")
-var mutex = &sync.Mutex{}
+var (
+	ErrNoCredentials   = errors.New("GOOGLE_APPLICATION_CREDENTIALS environment variable is not set")
+	ErrEmptyAudioData  = errors.New("audio data cannot be empty")
+	mutex              = &sync.Mutex{}
+	speakerInitialized = false
+)
 
 // Client wraps the Google Cloud Text-to-Speech client.
 type Client struct {
@@ -116,11 +119,14 @@ func PlayAudioData(audioData []byte) error {
 	}
 	defer streamer.Close()
 
-	// Initialize the speaker with the format retrieved from the decoder.
-	// Use a buffer size that provides reasonable latency.
-	err = speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/10))
-	if err != nil {
-		return errors.Wrap(err, "failed to initialize speaker")
+	if !speakerInitialized {
+		// Initialize the speaker with the format retrieved from the decoder.
+		// Use a buffer size that provides reasonable latency.
+		err = speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/10))
+		if err != nil {
+			return errors.Wrap(err, "failed to initialize speaker")
+		}
+		speakerInitialized = true
 	}
 
 	done := make(chan struct{})
@@ -133,6 +139,5 @@ func PlayAudioData(audioData []byte) error {
 
 	// It's good practice to clear the speaker buffer after playing.
 	speaker.Clear()
-
 	return nil
 }
