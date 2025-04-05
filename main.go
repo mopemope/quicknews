@@ -11,6 +11,8 @@ import (
 	_ "github.com/mopemope/quicknews/pkg/log"
 )
 
+var version = "0.0.1"
+
 // CLI represents the command-line interface.
 type CLI struct {
 	Add    cmd.AddCmd    `cmd:"" aliases:"a" help:"Add a new RSS feed."`
@@ -21,14 +23,18 @@ type CLI struct {
 
 	// Global flags
 	DbPath string `name:"db" type:"path" default:"~/quicknews.db" help:"Path to the SQLite database file."`
+
+	// Version flag
+	Version kong.VersionFlag `short:"V" help:"Show version information."`
 }
 
 func main() {
 	var cli CLI
 	kctx := kong.Parse(&cli,
 		kong.Name("quicknews"),
-		kong.Description("A simple RSS reader."),
+		kong.Description("RSS reader."),
 		kong.UsageOnError(),
+		kong.Vars{"version": version}, // Pass version variable for --version flag
 		kong.ConfigureHelp(kong.HelpOptions{
 			Compact: true,
 		}),
