@@ -15,12 +15,19 @@ import (
 
 var ModelName = "gemini-2.0-flash"
 
-const promptTemplate = `
+const summaryPrompt = `
 あなたはWebサイトのコンテンツを要約するAIです。
-URL: %s にアクセスし、このページのタイトルと内容を取得し、テキスト形式で出力してください。
-余計な修飾せず日本語に訳したタイトル、記事の要約のみを出力してください。
-記事の要約は短すぎないようにし、700文字以上で内容をしっかりと伝えてください。
-出力形式は以下です。タイトルと要約は区切り文字で区切ってください。
+以下のURLのWebサイトにアクセスし、そのページのタイトルと主要な内容を正確に把握し、テキスト形式で出力してください。
+
+URL: %s
+
+出力する際は、以下のルールを厳守してください。
+
+1.  **タイトル:** Webサイトのタイトルを正確に日本語に翻訳し、余計な修飾は加えないでください。
+2.  **要約:** 記事の主要な内容を、客観的で分かりやすいニュース記事のようなスタイルで要約してください。
+3.  **文字数:** 要約の文字数は700文字以上を目安とし、内容を十分に伝えられるように記述してください。ただし、情報量が少ない場合は、可能な範囲で詳細に記述してください。
+4.  **区切り文字:** タイトルと要約の間には、必ず「-----」という区切り文字を入れてください。
+6.  **出力形式は以下です**
 
 <記事のタイトル>
 -----
@@ -65,7 +72,7 @@ func (c *Client) Close() error {
 func (c *Client) Summarize(ctx context.Context, url string) (*PageSummary, error) {
 	model := c.genaiClient.GenerativeModel(ModelName)
 
-	prompt := fmt.Sprintf(promptTemplate, url)
+	prompt := fmt.Sprintf(summaryPrompt, url)
 
 	slog.Debug("Sending request to Gemini API", slog.String("model", ModelName)) // Log model name using the variable
 
