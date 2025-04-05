@@ -105,12 +105,16 @@ func (m *articleListModel) fetchArticlesCmd() tea.Cmd {
 			if !a.PublishedAt.IsZero() {
 				publishedAtPtr = &a.PublishedAt
 			}
+			summaryTitle := a.Title
+			if a.Edges.Summary != nil {
+				summaryTitle = a.Edges.Summary.Title
+			}
 			items[i] = articleItem{
 				id:           a.ID,
 				title:        a.Title,
 				publishedAt:  publishedAtPtr, // Pass the pointer
 				link:         a.URL,
-				summaryTitle: a.Edges.Summary.Title,
+				summaryTitle: summaryTitle,
 			}
 		}
 		return items // Return fetched items as message
