@@ -51,9 +51,7 @@ func (r *SummaryRepositoryImpl) Save(ctx context.Context, sum *ent.Summary) erro
 
 	now := clock.Now()
 
-	text := fmt.Sprintf("この記事のタイトルは %s です。 \n要約\n\n%s", sum.Title, sum.Summary)
-
-	audioData, err := tts.SynthesizeText(ctx, text)
+	audioData, err := GetAudioData(ctx, sum)
 	if err != nil && err != tts.ErrNoCredentials {
 		return errors.Wrap(err, "failed to synthesize text")
 	}
@@ -122,4 +120,22 @@ func (r *SummaryRepositoryImpl) UpdateListened(ctx context.Context, sum *ent.Sum
 		}
 		return nil
 	})
+}
+
+// GetAudioData generates audio data for the given summary using Google TTS.
+func GetAudioData(ctx context.Context, sum *ent.Summary) ([]byte, error) {
+	feed := sum.Edges.Feed
+	text := fmt.Sprintf(`
+これはフィード %s の記事です。
+タイトル
+%s
+要約
+%s
+`, feed.Title, sum.Title, sum.Summary)
+
+	audioData, err := tts.SynthesizeText(ctx, text)
+	if err != nil && err != tts.ErrNoCredentials {
+		return nil, errors.Wrap(err, "failed to synthesize text")
+	}
+	return audioData, nil
 }
