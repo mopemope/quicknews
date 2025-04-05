@@ -8,6 +8,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mopemope/quicknews/ent"
+	"github.com/mopemope/quicknews/pkg/tts"
 )
 
 // Message to indicate going back to the article list
@@ -79,6 +80,16 @@ func (m summaryViewModel) Update(msg tea.Msg) (summaryViewModel, tea.Cmd) {
 			m.viewport.GotoTop()
 		case "G":
 			m.viewport.GotoBottom()
+		case "r":
+			if m.article != nil && m.article.Edges.Summary != nil {
+				// Play audio for the summary if available
+				slog.Debug("Playing audio for summary")
+				go func() {
+					if err := tts.PlayAudioData(m.article.Edges.Summary.AudioData); err != nil {
+						slog.Error("Failed to play audio data", "error", err)
+					}
+				}()
+			}
 		}
 	case tea.WindowSizeMsg:
 		// Only update if ready, otherwise SetContent will handle initial sizing
@@ -125,5 +136,5 @@ func (m summaryViewModel) footerView() string {
 	return lipgloss.NewStyle().
 		Foreground(lipgloss.Color("240")). // Dim color
 		Padding(0, 1).
-		Render("Scroll: ↑/k ↓/j | Back: b")
+		Render("Scroll: ↑/k ↓/j | Go top: g | Go bottom: G | Read aloud: r | Back: b ")
 }
