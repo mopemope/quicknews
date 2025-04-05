@@ -26,6 +26,8 @@ type FeedRepository interface {
 	// Exist checks if a feed with the given URL already exists.
 	Exist(ctx context.Context, url string) (bool, error)
 	Save(ctx context.Context, input *FeedInput) error
+	// SaveFeeds saves multiple feeds in a single transaction.
+	SaveFeeds(ctx context.Context, inputs []*FeedInput) error
 }
 
 type FeedRepositoryImpl struct {
@@ -112,6 +114,28 @@ func (r *FeedRepositoryImpl) Save(ctx context.Context, input *FeedInput) error {
 			Save(ctx)
 		if err != nil {
 			return errors.Wrap(err, "failed to save feed")
+		}
+		return nil
+	})
+}
+
+// SaveFeeds saves multiple feeds within a single transaction.
+func (r *FeedRepositoryImpl) SaveFeeds(ctx context.Context, inputs []*FeedInput) error {
+	now := clock.Now()
+
+	return database.WithTx(ctx, r.client, func(tx *ent.Tx) error {
+		bulk := make([]*ent.FeedCreate, len(inputs))
+		for i, input := range inputs {
+			bulk[i] = tx.Feed.
+				Create().
+				SetURL(input.URL).
+				SetTitle(input.Title).
+				SetDescription(input.Description).
+				SetLink(input.Link).
+				SetUpdatedAt(now) // Set initial updated_at
+		}
+		if _, err := tx.Feed.CreateBulk(bulk...).Save(ctx); err != nil {
+			return errors.Wrap(err, "failed to bulk save feeds")
 		}
 		return nil
 	})
