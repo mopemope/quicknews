@@ -34,6 +34,7 @@ After building, you can run the program with the following command:
 - `fetch`: Fetches and updates registered feeds.
 - `read`: Launches the TUI to browse feeds and articles.
 - `play`: Read aloud unlistened feeds.
+- `import`: Import feeds from an OPML file.
 
 For detailed options, refer to `./quicknews --help`.
 
