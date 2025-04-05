@@ -6,7 +6,8 @@ import (
 	"log/slog"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/google/uuid" // Add uuid import
+	"github.com/charmbracelet/lipgloss" // Add lipgloss import
+	"github.com/google/uuid"            // Add uuid import
 	"github.com/mopemope/quicknews/ent"
 	"github.com/mopemope/quicknews/models/article" // Import article repository
 )
@@ -32,11 +33,14 @@ type model struct {
 	articleRepos article.ArticleRepository // Add article repository
 	feedList     feedListModel
 	articleList  articleListModel
-	summaryView  summaryViewModel // Add summary view model
-	currentView  viewState
-	err          error
-	windowWidth  int
-	windowHeight int
+	summaryView         summaryViewModel // Add summary view model
+	currentView         viewState
+	showingDeleteConfirm bool // Flag to indicate if delete confirmation dialog is shown
+	feedToDeleteID      uuid.UUID
+	feedToDeleteTitle   string
+	err                 error
+	windowWidth         int
+	windowHeight        int
 }
 
 type viewState int
@@ -90,16 +94,42 @@ func (m *model) fetchArticleContentCmd(articleID uuid.UUID) tea.Cmd {
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	slog.Debug("Main model Update called", "msg", msg)
+	slog.Debug("Main model Update called", "msg", msg, "currentView", m.currentView, "showingDeleteConfirm", m.showingDeleteConfirm)
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
+	// Handle delete confirmation dialog input first if it's active
+	if m.showingDeleteConfirm {
+		switch msg := msg.(type) {
+		case tea.KeyMsg:
+			switch msg.String() {
+			case "y", "Y":
+				slog.Debug("Delete confirmed (no action)", "feedID", m.feedToDeleteID)
+				m.showingDeleteConfirm = false
+				// In a real scenario, send a delete command here
+				// cmd = m.deleteFeedCmd(m.feedToDeleteID)
+				// cmds = append(cmds, cmd)
+				return m, tea.Batch(cmds...) // Return early
+			case "n", "N", "esc":
+				slog.Debug("Delete cancelled", "feedID", m.feedToDeleteID)
+				m.showingDeleteConfirm = false
+				return m, nil // Return early
+			}
+		}
+	}
+
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
+		// Global keybindings when not in delete confirm dialog
 		switch msg.String() {
 		case "ctrl+c", "q":
+			// If in delete confirm dialog, 'q' should probably cancel it first.
+			// However, the logic above handles 'esc', which is common for cancelling.
+			// If 'q' should also cancel, add it to the `if m.showingDeleteConfirm` block.
+			// If 'q' should always quit, this placement is fine.
 			return m, tea.Quit
 		}
+		// Allow key presses to fall through to the current view's Update if not handled globally
 	case tea.WindowSizeMsg:
 		m.windowWidth = msg.Width
 		// Removed duplicate assignment: m.windowWidth = msg.Width
@@ -168,8 +198,23 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// No specific command needed usually, article list retains state
 		return m, tea.Batch(cmds...) // Return early as view changed
 
+	case confirmDeleteFeedMsg: // Handle request to show delete confirmation
+		slog.Debug("Received confirmDeleteFeedMsg", "feedID", msg.feedID, "feedTitle", msg.feedTitle)
+		// Only show confirmation if we are in the feed list view
+		if m.currentView == feedListView {
+			m.showingDeleteConfirm = true
+			m.feedToDeleteID = msg.feedID
+			m.feedToDeleteTitle = msg.feedTitle
+			m.err = nil // Clear any previous errors
+		} else {
+			slog.Warn("Received confirmDeleteFeedMsg while not in feedListView", "currentView", m.currentView)
+		}
+		return m, nil // No command needed, just update state
+
 	case error:
 		// Handle errors, potentially from fetch commands or sub-models
+		// Clear delete confirmation state if an error occurs elsewhere
+		m.showingDeleteConfirm = false
 		m.err = msg
 		slog.Error("Error received in main model", "error", msg, "currentView", m.currentView)
 		// Decide if the error should be displayed globally or handled by the current view
@@ -217,19 +262,57 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m model) View() string {
 	slog.Debug("Main model View called", "currentView", m.currentView)
 	if m.err != nil {
+		// Prioritize showing error over delete confirmation? Or show both?
+		// For now, error takes precedence.
 		return "Error: " + m.err.Error()
 	}
 
 	// Render the current view
+	currentViewContent := ""
 	switch m.currentView {
 	case feedListView:
-		return m.feedList.View()
+		currentViewContent = m.feedList.View()
 	case articleListView:
 		return m.articleList.View()
 	case summaryView:
-		return m.summaryView.View()
+		currentViewContent = m.summaryView.View()
 	default:
 		slog.Error("Unknown view state in View()", "viewState", m.currentView)
-		return "Error: Unknown application state." // Provide a user-friendly error
+		currentViewContent = "Error: Unknown application state." // Provide a user-friendly error
 	}
+
+	// If showing delete confirmation, render it on top
+	if m.showingDeleteConfirm {
+		dialogText := fmt.Sprintf("\n\n   Delete feed '%s'? (y/N) \n\n", m.feedToDeleteTitle)
+		// Basic dialog styling (can be improved with lipgloss)
+		dialogBox := lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color("63")). // Purple border
+			Padding(1, 2).
+			Render(dialogText)
+
+		// Center the dialog (approximately)
+		// dialogWidth := lipgloss.Width(dialogBox)   // Keep if needed for Place logic adjustments
+		// dialogHeight := lipgloss.Height(dialogBox) // Keep if needed for Place logic adjustments
+		// x and y are calculated but not used when using lipgloss.Center positioning
+		// x := (m.windowWidth - dialogWidth) / 2
+		// y := (m.windowHeight - dialogHeight) / 2
+
+		// Use lipgloss.Place to position the dialog over the current view content
+		// Note: This requires knowing the full window dimensions.
+		// We might need a more robust way to overlay if views don't occupy the full screen.
+		// For now, let's assume the current view takes the full screen.
+		return lipgloss.Place(m.windowWidth, m.windowHeight,
+			lipgloss.Center, lipgloss.Center,
+			lipgloss.JoinVertical(lipgloss.Center, currentViewContent, dialogBox), // Attempt to stack, might need adjustment
+			lipgloss.WithWhitespaceChars(" "), // Fill remaining space
+			lipgloss.WithWhitespaceForeground(lipgloss.AdaptiveColor{Light: "#FFF", Dark: "#000"}),
+		)
+
+		// Simpler approach: Just render the dialog after the main content (less visually appealing overlay)
+		// return currentViewContent + "\n" + dialogBox
+	}
+
+	// Otherwise, just return the current view's content
+	return currentViewContent
 }

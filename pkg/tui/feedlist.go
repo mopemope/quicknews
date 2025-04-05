@@ -19,6 +19,12 @@ type feedListModel struct {
 	err   error
 }
 
+// confirmDeleteFeedMsg is a message sent when the user confirms feed deletion.
+type confirmDeleteFeedMsg struct {
+	feedID    uuid.UUID
+	feedTitle string
+}
+
 type feedItem struct {
 	id    uuid.UUID
 	title string
@@ -86,17 +92,26 @@ func (m feedListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyMsg:
 		// Handle Enter key press for feed selection
-		if msg.String() == "enter" {
+		switch msg.String() {
+		case "enter":
 			selectedItem, ok := m.list.SelectedItem().(feedItem)
 			if ok {
 				slog.Debug("Feed selected", "id", selectedItem.id, "title", selectedItem.title)
 				// Send a message to the main model to switch view
 				return m, func() tea.Msg { return selectFeedMsg{feed: selectedItem} }
 			}
+		case "d":
+			selectedItem, ok := m.list.SelectedItem().(feedItem)
+			if ok {
+				slog.Debug("Delete key pressed for feed", "id", selectedItem.id, "title", selectedItem.title)
+				// Send a message to the main model to show confirmation dialog
+				return m, func() tea.Msg {
+					return confirmDeleteFeedMsg{feedID: selectedItem.id, feedTitle: selectedItem.title}
+				}
+			}
 		}
 	}
 
-	// Delegate other message processing to the list component
 	// Delegate other message processing to the list component
 	m.list, cmd = m.list.Update(msg)
 
