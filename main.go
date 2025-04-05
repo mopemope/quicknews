@@ -8,7 +8,7 @@ import (
 	_ "github.com/mattn/go-sqlite3" // SQLite driver
 	"github.com/mopemope/quicknews/cmd"
 	"github.com/mopemope/quicknews/ent"
-	_ "github.com/mopemope/quicknews/pkg/log"
+	"github.com/mopemope/quicknews/pkg/log" // Import log package
 )
 
 var version = "0.0.1"
@@ -22,7 +22,8 @@ type CLI struct {
 	Import cmd.ImportCmd `cmd:"" help:"Import feeds from an OPML file."`
 
 	// Global flags
-	DbPath string `name:"db" type:"path" default:"~/quicknews.db" help:"Path to the SQLite database file."`
+	DbPath  string `name:"db" type:"path" default:"~/quicknews.db" help:"Path to the SQLite database file."`
+	LogPath string `name:"log" type:"path" default:"quicknews.log"  help:"Path to the log file. If not specified, logs to stdout."`
 
 	// Version flag
 	Version kong.VersionFlag `short:"V" help:"Show version information."`
@@ -39,7 +40,10 @@ func main() {
 			Compact: true,
 		}),
 	)
-
+	if err := log.InitializeLogger(cli.LogPath); err != nil {
+		slog.Error("failed to initialize logger", "error", err)
+		return
+	}
 	// Initialize database client
 	client, err := ent.Open("sqlite3", cli.DbPath+"??cache=shared&_fk=1")
 	if err != nil {
