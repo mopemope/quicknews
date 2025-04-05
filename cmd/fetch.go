@@ -48,18 +48,22 @@ func (cmd *FetchCmd) Run(client *ent.Client) error {
 
 	slog.Info("Fetching articles", "count", len(feeds))
 
-	var newArticlesCount int
-
+	var newArticlesCount atomic.Int32
+	feedPool := pond.NewPool(3)
 	for _, f := range feeds {
-		count, err := cmd.processFeed(ctx, f)
-		if err != nil {
-			slog.Error("Error processing feed", "feed", f.URL, "error", err)
-			continue
-		}
-		newArticlesCount += count
+
+		feedPool.Submit(func() {
+			count, err := cmd.processFeed(ctx, f)
+			if err != nil {
+				slog.Error("Error processing feed", "feed", f.URL, "error", err)
+				return
+			}
+			newArticlesCount.Add(int32(count))
+		})
+
 	}
 
-	slog.Info("Fetch completed. Added new articles.", "count", newArticlesCount)
+	feedPool.StopAndWait()
 	cmd.pool.StopAndWait()
 	return nil
 }
