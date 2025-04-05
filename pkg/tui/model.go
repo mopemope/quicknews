@@ -29,18 +29,18 @@ type fetchedArticleContentMsg struct {
 }
 
 type model struct {
-	client       *ent.Client
-	articleRepos article.ArticleRepository // Add article repository
-	feedList     feedListModel
-	articleList  articleListModel
-	summaryView         summaryViewModel // Add summary view model
-	currentView         viewState
+	client               *ent.Client
+	articleRepos         article.ArticleRepository // Add article repository
+	feedList             feedListModel
+	articleList          articleListModel
+	summaryView          summaryViewModel // Add summary view model
+	currentView          viewState
 	showingDeleteConfirm bool // Flag to indicate if delete confirmation dialog is shown
-	feedToDeleteID      uuid.UUID
-	feedToDeleteTitle   string
-	err                 error
-	windowWidth         int
-	windowHeight        int
+	feedToDeleteID       uuid.UUID
+	feedToDeleteTitle    string
+	err                  error
+	windowWidth          int
+	windowHeight         int
 }
 
 type viewState int
@@ -57,7 +57,7 @@ func InitialModel(client *ent.Client) model {
 		articleRepos: article.NewArticleRepository(client), // Initialize article repository
 		feedList:     newFeedListModel(client),
 		articleList:  newArticleListModel(client),
-		summaryView:  newSummaryViewModel(), // Initialize summary view model
+		summaryView:  newSummaryViewModel(client), // Initialize summary view model
 		currentView:  feedListView,
 	}
 }
@@ -305,7 +305,7 @@ func (m model) View() string {
 		return lipgloss.Place(m.windowWidth, m.windowHeight,
 			lipgloss.Center, lipgloss.Center,
 			lipgloss.JoinVertical(lipgloss.Center, currentViewContent, dialogBox), // Attempt to stack, might need adjustment
-			lipgloss.WithWhitespaceChars(" "), // Fill remaining space
+			lipgloss.WithWhitespaceChars(" "),                                     // Fill remaining space
 			lipgloss.WithWhitespaceForeground(lipgloss.AdaptiveColor{Light: "#FFF", Dark: "#000"}),
 		)
 

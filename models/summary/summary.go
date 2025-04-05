@@ -19,6 +19,7 @@ type SummaryRepository interface {
 	UpdateAudioData(ctx context.Context, url string, audioData []byte) error
 	GetUnlistened(ctx context.Context) ([]*ent.Summary, error)
 	UpdateListened(ctx context.Context, sum *ent.Summary) error
+	UpdateReaded(ctx context.Context, sum *ent.Summary) error
 }
 
 type SummaryRepositoryImpl struct {
@@ -114,6 +115,19 @@ func (r *SummaryRepositoryImpl) UpdateListened(ctx context.Context, sum *ent.Sum
 		_, err := tx.Summary.
 			UpdateOneID(sum.ID).
 			SetListend(true).
+			Save(ctx)
+		if err != nil {
+			return errors.Wrap(err, "failed to update summary as listened")
+		}
+		return nil
+	})
+}
+
+func (r *SummaryRepositoryImpl) UpdateReaded(ctx context.Context, sum *ent.Summary) error {
+	return database.WithTx(ctx, r.client, func(tx *ent.Tx) error {
+		_, err := tx.Summary.
+			UpdateOneID(sum.ID).
+			SetReaded(true).
 			Save(ctx)
 		if err != nil {
 			return errors.Wrap(err, "failed to update summary as listened")

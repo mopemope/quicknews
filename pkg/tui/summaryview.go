@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 
@@ -8,6 +9,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mopemope/quicknews/ent"
+	"github.com/mopemope/quicknews/models/summary"
 	"github.com/mopemope/quicknews/pkg/tts"
 )
 
@@ -15,16 +17,18 @@ import (
 type backToArticleListMsg struct{}
 
 type summaryViewModel struct {
-	viewport viewport.Model
-	article  *ent.Article
-	ready    bool // Indicates if the viewport is ready
+	viewport     viewport.Model
+	article      *ent.Article
+	ready        bool // Indicates if the viewport is ready
+	summaryRepos summary.SummaryRepository
 }
 
-func newSummaryViewModel() summaryViewModel {
+func newSummaryViewModel(client *ent.Client) summaryViewModel {
 	vp := viewport.New(0, 0) // Initial size, will be updated
 	vp.Style = summaryViewStyle
 	return summaryViewModel{
-		viewport: vp,
+		viewport:     vp,
+		summaryRepos: summary.NewSummaryRepository(client),
 	}
 }
 
@@ -99,6 +103,13 @@ func (m summaryViewModel) Update(msg tea.Msg) (summaryViewModel, tea.Cmd) {
 			m.viewport.Width = msg.Width
 			m.viewport.Height = msg.Height - headerHeight - footerHeight
 			slog.Debug("Summary view resized", "width", m.viewport.Width, "height", m.viewport.Height)
+
+			go func() {
+				if err := m.summaryRepos.UpdateReaded(context.Background(), m.article.Edges.Summary); err != nil {
+					slog.Error("Failed to play audio data", "error", err)
+				}
+			}()
+
 		}
 	}
 
