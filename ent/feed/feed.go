@@ -31,6 +31,8 @@ const (
 	FieldCreatedAt = "created_at"
 	// EdgeArticles holds the string denoting the articles edge name in mutations.
 	EdgeArticles = "articles"
+	// EdgeSummaries holds the string denoting the summaries edge name in mutations.
+	EdgeSummaries = "summaries"
 	// Table holds the table name of the feed in the database.
 	Table = "feeds"
 	// ArticlesTable is the table that holds the articles relation/edge.
@@ -40,6 +42,13 @@ const (
 	ArticlesInverseTable = "articles"
 	// ArticlesColumn is the table column denoting the articles relation/edge.
 	ArticlesColumn = "feed_articles"
+	// SummariesTable is the table that holds the summaries relation/edge.
+	SummariesTable = "summaries"
+	// SummariesInverseTable is the table name for the Summary entity.
+	// It exists in this package in order to avoid circular dependency with the "summary" package.
+	SummariesInverseTable = "summaries"
+	// SummariesColumn is the table column denoting the summaries relation/edge.
+	SummariesColumn = "feed_summaries"
 )
 
 // Columns holds all SQL columns for feed fields.
@@ -137,10 +146,31 @@ func ByArticles(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newArticlesStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// BySummariesCount orders the results by summaries count.
+func BySummariesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newSummariesStep(), opts...)
+	}
+}
+
+// BySummaries orders the results by summaries terms.
+func BySummaries(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newSummariesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newArticlesStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ArticlesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, ArticlesTable, ArticlesColumn),
+	)
+}
+func newSummariesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(SummariesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, SummariesTable, SummariesColumn),
 	)
 }

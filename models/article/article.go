@@ -35,6 +35,7 @@ func (r *ArticleRepositoryImpl) GetById(ctx context.Context, id uuid.UUID) (*ent
 	article, err := r.client.Article.
 		Query().
 		Where(article.IDEQ(id)).
+		WithFeed().
 		WithSummary().
 		Only(ctx)
 	if err != nil {

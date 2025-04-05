@@ -43,9 +43,11 @@ type Feed struct {
 type FeedEdges struct {
 	// Articles holds the value of the articles edge.
 	Articles []*Article `json:"articles,omitempty"`
+	// Summaries holds the value of the summaries edge.
+	Summaries []*Summary `json:"summaries,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // ArticlesOrErr returns the Articles value or an error if the edge
@@ -55,6 +57,15 @@ func (e FeedEdges) ArticlesOrErr() ([]*Article, error) {
 		return e.Articles, nil
 	}
 	return nil, &NotLoadedError{edge: "articles"}
+}
+
+// SummariesOrErr returns the Summaries value or an error if the edge
+// was not loaded in eager-loading.
+func (e FeedEdges) SummariesOrErr() ([]*Summary, error) {
+	if e.loadedTypes[1] {
+		return e.Summaries, nil
+	}
+	return nil, &NotLoadedError{edge: "summaries"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -149,6 +160,11 @@ func (f *Feed) Value(name string) (ent.Value, error) {
 // QueryArticles queries the "articles" edge of the Feed entity.
 func (f *Feed) QueryArticles() *ArticleQuery {
 	return NewFeedClient(f.config).QueryArticles(f)
+}
+
+// QuerySummaries queries the "summaries" edge of the Feed entity.
+func (f *Feed) QuerySummaries() *SummaryQuery {
+	return NewFeedClient(f.config).QuerySummaries(f)
 }
 
 // Update returns a builder for updating this Feed.

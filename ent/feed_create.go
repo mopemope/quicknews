@@ -13,6 +13,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/mopemope/quicknews/ent/article"
 	"github.com/mopemope/quicknews/ent/feed"
+	"github.com/mopemope/quicknews/ent/summary"
 )
 
 // FeedCreate is the builder for creating a Feed entity.
@@ -131,6 +132,21 @@ func (fc *FeedCreate) AddArticles(a ...*Article) *FeedCreate {
 		ids[i] = a[i].ID
 	}
 	return fc.AddArticleIDs(ids...)
+}
+
+// AddSummaryIDs adds the "summaries" edge to the Summary entity by IDs.
+func (fc *FeedCreate) AddSummaryIDs(ids ...uuid.UUID) *FeedCreate {
+	fc.mutation.AddSummaryIDs(ids...)
+	return fc
+}
+
+// AddSummaries adds the "summaries" edges to the Summary entity.
+func (fc *FeedCreate) AddSummaries(s ...*Summary) *FeedCreate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return fc.AddSummaryIDs(ids...)
 }
 
 // Mutation returns the FeedMutation object of the builder.
@@ -285,6 +301,22 @@ func (fc *FeedCreate) createSpec() (*Feed, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(article.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := fc.mutation.SummariesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   feed.SummariesTable,
+			Columns: []string{feed.SummariesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(summary.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

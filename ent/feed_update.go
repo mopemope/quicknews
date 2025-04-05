@@ -15,6 +15,7 @@ import (
 	"github.com/mopemope/quicknews/ent/article"
 	"github.com/mopemope/quicknews/ent/feed"
 	"github.com/mopemope/quicknews/ent/predicate"
+	"github.com/mopemope/quicknews/ent/summary"
 )
 
 // FeedUpdate is the builder for updating Feed entities.
@@ -140,6 +141,21 @@ func (fu *FeedUpdate) AddArticles(a ...*Article) *FeedUpdate {
 	return fu.AddArticleIDs(ids...)
 }
 
+// AddSummaryIDs adds the "summaries" edge to the Summary entity by IDs.
+func (fu *FeedUpdate) AddSummaryIDs(ids ...uuid.UUID) *FeedUpdate {
+	fu.mutation.AddSummaryIDs(ids...)
+	return fu
+}
+
+// AddSummaries adds the "summaries" edges to the Summary entity.
+func (fu *FeedUpdate) AddSummaries(s ...*Summary) *FeedUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return fu.AddSummaryIDs(ids...)
+}
+
 // Mutation returns the FeedMutation object of the builder.
 func (fu *FeedUpdate) Mutation() *FeedMutation {
 	return fu.mutation
@@ -164,6 +180,27 @@ func (fu *FeedUpdate) RemoveArticles(a ...*Article) *FeedUpdate {
 		ids[i] = a[i].ID
 	}
 	return fu.RemoveArticleIDs(ids...)
+}
+
+// ClearSummaries clears all "summaries" edges to the Summary entity.
+func (fu *FeedUpdate) ClearSummaries() *FeedUpdate {
+	fu.mutation.ClearSummaries()
+	return fu
+}
+
+// RemoveSummaryIDs removes the "summaries" edge to Summary entities by IDs.
+func (fu *FeedUpdate) RemoveSummaryIDs(ids ...uuid.UUID) *FeedUpdate {
+	fu.mutation.RemoveSummaryIDs(ids...)
+	return fu
+}
+
+// RemoveSummaries removes "summaries" edges to Summary entities.
+func (fu *FeedUpdate) RemoveSummaries(s ...*Summary) *FeedUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return fu.RemoveSummaryIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -301,6 +338,51 @@ func (fu *FeedUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if fu.mutation.SummariesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   feed.SummariesTable,
+			Columns: []string{feed.SummariesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(summary.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := fu.mutation.RemovedSummariesIDs(); len(nodes) > 0 && !fu.mutation.SummariesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   feed.SummariesTable,
+			Columns: []string{feed.SummariesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(summary.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := fu.mutation.SummariesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   feed.SummariesTable,
+			Columns: []string{feed.SummariesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(summary.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, fu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{feed.Label}
@@ -431,6 +513,21 @@ func (fuo *FeedUpdateOne) AddArticles(a ...*Article) *FeedUpdateOne {
 	return fuo.AddArticleIDs(ids...)
 }
 
+// AddSummaryIDs adds the "summaries" edge to the Summary entity by IDs.
+func (fuo *FeedUpdateOne) AddSummaryIDs(ids ...uuid.UUID) *FeedUpdateOne {
+	fuo.mutation.AddSummaryIDs(ids...)
+	return fuo
+}
+
+// AddSummaries adds the "summaries" edges to the Summary entity.
+func (fuo *FeedUpdateOne) AddSummaries(s ...*Summary) *FeedUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return fuo.AddSummaryIDs(ids...)
+}
+
 // Mutation returns the FeedMutation object of the builder.
 func (fuo *FeedUpdateOne) Mutation() *FeedMutation {
 	return fuo.mutation
@@ -455,6 +552,27 @@ func (fuo *FeedUpdateOne) RemoveArticles(a ...*Article) *FeedUpdateOne {
 		ids[i] = a[i].ID
 	}
 	return fuo.RemoveArticleIDs(ids...)
+}
+
+// ClearSummaries clears all "summaries" edges to the Summary entity.
+func (fuo *FeedUpdateOne) ClearSummaries() *FeedUpdateOne {
+	fuo.mutation.ClearSummaries()
+	return fuo
+}
+
+// RemoveSummaryIDs removes the "summaries" edge to Summary entities by IDs.
+func (fuo *FeedUpdateOne) RemoveSummaryIDs(ids ...uuid.UUID) *FeedUpdateOne {
+	fuo.mutation.RemoveSummaryIDs(ids...)
+	return fuo
+}
+
+// RemoveSummaries removes "summaries" edges to Summary entities.
+func (fuo *FeedUpdateOne) RemoveSummaries(s ...*Summary) *FeedUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return fuo.RemoveSummaryIDs(ids...)
 }
 
 // Where appends a list predicates to the FeedUpdate builder.
@@ -615,6 +733,51 @@ func (fuo *FeedUpdateOne) sqlSave(ctx context.Context) (_node *Feed, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(article.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if fuo.mutation.SummariesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   feed.SummariesTable,
+			Columns: []string{feed.SummariesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(summary.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := fuo.mutation.RemovedSummariesIDs(); len(nodes) > 0 && !fuo.mutation.SummariesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   feed.SummariesTable,
+			Columns: []string{feed.SummariesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(summary.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := fuo.mutation.SummariesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   feed.SummariesTable,
+			Columns: []string{feed.SummariesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(summary.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

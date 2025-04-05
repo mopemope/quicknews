@@ -16,16 +16,18 @@ import (
 	"github.com/mopemope/quicknews/ent/article"
 	"github.com/mopemope/quicknews/ent/feed"
 	"github.com/mopemope/quicknews/ent/predicate"
+	"github.com/mopemope/quicknews/ent/summary"
 )
 
 // FeedQuery is the builder for querying Feed entities.
 type FeedQuery struct {
 	config
-	ctx          *QueryContext
-	order        []feed.OrderOption
-	inters       []Interceptor
-	predicates   []predicate.Feed
-	withArticles *ArticleQuery
+	ctx           *QueryContext
+	order         []feed.OrderOption
+	inters        []Interceptor
+	predicates    []predicate.Feed
+	withArticles  *ArticleQuery
+	withSummaries *SummaryQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -77,6 +79,28 @@ func (fq *FeedQuery) QueryArticles() *ArticleQuery {
 			sqlgraph.From(feed.Table, feed.FieldID, selector),
 			sqlgraph.To(article.Table, article.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, feed.ArticlesTable, feed.ArticlesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(fq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QuerySummaries chains the current query on the "summaries" edge.
+func (fq *FeedQuery) QuerySummaries() *SummaryQuery {
+	query := (&SummaryClient{config: fq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := fq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := fq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(feed.Table, feed.FieldID, selector),
+			sqlgraph.To(summary.Table, summary.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, feed.SummariesTable, feed.SummariesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(fq.driver.Dialect(), step)
 		return fromU, nil
@@ -271,12 +295,13 @@ func (fq *FeedQuery) Clone() *FeedQuery {
 		return nil
 	}
 	return &FeedQuery{
-		config:       fq.config,
-		ctx:          fq.ctx.Clone(),
-		order:        append([]feed.OrderOption{}, fq.order...),
-		inters:       append([]Interceptor{}, fq.inters...),
-		predicates:   append([]predicate.Feed{}, fq.predicates...),
-		withArticles: fq.withArticles.Clone(),
+		config:        fq.config,
+		ctx:           fq.ctx.Clone(),
+		order:         append([]feed.OrderOption{}, fq.order...),
+		inters:        append([]Interceptor{}, fq.inters...),
+		predicates:    append([]predicate.Feed{}, fq.predicates...),
+		withArticles:  fq.withArticles.Clone(),
+		withSummaries: fq.withSummaries.Clone(),
 		// clone intermediate query.
 		sql:  fq.sql.Clone(),
 		path: fq.path,
@@ -291,6 +316,17 @@ func (fq *FeedQuery) WithArticles(opts ...func(*ArticleQuery)) *FeedQuery {
 		opt(query)
 	}
 	fq.withArticles = query
+	return fq
+}
+
+// WithSummaries tells the query-builder to eager-load the nodes that are connected to
+// the "summaries" edge. The optional arguments are used to configure the query builder of the edge.
+func (fq *FeedQuery) WithSummaries(opts ...func(*SummaryQuery)) *FeedQuery {
+	query := (&SummaryClient{config: fq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	fq.withSummaries = query
 	return fq
 }
 
@@ -372,8 +408,9 @@ func (fq *FeedQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Feed, e
 	var (
 		nodes       = []*Feed{}
 		_spec       = fq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			fq.withArticles != nil,
+			fq.withSummaries != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -398,6 +435,13 @@ func (fq *FeedQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Feed, e
 		if err := fq.loadArticles(ctx, query, nodes,
 			func(n *Feed) { n.Edges.Articles = []*Article{} },
 			func(n *Feed, e *Article) { n.Edges.Articles = append(n.Edges.Articles, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := fq.withSummaries; query != nil {
+		if err := fq.loadSummaries(ctx, query, nodes,
+			func(n *Feed) { n.Edges.Summaries = []*Summary{} },
+			func(n *Feed, e *Summary) { n.Edges.Summaries = append(n.Edges.Summaries, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -430,6 +474,37 @@ func (fq *FeedQuery) loadArticles(ctx context.Context, query *ArticleQuery, node
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "feed_articles" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (fq *FeedQuery) loadSummaries(ctx context.Context, query *SummaryQuery, nodes []*Feed, init func(*Feed), assign func(*Feed, *Summary)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Feed)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.Summary(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(feed.SummariesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.feed_summaries
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "feed_summaries" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "feed_summaries" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

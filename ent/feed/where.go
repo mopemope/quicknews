@@ -514,6 +514,29 @@ func HasArticlesWith(preds ...predicate.Article) predicate.Feed {
 	})
 }
 
+// HasSummaries applies the HasEdge predicate on the "summaries" edge.
+func HasSummaries() predicate.Feed {
+	return predicate.Feed(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, SummariesTable, SummariesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasSummariesWith applies the HasEdge predicate on the "summaries" edge with a given conditions (other predicates).
+func HasSummariesWith(preds ...predicate.Summary) predicate.Feed {
+	return predicate.Feed(func(s *sql.Selector) {
+		step := newSummariesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Feed) predicate.Feed {
 	return predicate.Feed(sql.AndPredicates(predicates...))

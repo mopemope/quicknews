@@ -67,6 +67,7 @@ func (r *SummaryRepositoryImpl) Save(ctx context.Context, sum *ent.Summary) erro
 			SetCreatedAt(now).
 			SetAudioData(audioData).
 			SetArticle(sum.Edges.Article).
+			SetFeed(sum.Edges.Feed).
 			Save(ctx)
 		if err != nil {
 			return errors.Wrap(err, "failed to save summary")

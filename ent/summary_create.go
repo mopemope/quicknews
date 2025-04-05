@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"github.com/mopemope/quicknews/ent/article"
+	"github.com/mopemope/quicknews/ent/feed"
 	"github.com/mopemope/quicknews/ent/summary"
 )
 
@@ -137,6 +138,17 @@ func (sc *SummaryCreate) SetArticle(a *Article) *SummaryCreate {
 	return sc.SetArticleID(a.ID)
 }
 
+// SetFeedID sets the "feed" edge to the Feed entity by ID.
+func (sc *SummaryCreate) SetFeedID(id uuid.UUID) *SummaryCreate {
+	sc.mutation.SetFeedID(id)
+	return sc
+}
+
+// SetFeed sets the "feed" edge to the Feed entity.
+func (sc *SummaryCreate) SetFeed(f *Feed) *SummaryCreate {
+	return sc.SetFeedID(f.ID)
+}
+
 // Mutation returns the SummaryMutation object of the builder.
 func (sc *SummaryCreate) Mutation() *SummaryMutation {
 	return sc.mutation
@@ -208,6 +220,9 @@ func (sc *SummaryCreate) check() error {
 	}
 	if _, ok := sc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Summary.created_at"`)}
+	}
+	if len(sc.mutation.FeedIDs()) == 0 {
+		return &ValidationError{Name: "feed", err: errors.New(`ent: missing required edge "Summary.feed"`)}
 	}
 	return nil
 }
@@ -287,6 +302,23 @@ func (sc *SummaryCreate) createSpec() (*Summary, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.article_summary = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.FeedIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   summary.FeedTable,
+			Columns: []string{summary.FeedColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(feed.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.feed_summaries = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

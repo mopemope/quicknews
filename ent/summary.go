@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"github.com/mopemope/quicknews/ent/article"
+	"github.com/mopemope/quicknews/ent/feed"
 	"github.com/mopemope/quicknews/ent/summary"
 )
 
@@ -38,6 +39,7 @@ type Summary struct {
 	// The values are being populated by the SummaryQuery when eager-loading is set.
 	Edges           SummaryEdges `json:"edges"`
 	article_summary *uuid.UUID
+	feed_summaries  *uuid.UUID
 	selectValues    sql.SelectValues
 }
 
@@ -45,9 +47,11 @@ type Summary struct {
 type SummaryEdges struct {
 	// Article holds the value of the article edge.
 	Article *Article `json:"article,omitempty"`
+	// Feed holds the value of the feed edge.
+	Feed *Feed `json:"feed,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // ArticleOrErr returns the Article value or an error if the edge
@@ -59,6 +63,17 @@ func (e SummaryEdges) ArticleOrErr() (*Article, error) {
 		return nil, &NotFoundError{label: article.Label}
 	}
 	return nil, &NotLoadedError{edge: "article"}
+}
+
+// FeedOrErr returns the Feed value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e SummaryEdges) FeedOrErr() (*Feed, error) {
+	if e.Feed != nil {
+		return e.Feed, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: feed.Label}
+	}
+	return nil, &NotLoadedError{edge: "feed"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -77,6 +92,8 @@ func (*Summary) scanValues(columns []string) ([]any, error) {
 		case summary.FieldID:
 			values[i] = new(uuid.UUID)
 		case summary.ForeignKeys[0]: // article_summary
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case summary.ForeignKeys[1]: // feed_summaries
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
@@ -148,6 +165,13 @@ func (s *Summary) assignValues(columns []string, values []any) error {
 				s.article_summary = new(uuid.UUID)
 				*s.article_summary = *value.S.(*uuid.UUID)
 			}
+		case summary.ForeignKeys[1]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field feed_summaries", values[i])
+			} else if value.Valid {
+				s.feed_summaries = new(uuid.UUID)
+				*s.feed_summaries = *value.S.(*uuid.UUID)
+			}
 		default:
 			s.selectValues.Set(columns[i], values[i])
 		}
@@ -164,6 +188,11 @@ func (s *Summary) Value(name string) (ent.Value, error) {
 // QueryArticle queries the "article" edge of the Summary entity.
 func (s *Summary) QueryArticle() *ArticleQuery {
 	return NewSummaryClient(s.config).QueryArticle(s)
+}
+
+// QueryFeed queries the "feed" edge of the Summary entity.
+func (s *Summary) QueryFeed() *FeedQuery {
+	return NewSummaryClient(s.config).QueryFeed(s)
 }
 
 // Update returns a builder for updating this Summary.

@@ -507,6 +507,22 @@ func (c *FeedClient) QueryArticles(f *Feed) *ArticleQuery {
 	return query
 }
 
+// QuerySummaries queries the summaries edge of a Feed.
+func (c *FeedClient) QuerySummaries(f *Feed) *SummaryQuery {
+	query := (&SummaryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := f.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(feed.Table, feed.FieldID, id),
+			sqlgraph.To(summary.Table, summary.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, feed.SummariesTable, feed.SummariesColumn),
+		)
+		fromV = sqlgraph.Neighbors(f.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *FeedClient) Hooks() []Hook {
 	return c.hooks.Feed
@@ -649,6 +665,22 @@ func (c *SummaryClient) QueryArticle(s *Summary) *ArticleQuery {
 			sqlgraph.From(summary.Table, summary.FieldID, id),
 			sqlgraph.To(article.Table, article.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, true, summary.ArticleTable, summary.ArticleColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryFeed queries the feed edge of a Summary.
+func (c *SummaryClient) QueryFeed(s *Summary) *FeedQuery {
+	query := (&FeedClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(summary.Table, summary.FieldID, id),
+			sqlgraph.To(feed.Table, feed.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, summary.FeedTable, summary.FeedColumn),
 		)
 		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
 		return fromV, nil

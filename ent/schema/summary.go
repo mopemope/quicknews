@@ -50,5 +50,9 @@ func (Summary) Edges() []ent.Edge {
 		edge.From("article", Article.Type).
 			Ref("summary").
 			Unique(),
+		edge.From("feed", Feed.Type).
+			Ref("summaries").
+			Unique().
+			Required(),
 	}
 }

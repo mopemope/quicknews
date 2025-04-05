@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"github.com/mopemope/quicknews/ent/article"
+	"github.com/mopemope/quicknews/ent/feed"
 	"github.com/mopemope/quicknews/ent/predicate"
 	"github.com/mopemope/quicknews/ent/summary"
 )
@@ -142,6 +143,17 @@ func (su *SummaryUpdate) SetArticle(a *Article) *SummaryUpdate {
 	return su.SetArticleID(a.ID)
 }
 
+// SetFeedID sets the "feed" edge to the Feed entity by ID.
+func (su *SummaryUpdate) SetFeedID(id uuid.UUID) *SummaryUpdate {
+	su.mutation.SetFeedID(id)
+	return su
+}
+
+// SetFeed sets the "feed" edge to the Feed entity.
+func (su *SummaryUpdate) SetFeed(f *Feed) *SummaryUpdate {
+	return su.SetFeedID(f.ID)
+}
+
 // Mutation returns the SummaryMutation object of the builder.
 func (su *SummaryUpdate) Mutation() *SummaryMutation {
 	return su.mutation
@@ -150,6 +162,12 @@ func (su *SummaryUpdate) Mutation() *SummaryMutation {
 // ClearArticle clears the "article" edge to the Article entity.
 func (su *SummaryUpdate) ClearArticle() *SummaryUpdate {
 	su.mutation.ClearArticle()
+	return su
+}
+
+// ClearFeed clears the "feed" edge to the Feed entity.
+func (su *SummaryUpdate) ClearFeed() *SummaryUpdate {
+	su.mutation.ClearFeed()
 	return su
 }
 
@@ -186,6 +204,9 @@ func (su *SummaryUpdate) check() error {
 		if err := summary.URLValidator(v); err != nil {
 			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Summary.url": %w`, err)}
 		}
+	}
+	if su.mutation.FeedCleared() && len(su.mutation.FeedIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Summary.feed"`)
 	}
 	return nil
 }
@@ -251,6 +272,35 @@ func (su *SummaryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(article.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if su.mutation.FeedCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   summary.FeedTable,
+			Columns: []string{summary.FeedColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(feed.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.FeedIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   summary.FeedTable,
+			Columns: []string{summary.FeedColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(feed.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -391,6 +441,17 @@ func (suo *SummaryUpdateOne) SetArticle(a *Article) *SummaryUpdateOne {
 	return suo.SetArticleID(a.ID)
 }
 
+// SetFeedID sets the "feed" edge to the Feed entity by ID.
+func (suo *SummaryUpdateOne) SetFeedID(id uuid.UUID) *SummaryUpdateOne {
+	suo.mutation.SetFeedID(id)
+	return suo
+}
+
+// SetFeed sets the "feed" edge to the Feed entity.
+func (suo *SummaryUpdateOne) SetFeed(f *Feed) *SummaryUpdateOne {
+	return suo.SetFeedID(f.ID)
+}
+
 // Mutation returns the SummaryMutation object of the builder.
 func (suo *SummaryUpdateOne) Mutation() *SummaryMutation {
 	return suo.mutation
@@ -399,6 +460,12 @@ func (suo *SummaryUpdateOne) Mutation() *SummaryMutation {
 // ClearArticle clears the "article" edge to the Article entity.
 func (suo *SummaryUpdateOne) ClearArticle() *SummaryUpdateOne {
 	suo.mutation.ClearArticle()
+	return suo
+}
+
+// ClearFeed clears the "feed" edge to the Feed entity.
+func (suo *SummaryUpdateOne) ClearFeed() *SummaryUpdateOne {
+	suo.mutation.ClearFeed()
 	return suo
 }
 
@@ -448,6 +515,9 @@ func (suo *SummaryUpdateOne) check() error {
 		if err := summary.URLValidator(v); err != nil {
 			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Summary.url": %w`, err)}
 		}
+	}
+	if suo.mutation.FeedCleared() && len(suo.mutation.FeedIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Summary.feed"`)
 	}
 	return nil
 }
@@ -530,6 +600,35 @@ func (suo *SummaryUpdateOne) sqlSave(ctx context.Context) (_node *Summary, err e
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(article.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.FeedCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   summary.FeedTable,
+			Columns: []string{summary.FeedColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(feed.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.FeedIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   summary.FeedTable,
+			Columns: []string{summary.FeedColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(feed.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

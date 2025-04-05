@@ -61,6 +61,7 @@ var (
 		{Name: "listend", Type: field.TypeBool, Default: false},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "article_summary", Type: field.TypeUUID, Unique: true, Nullable: true},
+		{Name: "feed_summaries", Type: field.TypeUUID},
 	}
 	// SummariesTable holds the schema information for the "summaries" table.
 	SummariesTable = &schema.Table{
@@ -73,6 +74,12 @@ var (
 				Columns:    []*schema.Column{SummariesColumns[8]},
 				RefColumns: []*schema.Column{ArticlesColumns[0]},
 				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "summaries_feeds_summaries",
+				Columns:    []*schema.Column{SummariesColumns[9]},
+				RefColumns: []*schema.Column{FeedsColumns[0]},
+				OnDelete:   schema.NoAction,
 			},
 		},
 	}
@@ -87,4 +94,5 @@ var (
 func init() {
 	ArticlesTable.ForeignKeys[0].RefTable = FeedsTable
 	SummariesTable.ForeignKeys[0].RefTable = ArticlesTable
+	SummariesTable.ForeignKeys[1].RefTable = FeedsTable
 }

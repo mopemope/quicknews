@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"github.com/mopemope/quicknews/ent/article"
+	"github.com/mopemope/quicknews/ent/feed"
 	"github.com/mopemope/quicknews/ent/predicate"
 	"github.com/mopemope/quicknews/ent/summary"
 )
@@ -25,6 +26,7 @@ type SummaryQuery struct {
 	inters      []Interceptor
 	predicates  []predicate.Summary
 	withArticle *ArticleQuery
+	withFeed    *FeedQuery
 	withFKs     bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -77,6 +79,28 @@ func (sq *SummaryQuery) QueryArticle() *ArticleQuery {
 			sqlgraph.From(summary.Table, summary.FieldID, selector),
 			sqlgraph.To(article.Table, article.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, true, summary.ArticleTable, summary.ArticleColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryFeed chains the current query on the "feed" edge.
+func (sq *SummaryQuery) QueryFeed() *FeedQuery {
+	query := (&FeedClient{config: sq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := sq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := sq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(summary.Table, summary.FieldID, selector),
+			sqlgraph.To(feed.Table, feed.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, summary.FeedTable, summary.FeedColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
 		return fromU, nil
@@ -277,6 +301,7 @@ func (sq *SummaryQuery) Clone() *SummaryQuery {
 		inters:      append([]Interceptor{}, sq.inters...),
 		predicates:  append([]predicate.Summary{}, sq.predicates...),
 		withArticle: sq.withArticle.Clone(),
+		withFeed:    sq.withFeed.Clone(),
 		// clone intermediate query.
 		sql:  sq.sql.Clone(),
 		path: sq.path,
@@ -291,6 +316,17 @@ func (sq *SummaryQuery) WithArticle(opts ...func(*ArticleQuery)) *SummaryQuery {
 		opt(query)
 	}
 	sq.withArticle = query
+	return sq
+}
+
+// WithFeed tells the query-builder to eager-load the nodes that are connected to
+// the "feed" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *SummaryQuery) WithFeed(opts ...func(*FeedQuery)) *SummaryQuery {
+	query := (&FeedClient{config: sq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	sq.withFeed = query
 	return sq
 }
 
@@ -373,11 +409,12 @@ func (sq *SummaryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Summ
 		nodes       = []*Summary{}
 		withFKs     = sq.withFKs
 		_spec       = sq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			sq.withArticle != nil,
+			sq.withFeed != nil,
 		}
 	)
-	if sq.withArticle != nil {
+	if sq.withArticle != nil || sq.withFeed != nil {
 		withFKs = true
 	}
 	if withFKs {
@@ -404,6 +441,12 @@ func (sq *SummaryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Summ
 	if query := sq.withArticle; query != nil {
 		if err := sq.loadArticle(ctx, query, nodes, nil,
 			func(n *Summary, e *Article) { n.Edges.Article = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := sq.withFeed; query != nil {
+		if err := sq.loadFeed(ctx, query, nodes, nil,
+			func(n *Summary, e *Feed) { n.Edges.Feed = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -435,6 +478,38 @@ func (sq *SummaryQuery) loadArticle(ctx context.Context, query *ArticleQuery, no
 		nodes, ok := nodeids[n.ID]
 		if !ok {
 			return fmt.Errorf(`unexpected foreign-key "article_summary" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (sq *SummaryQuery) loadFeed(ctx context.Context, query *FeedQuery, nodes []*Summary, init func(*Summary), assign func(*Summary, *Feed)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Summary)
+	for i := range nodes {
+		if nodes[i].feed_summaries == nil {
+			continue
+		}
+		fk := *nodes[i].feed_summaries
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(feed.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "feed_summaries" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)

@@ -31,6 +31,8 @@ const (
 	FieldCreatedAt = "created_at"
 	// EdgeArticle holds the string denoting the article edge name in mutations.
 	EdgeArticle = "article"
+	// EdgeFeed holds the string denoting the feed edge name in mutations.
+	EdgeFeed = "feed"
 	// Table holds the table name of the summary in the database.
 	Table = "summaries"
 	// ArticleTable is the table that holds the article relation/edge.
@@ -40,6 +42,13 @@ const (
 	ArticleInverseTable = "articles"
 	// ArticleColumn is the table column denoting the article relation/edge.
 	ArticleColumn = "article_summary"
+	// FeedTable is the table that holds the feed relation/edge.
+	FeedTable = "summaries"
+	// FeedInverseTable is the table name for the Feed entity.
+	// It exists in this package in order to avoid circular dependency with the "feed" package.
+	FeedInverseTable = "feeds"
+	// FeedColumn is the table column denoting the feed relation/edge.
+	FeedColumn = "feed_summaries"
 )
 
 // Columns holds all SQL columns for summary fields.
@@ -58,6 +67,7 @@ var Columns = []string{
 // table and are not defined as standalone fields in the schema.
 var ForeignKeys = []string{
 	"article_summary",
+	"feed_summaries",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -132,10 +142,24 @@ func ByArticleField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newArticleStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByFeedField orders the results by feed field.
+func ByFeedField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newFeedStep(), sql.OrderByField(field, opts...))
+	}
+}
 func newArticleStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ArticleInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2O, true, ArticleTable, ArticleColumn),
+	)
+}
+func newFeedStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(FeedInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, FeedTable, FeedColumn),
 	)
 }

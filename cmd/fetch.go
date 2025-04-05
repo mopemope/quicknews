@@ -138,6 +138,7 @@ func (cmd *FetchCmd) processItem(
 			slog.Error("Error saving article", "link", item.Link, "error", err)
 			return false, err
 		}
+		article.Edges.Feed = feed
 		slog.Debug("Saved article", "link", item.Link, "id", newArticle.ID)
 	}
 
@@ -175,6 +176,7 @@ func (cmd *FetchCmd) processSummary(
 		Listend: false,
 	}
 	sum.Edges.Article = article
+	sum.Edges.Feed = article.Edges.Feed
 
 	slog.Debug("Saving summary", "title", sum.Title, "summary", sum.Summary)
 	return cmd.summaryRepos.Save(ctx, sum)

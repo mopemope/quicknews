@@ -823,24 +823,27 @@ func (m *ArticleMutation) ResetEdge(name string) error {
 // FeedMutation represents an operation that mutates the Feed nodes in the graph.
 type FeedMutation struct {
 	config
-	op              Op
-	typ             string
-	id              *uuid.UUID
-	url             *string
-	title           *string
-	description     *string
-	link            *string
-	_order          *int
-	add_order       *int
-	updated_at      *time.Time
-	created_at      *time.Time
-	clearedFields   map[string]struct{}
-	articles        map[uuid.UUID]struct{}
-	removedarticles map[uuid.UUID]struct{}
-	clearedarticles bool
-	done            bool
-	oldValue        func(context.Context) (*Feed, error)
-	predicates      []predicate.Feed
+	op               Op
+	typ              string
+	id               *uuid.UUID
+	url              *string
+	title            *string
+	description      *string
+	link             *string
+	_order           *int
+	add_order        *int
+	updated_at       *time.Time
+	created_at       *time.Time
+	clearedFields    map[string]struct{}
+	articles         map[uuid.UUID]struct{}
+	removedarticles  map[uuid.UUID]struct{}
+	clearedarticles  bool
+	summaries        map[uuid.UUID]struct{}
+	removedsummaries map[uuid.UUID]struct{}
+	clearedsummaries bool
+	done             bool
+	oldValue         func(context.Context) (*Feed, error)
+	predicates       []predicate.Feed
 }
 
 var _ ent.Mutation = (*FeedMutation)(nil)
@@ -1299,6 +1302,60 @@ func (m *FeedMutation) ResetArticles() {
 	m.removedarticles = nil
 }
 
+// AddSummaryIDs adds the "summaries" edge to the Summary entity by ids.
+func (m *FeedMutation) AddSummaryIDs(ids ...uuid.UUID) {
+	if m.summaries == nil {
+		m.summaries = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.summaries[ids[i]] = struct{}{}
+	}
+}
+
+// ClearSummaries clears the "summaries" edge to the Summary entity.
+func (m *FeedMutation) ClearSummaries() {
+	m.clearedsummaries = true
+}
+
+// SummariesCleared reports if the "summaries" edge to the Summary entity was cleared.
+func (m *FeedMutation) SummariesCleared() bool {
+	return m.clearedsummaries
+}
+
+// RemoveSummaryIDs removes the "summaries" edge to the Summary entity by IDs.
+func (m *FeedMutation) RemoveSummaryIDs(ids ...uuid.UUID) {
+	if m.removedsummaries == nil {
+		m.removedsummaries = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.summaries, ids[i])
+		m.removedsummaries[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedSummaries returns the removed IDs of the "summaries" edge to the Summary entity.
+func (m *FeedMutation) RemovedSummariesIDs() (ids []uuid.UUID) {
+	for id := range m.removedsummaries {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// SummariesIDs returns the "summaries" edge IDs in the mutation.
+func (m *FeedMutation) SummariesIDs() (ids []uuid.UUID) {
+	for id := range m.summaries {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetSummaries resets all changes to the "summaries" edge.
+func (m *FeedMutation) ResetSummaries() {
+	m.summaries = nil
+	m.clearedsummaries = false
+	m.removedsummaries = nil
+}
+
 // Where appends a list predicates to the FeedMutation builder.
 func (m *FeedMutation) Where(ps ...predicate.Feed) {
 	m.predicates = append(m.predicates, ps...)
@@ -1564,9 +1621,12 @@ func (m *FeedMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *FeedMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.articles != nil {
 		edges = append(edges, feed.EdgeArticles)
+	}
+	if m.summaries != nil {
+		edges = append(edges, feed.EdgeSummaries)
 	}
 	return edges
 }
@@ -1581,15 +1641,24 @@ func (m *FeedMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case feed.EdgeSummaries:
+		ids := make([]ent.Value, 0, len(m.summaries))
+		for id := range m.summaries {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *FeedMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.removedarticles != nil {
 		edges = append(edges, feed.EdgeArticles)
+	}
+	if m.removedsummaries != nil {
+		edges = append(edges, feed.EdgeSummaries)
 	}
 	return edges
 }
@@ -1604,15 +1673,24 @@ func (m *FeedMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case feed.EdgeSummaries:
+		ids := make([]ent.Value, 0, len(m.removedsummaries))
+		for id := range m.removedsummaries {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *FeedMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.clearedarticles {
 		edges = append(edges, feed.EdgeArticles)
+	}
+	if m.clearedsummaries {
+		edges = append(edges, feed.EdgeSummaries)
 	}
 	return edges
 }
@@ -1623,6 +1701,8 @@ func (m *FeedMutation) EdgeCleared(name string) bool {
 	switch name {
 	case feed.EdgeArticles:
 		return m.clearedarticles
+	case feed.EdgeSummaries:
+		return m.clearedsummaries
 	}
 	return false
 }
@@ -1641,6 +1721,9 @@ func (m *FeedMutation) ResetEdge(name string) error {
 	switch name {
 	case feed.EdgeArticles:
 		m.ResetArticles()
+		return nil
+	case feed.EdgeSummaries:
+		m.ResetSummaries()
 		return nil
 	}
 	return fmt.Errorf("unknown Feed edge %s", name)
@@ -1662,6 +1745,8 @@ type SummaryMutation struct {
 	clearedFields  map[string]struct{}
 	article        *uuid.UUID
 	clearedarticle bool
+	feed           *uuid.UUID
+	clearedfeed    bool
 	done           bool
 	oldValue       func(context.Context) (*Summary, error)
 	predicates     []predicate.Summary
@@ -2101,6 +2186,45 @@ func (m *SummaryMutation) ResetArticle() {
 	m.clearedarticle = false
 }
 
+// SetFeedID sets the "feed" edge to the Feed entity by id.
+func (m *SummaryMutation) SetFeedID(id uuid.UUID) {
+	m.feed = &id
+}
+
+// ClearFeed clears the "feed" edge to the Feed entity.
+func (m *SummaryMutation) ClearFeed() {
+	m.clearedfeed = true
+}
+
+// FeedCleared reports if the "feed" edge to the Feed entity was cleared.
+func (m *SummaryMutation) FeedCleared() bool {
+	return m.clearedfeed
+}
+
+// FeedID returns the "feed" edge ID in the mutation.
+func (m *SummaryMutation) FeedID() (id uuid.UUID, exists bool) {
+	if m.feed != nil {
+		return *m.feed, true
+	}
+	return
+}
+
+// FeedIDs returns the "feed" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// FeedID instead. It exists only for internal usage by the builders.
+func (m *SummaryMutation) FeedIDs() (ids []uuid.UUID) {
+	if id := m.feed; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetFeed resets all changes to the "feed" edge.
+func (m *SummaryMutation) ResetFeed() {
+	m.feed = nil
+	m.clearedfeed = false
+}
+
 // Where appends a list predicates to the SummaryMutation builder.
 func (m *SummaryMutation) Where(ps ...predicate.Summary) {
 	m.predicates = append(m.predicates, ps...)
@@ -2357,9 +2481,12 @@ func (m *SummaryMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *SummaryMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.article != nil {
 		edges = append(edges, summary.EdgeArticle)
+	}
+	if m.feed != nil {
+		edges = append(edges, summary.EdgeFeed)
 	}
 	return edges
 }
@@ -2372,13 +2499,17 @@ func (m *SummaryMutation) AddedIDs(name string) []ent.Value {
 		if id := m.article; id != nil {
 			return []ent.Value{*id}
 		}
+	case summary.EdgeFeed:
+		if id := m.feed; id != nil {
+			return []ent.Value{*id}
+		}
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *SummaryMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	return edges
 }
 
@@ -2390,9 +2521,12 @@ func (m *SummaryMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *SummaryMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.clearedarticle {
 		edges = append(edges, summary.EdgeArticle)
+	}
+	if m.clearedfeed {
+		edges = append(edges, summary.EdgeFeed)
 	}
 	return edges
 }
@@ -2403,6 +2537,8 @@ func (m *SummaryMutation) EdgeCleared(name string) bool {
 	switch name {
 	case summary.EdgeArticle:
 		return m.clearedarticle
+	case summary.EdgeFeed:
+		return m.clearedfeed
 	}
 	return false
 }
@@ -2414,6 +2550,9 @@ func (m *SummaryMutation) ClearEdge(name string) error {
 	case summary.EdgeArticle:
 		m.ClearArticle()
 		return nil
+	case summary.EdgeFeed:
+		m.ClearFeed()
+		return nil
 	}
 	return fmt.Errorf("unknown Summary unique edge %s", name)
 }
@@ -2424,6 +2563,9 @@ func (m *SummaryMutation) ResetEdge(name string) error {
 	switch name {
 	case summary.EdgeArticle:
 		m.ResetArticle()
+		return nil
+	case summary.EdgeFeed:
+		m.ResetFeed()
 		return nil
 	}
 	return fmt.Errorf("unknown Summary edge %s", name)

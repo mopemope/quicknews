@@ -52,5 +52,6 @@ func (Feed) Edges() []ent.Edge {
 	return []ent.Edge{
 		// Feed から Article へのリレーション (一対多)
 		edge.To("articles", Article.Type), // Article スキーマを参照
+		edge.To("summaries", Summary.Type),
 	}
 }
