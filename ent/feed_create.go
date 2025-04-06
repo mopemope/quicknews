@@ -77,6 +77,20 @@ func (fc *FeedCreate) SetNillableOrder(i *int) *FeedCreate {
 	return fc
 }
 
+// SetIsBookmark sets the "is_bookmark" field.
+func (fc *FeedCreate) SetIsBookmark(b bool) *FeedCreate {
+	fc.mutation.SetIsBookmark(b)
+	return fc
+}
+
+// SetNillableIsBookmark sets the "is_bookmark" field if the given value is not nil.
+func (fc *FeedCreate) SetNillableIsBookmark(b *bool) *FeedCreate {
+	if b != nil {
+		fc.SetIsBookmark(*b)
+	}
+	return fc
+}
+
 // SetUpdatedAt sets the "updated_at" field.
 func (fc *FeedCreate) SetUpdatedAt(t time.Time) *FeedCreate {
 	fc.mutation.SetUpdatedAt(t)
@@ -188,6 +202,10 @@ func (fc *FeedCreate) defaults() {
 		v := feed.DefaultOrder
 		fc.mutation.SetOrder(v)
 	}
+	if _, ok := fc.mutation.IsBookmark(); !ok {
+		v := feed.DefaultIsBookmark
+		fc.mutation.SetIsBookmark(v)
+	}
 	if _, ok := fc.mutation.UpdatedAt(); !ok {
 		v := feed.DefaultUpdatedAt()
 		fc.mutation.SetUpdatedAt(v)
@@ -222,6 +240,9 @@ func (fc *FeedCreate) check() error {
 	}
 	if _, ok := fc.mutation.Order(); !ok {
 		return &ValidationError{Name: "order", err: errors.New(`ent: missing required field "Feed.order"`)}
+	}
+	if _, ok := fc.mutation.IsBookmark(); !ok {
+		return &ValidationError{Name: "is_bookmark", err: errors.New(`ent: missing required field "Feed.is_bookmark"`)}
 	}
 	if _, ok := fc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Feed.updated_at"`)}
@@ -283,6 +304,10 @@ func (fc *FeedCreate) createSpec() (*Feed, *sqlgraph.CreateSpec) {
 	if value, ok := fc.mutation.Order(); ok {
 		_spec.SetField(feed.FieldOrder, field.TypeInt, value)
 		_node.Order = value
+	}
+	if value, ok := fc.mutation.IsBookmark(); ok {
+		_spec.SetField(feed.FieldIsBookmark, field.TypeBool, value)
+		_node.IsBookmark = value
 	}
 	if value, ok := fc.mutation.UpdatedAt(); ok {
 		_spec.SetField(feed.FieldUpdatedAt, field.TypeTime, value)

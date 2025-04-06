@@ -36,6 +36,9 @@ func (Feed) Fields() []ent.Field {
 		field.Int("order").
 			Default(1). // デフォルト値を1に設定
 			Comment("Order of the feed"),
+		field.Bool("is_bookmark").
+			Default(false).
+			Comment("Bookmark feed flag"),
 		field.Time("updated_at").
 			Default(time.Now).       // デフォルトで現在時刻を設定
 			UpdateDefault(time.Now). // 更新時に現在時刻を設定

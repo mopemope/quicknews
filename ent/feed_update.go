@@ -120,6 +120,20 @@ func (fu *FeedUpdate) AddOrder(i int) *FeedUpdate {
 	return fu
 }
 
+// SetIsBookmark sets the "is_bookmark" field.
+func (fu *FeedUpdate) SetIsBookmark(b bool) *FeedUpdate {
+	fu.mutation.SetIsBookmark(b)
+	return fu
+}
+
+// SetNillableIsBookmark sets the "is_bookmark" field if the given value is not nil.
+func (fu *FeedUpdate) SetNillableIsBookmark(b *bool) *FeedUpdate {
+	if b != nil {
+		fu.SetIsBookmark(*b)
+	}
+	return fu
+}
+
 // SetUpdatedAt sets the "updated_at" field.
 func (fu *FeedUpdate) SetUpdatedAt(t time.Time) *FeedUpdate {
 	fu.mutation.SetUpdatedAt(t)
@@ -289,6 +303,9 @@ func (fu *FeedUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := fu.mutation.AddedOrder(); ok {
 		_spec.AddField(feed.FieldOrder, field.TypeInt, value)
+	}
+	if value, ok := fu.mutation.IsBookmark(); ok {
+		_spec.SetField(feed.FieldIsBookmark, field.TypeBool, value)
 	}
 	if value, ok := fu.mutation.UpdatedAt(); ok {
 		_spec.SetField(feed.FieldUpdatedAt, field.TypeTime, value)
@@ -492,6 +509,20 @@ func (fuo *FeedUpdateOne) AddOrder(i int) *FeedUpdateOne {
 	return fuo
 }
 
+// SetIsBookmark sets the "is_bookmark" field.
+func (fuo *FeedUpdateOne) SetIsBookmark(b bool) *FeedUpdateOne {
+	fuo.mutation.SetIsBookmark(b)
+	return fuo
+}
+
+// SetNillableIsBookmark sets the "is_bookmark" field if the given value is not nil.
+func (fuo *FeedUpdateOne) SetNillableIsBookmark(b *bool) *FeedUpdateOne {
+	if b != nil {
+		fuo.SetIsBookmark(*b)
+	}
+	return fuo
+}
+
 // SetUpdatedAt sets the "updated_at" field.
 func (fuo *FeedUpdateOne) SetUpdatedAt(t time.Time) *FeedUpdateOne {
 	fuo.mutation.SetUpdatedAt(t)
@@ -691,6 +722,9 @@ func (fuo *FeedUpdateOne) sqlSave(ctx context.Context) (_node *Feed, err error) 
 	}
 	if value, ok := fuo.mutation.AddedOrder(); ok {
 		_spec.AddField(feed.FieldOrder, field.TypeInt, value)
+	}
+	if value, ok := fuo.mutation.IsBookmark(); ok {
+		_spec.SetField(feed.FieldIsBookmark, field.TypeBool, value)
 	}
 	if value, ok := fuo.mutation.UpdatedAt(); ok {
 		_spec.SetField(feed.FieldUpdatedAt, field.TypeTime, value)

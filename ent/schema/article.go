@@ -40,7 +40,6 @@ func (Article) Fields() []ent.Field {
 			Default(time.Now).
 			Immutable().
 			Comment("Time the article was added to the database"),
-		// 必要に応じて他のフィールドを追加できます (例: author, image_url)
 	}
 }
 

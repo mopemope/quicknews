@@ -25,6 +25,8 @@ const (
 	FieldLink = "link"
 	// FieldOrder holds the string denoting the order field in the database.
 	FieldOrder = "order"
+	// FieldIsBookmark holds the string denoting the is_bookmark field in the database.
+	FieldIsBookmark = "is_bookmark"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
@@ -59,6 +61,7 @@ var Columns = []string{
 	FieldDescription,
 	FieldLink,
 	FieldOrder,
+	FieldIsBookmark,
 	FieldUpdatedAt,
 	FieldCreatedAt,
 }
@@ -80,6 +83,8 @@ var (
 	TitleValidator func(string) error
 	// DefaultOrder holds the default value on creation for the "order" field.
 	DefaultOrder int
+	// DefaultIsBookmark holds the default value on creation for the "is_bookmark" field.
+	DefaultIsBookmark bool
 	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
@@ -121,6 +126,11 @@ func ByLink(opts ...sql.OrderTermOption) OrderOption {
 // ByOrder orders the results by the order field.
 func ByOrder(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldOrder, opts...).ToFunc()
+}
+
+// ByIsBookmark orders the results by the is_bookmark field.
+func ByIsBookmark(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsBookmark, opts...).ToFunc()
 }
 
 // ByUpdatedAt orders the results by the updated_at field.

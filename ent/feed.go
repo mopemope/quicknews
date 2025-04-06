@@ -29,6 +29,8 @@ type Feed struct {
 	Link string `json:"link,omitempty"`
 	// Order of the feed
 	Order int `json:"order,omitempty"`
+	// Bookmark feed flag
+	IsBookmark bool `json:"is_bookmark,omitempty"`
 	// Last updated time from the feed
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// Time the feed was added
@@ -73,6 +75,8 @@ func (*Feed) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case feed.FieldIsBookmark:
+			values[i] = new(sql.NullBool)
 		case feed.FieldOrder:
 			values[i] = new(sql.NullInt64)
 		case feed.FieldURL, feed.FieldTitle, feed.FieldDescription, feed.FieldLink:
@@ -131,6 +135,12 @@ func (f *Feed) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field order", values[i])
 			} else if value.Valid {
 				f.Order = int(value.Int64)
+			}
+		case feed.FieldIsBookmark:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_bookmark", values[i])
+			} else if value.Valid {
+				f.IsBookmark = value.Bool
 			}
 		case feed.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -204,6 +214,9 @@ func (f *Feed) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("order=")
 	builder.WriteString(fmt.Sprintf("%v", f.Order))
+	builder.WriteString(", ")
+	builder.WriteString("is_bookmark=")
+	builder.WriteString(fmt.Sprintf("%v", f.IsBookmark))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(f.UpdatedAt.Format(time.ANSIC))

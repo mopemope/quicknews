@@ -81,6 +81,11 @@ func Order(v int) predicate.Feed {
 	return predicate.Feed(sql.FieldEQ(FieldOrder, v))
 }
 
+// IsBookmark applies equality check predicate on the "is_bookmark" field. It's identical to IsBookmarkEQ.
+func IsBookmark(v bool) predicate.Feed {
+	return predicate.Feed(sql.FieldEQ(FieldIsBookmark, v))
+}
+
 // UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
 func UpdatedAt(v time.Time) predicate.Feed {
 	return predicate.Feed(sql.FieldEQ(FieldUpdatedAt, v))
@@ -409,6 +414,16 @@ func OrderLT(v int) predicate.Feed {
 // OrderLTE applies the LTE predicate on the "order" field.
 func OrderLTE(v int) predicate.Feed {
 	return predicate.Feed(sql.FieldLTE(FieldOrder, v))
+}
+
+// IsBookmarkEQ applies the EQ predicate on the "is_bookmark" field.
+func IsBookmarkEQ(v bool) predicate.Feed {
+	return predicate.Feed(sql.FieldEQ(FieldIsBookmark, v))
+}
+
+// IsBookmarkNEQ applies the NEQ predicate on the "is_bookmark" field.
+func IsBookmarkNEQ(v bool) predicate.Feed {
+	return predicate.Feed(sql.FieldNEQ(FieldIsBookmark, v))
 }
 
 // UpdatedAtEQ applies the EQ predicate on the "updated_at" field.

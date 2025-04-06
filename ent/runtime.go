@@ -48,14 +48,18 @@ func init() {
 	feedDescOrder := feedFields[5].Descriptor()
 	// feed.DefaultOrder holds the default value on creation for the order field.
 	feed.DefaultOrder = feedDescOrder.Default.(int)
+	// feedDescIsBookmark is the schema descriptor for is_bookmark field.
+	feedDescIsBookmark := feedFields[6].Descriptor()
+	// feed.DefaultIsBookmark holds the default value on creation for the is_bookmark field.
+	feed.DefaultIsBookmark = feedDescIsBookmark.Default.(bool)
 	// feedDescUpdatedAt is the schema descriptor for updated_at field.
-	feedDescUpdatedAt := feedFields[6].Descriptor()
+	feedDescUpdatedAt := feedFields[7].Descriptor()
 	// feed.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	feed.DefaultUpdatedAt = feedDescUpdatedAt.Default.(func() time.Time)
 	// feed.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	feed.UpdateDefaultUpdatedAt = feedDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// feedDescCreatedAt is the schema descriptor for created_at field.
-	feedDescCreatedAt := feedFields[7].Descriptor()
+	feedDescCreatedAt := feedFields[8].Descriptor()
 	// feed.DefaultCreatedAt holds the default value on creation for the created_at field.
 	feed.DefaultCreatedAt = feedDescCreatedAt.Default.(func() time.Time)
 	// feedDescID is the schema descriptor for id field.

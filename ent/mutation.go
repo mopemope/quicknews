@@ -832,6 +832,7 @@ type FeedMutation struct {
 	link             *string
 	_order           *int
 	add_order        *int
+	is_bookmark      *bool
 	updated_at       *time.Time
 	created_at       *time.Time
 	clearedFields    map[string]struct{}
@@ -1176,6 +1177,42 @@ func (m *FeedMutation) ResetOrder() {
 	m.add_order = nil
 }
 
+// SetIsBookmark sets the "is_bookmark" field.
+func (m *FeedMutation) SetIsBookmark(b bool) {
+	m.is_bookmark = &b
+}
+
+// IsBookmark returns the value of the "is_bookmark" field in the mutation.
+func (m *FeedMutation) IsBookmark() (r bool, exists bool) {
+	v := m.is_bookmark
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsBookmark returns the old "is_bookmark" field's value of the Feed entity.
+// If the Feed object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *FeedMutation) OldIsBookmark(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsBookmark is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsBookmark requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsBookmark: %w", err)
+	}
+	return oldValue.IsBookmark, nil
+}
+
+// ResetIsBookmark resets all changes to the "is_bookmark" field.
+func (m *FeedMutation) ResetIsBookmark() {
+	m.is_bookmark = nil
+}
+
 // SetUpdatedAt sets the "updated_at" field.
 func (m *FeedMutation) SetUpdatedAt(t time.Time) {
 	m.updated_at = &t
@@ -1390,7 +1427,7 @@ func (m *FeedMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *FeedMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 8)
 	if m.url != nil {
 		fields = append(fields, feed.FieldURL)
 	}
@@ -1405,6 +1442,9 @@ func (m *FeedMutation) Fields() []string {
 	}
 	if m._order != nil {
 		fields = append(fields, feed.FieldOrder)
+	}
+	if m.is_bookmark != nil {
+		fields = append(fields, feed.FieldIsBookmark)
 	}
 	if m.updated_at != nil {
 		fields = append(fields, feed.FieldUpdatedAt)
@@ -1430,6 +1470,8 @@ func (m *FeedMutation) Field(name string) (ent.Value, bool) {
 		return m.Link()
 	case feed.FieldOrder:
 		return m.Order()
+	case feed.FieldIsBookmark:
+		return m.IsBookmark()
 	case feed.FieldUpdatedAt:
 		return m.UpdatedAt()
 	case feed.FieldCreatedAt:
@@ -1453,6 +1495,8 @@ func (m *FeedMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldLink(ctx)
 	case feed.FieldOrder:
 		return m.OldOrder(ctx)
+	case feed.FieldIsBookmark:
+		return m.OldIsBookmark(ctx)
 	case feed.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
 	case feed.FieldCreatedAt:
@@ -1500,6 +1544,13 @@ func (m *FeedMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetOrder(v)
+		return nil
+	case feed.FieldIsBookmark:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsBookmark(v)
 		return nil
 	case feed.FieldUpdatedAt:
 		v, ok := value.(time.Time)
@@ -1608,6 +1659,9 @@ func (m *FeedMutation) ResetField(name string) error {
 		return nil
 	case feed.FieldOrder:
 		m.ResetOrder()
+		return nil
+	case feed.FieldIsBookmark:
+		m.ResetIsBookmark()
 		return nil
 	case feed.FieldUpdatedAt:
 		m.ResetUpdatedAt()

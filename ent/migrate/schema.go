@@ -41,6 +41,7 @@ var (
 		{Name: "description", Type: field.TypeString, Nullable: true},
 		{Name: "link", Type: field.TypeString, Nullable: true},
 		{Name: "order", Type: field.TypeInt, Default: 1},
+		{Name: "is_bookmark", Type: field.TypeBool, Default: false},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "created_at", Type: field.TypeTime},
 	}
