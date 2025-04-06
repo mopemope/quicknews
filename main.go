@@ -61,8 +61,13 @@ func main() {
 	// Run the auto migration tool.
 	if err := client.Schema.Create(ctx); err != nil {
 		slog.Error("failed creating schema resources", "error", err)
+		return
 	}
 
+	if err := setup(ctx, client); err != nil {
+		slog.Error("failed to setup initial data", "error", err)
+		return
+	}
 	kctx.Bind(client)
 
 	// Call the Run() method of the selected parsed command.
