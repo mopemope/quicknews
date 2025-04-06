@@ -2,11 +2,11 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
-	"sync/atomic"
 	"time"
 
-	"github.com/alitto/pond/v2"
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/cockroachdb/errors"
 	"github.com/mmcdole/gofeed"
 	"github.com/mopemope/quicknews/ent"
@@ -14,6 +14,7 @@ import (
 	"github.com/mopemope/quicknews/models/feed"
 	"github.com/mopemope/quicknews/models/summary"
 	"github.com/mopemope/quicknews/pkg/gemini"
+	"github.com/mopemope/quicknews/pkg/tui/progress"
 
 	_ "github.com/mattn/go-sqlite3" // SQLite driver
 )
@@ -22,171 +23,77 @@ import (
 type FetchCmd struct {
 	Interval time.Duration `short:"i" help:"Fetch feeds updated within the specified interval (e.g., 24h). Default is 0 (fetch all)."`
 
-	pool         pond.Pool
-	client       *ent.Client
 	feedRepos    feed.FeedRepository
 	articleRepos article.ArticleRepository
 	summaryRepos summary.SummaryRepository
 }
 
-// Run executes the fetch command.
-func (cmd *FetchCmd) Run(client *ent.Client) error {
+type Article struct {
+	name         string
+	feed         *ent.Feed
+	feedItem     *gofeed.Item
+	articleRepos article.ArticleRepository
+	summaryRepos summary.SummaryRepository
+}
+
+func (cmd *FetchCmd) NewArticle(feed *ent.Feed, item *gofeed.Item) *Article {
+	return &Article{
+		name:         item.Title,
+		feed:         feed,
+		feedItem:     item,
+		articleRepos: cmd.articleRepos,
+		summaryRepos: cmd.summaryRepos,
+	}
+}
+
+func (a *Article) DisplayName() string {
+	return a.name
+}
+
+func (a *Article) Process() {
 	ctx := context.Background()
-	var newArticlesCount atomic.Int32
-
-	cmd.pool = pond.NewPool(3)
-	cmd.client = client
-	cmd.feedRepos = feed.NewFeedRepository(client)
-	cmd.articleRepos = article.NewArticleRepository(client)
-	cmd.summaryRepos = summary.NewSummaryRepository(client)
-
-	for {
-		// Check if there are any bookmark feeds
-		count, err := cmd.checkFeeds(ctx)
-		if err != nil {
-			return err
-		}
-		// Log the number of new articles
-		newArticlesCount.Add(count)
-		if cmd.Interval > 0 {
-			time.Sleep(cmd.Interval)
-		} else {
-			break
-		}
-	}
-
-	cmd.pool.StopAndWait()
-	return nil
-}
-
-func (cmd *FetchCmd) checkFeeds(ctx context.Context) (int32, error) {
-	var newArticlesCount atomic.Int32
-	feeds, err := cmd.feedRepos.All(ctx)
+	article, err := a.articleRepos.GetFromURL(ctx, a.feedItem.Link)
 	if err != nil {
-		return 0, err
-	}
-
-	if len(feeds) == 0 {
-		slog.Info("No feeds registered. Use 'add' command to add feeds.")
-		return 0, nil
-	}
-
-	slog.Info("Fetching articles", "count", len(feeds))
-	feedPool := pond.NewPool(3)
-
-	for _, f := range feeds {
-		if f.IsBookmark {
-			// Skip bookmark feeds
-			continue
-		}
-		feedPool.Submit(func() {
-			count, err := cmd.processFeed(ctx, f)
-			if err != nil {
-				slog.Error("Error processing feed", "feed", f.URL, "error", err)
-				return
-			}
-			newArticlesCount.Add(int32(count))
-		})
-	}
-
-	feedPool.StopAndWait()
-	return newArticlesCount.Load(), nil
-}
-
-// processFeed handles fetching and processing a single feed
-func (cmd *FetchCmd) processFeed(
-	ctx context.Context,
-	feed *ent.Feed,
-) (int, error) {
-
-	fp := gofeed.NewParser()
-	slog.Info("Fetching feed", "title", feed.Title, "url", feed.URL)
-
-	parsedFeed, err := fp.ParseURLWithContext(feed.URL, ctx)
-	if err != nil {
-		return 0, errors.Wrap(err, "fetch error")
-	}
-
-	updatedFeed, err := cmd.feedRepos.UpdateFeed(ctx, feed, parsedFeed)
-	if err != nil {
-		return 0, errors.Wrap(err, "error updating feed")
-	}
-	feed = updatedFeed
-	var newArticlesCount atomic.Int32
-
-	for _, item := range parsedFeed.Items {
-
-		cmd.pool.Submit(func() {
-			processed, err := cmd.processItem(ctx, feed, item)
-			if err != nil {
-				slog.Error("Error processing item", "title", item.Title, "link", item.Link, "error", err)
-				return
-			}
-			if processed {
-				newArticlesCount.Add(1)
-			}
-		})
-
-	}
-
-	return int(newArticlesCount.Load()), nil
-}
-
-// processItem handles processing a single feed item
-func (cmd *FetchCmd) processItem(
-	ctx context.Context,
-	feed *ent.Feed,
-	item *gofeed.Item,
-) (bool, error) {
-
-	article, err := cmd.articleRepos.GetFromURL(ctx, item.Link)
-	if err != nil {
-		slog.Error("Error checking if article exists", "link", item.Link, "error", err)
-		return false, err
+		slog.Error("Error checking if article exists", "link", a.feedItem.Link, "error", err)
+		return
 	}
 
 	if article == nil {
-		slog.Info("Processing item", "title", item.Title, "link", item.Link)
+		slog.Info("Processing item", "title", a.feedItem.Title, "link", a.feedItem.Link)
 		newArticle := &ent.Article{
-			Title:       item.Title,
-			URL:         item.Link,
-			Description: item.Description,
-			Content:     item.Content,
+			Title:       a.feedItem.Title,
+			URL:         a.feedItem.Link,
+			Description: a.feedItem.Description,
+			Content:     a.feedItem.Content,
 		}
-		newArticle.Edges.Feed = feed
+		newArticle.Edges.Feed = a.feed
 
 		// PublishedParsed があれば設定
-		if item.PublishedParsed != nil {
-			newArticle.PublishedAt = *item.PublishedParsed
-		} else if item.UpdatedParsed != nil {
-			newArticle.PublishedAt = *item.UpdatedParsed
+		if a.feedItem.PublishedParsed != nil {
+			newArticle.PublishedAt = *a.feedItem.PublishedParsed
+		} else if a.feedItem.UpdatedParsed != nil {
+			newArticle.PublishedAt = *a.feedItem.UpdatedParsed
 		}
 
-		article, err = cmd.articleRepos.Save(ctx, newArticle)
+		article, err = a.articleRepos.Save(ctx, newArticle)
 		if err != nil {
-			slog.Error("Error saving article", "link", item.Link, "error", err)
-			return false, err
+			slog.Error("Error saving article", "link", a.feedItem.Link, "error", err)
+			return
 		}
-		article.Edges.Feed = feed
-		slog.Debug("Saved article", "link", item.Link, "id", newArticle.ID)
+		article.Edges.Feed = a.feed
+		slog.Debug("Saved article", "link", a.feedItem.Link, "id", newArticle.ID)
 	}
 
 	if article.Edges.Summary == nil {
-		if err := cmd.processSummary(ctx, article); err != nil {
+		if err := a.processSummary(ctx, article); err != nil {
 			slog.Error("Error processing summary", "link", article.URL, "error", err)
-			return false, err
+			return
 		}
-	}
 
-	return true, nil
+	}
 }
 
-// processSummary generates and saves a summary for the given article
-func (cmd *FetchCmd) processSummary(
-	ctx context.Context,
-	article *ent.Article,
-) error {
-
+func (a *Article) processSummary(ctx context.Context, article *ent.Article) error {
 	geminiClient, err := gemini.NewClient(ctx)
 	if err != nil {
 		return errors.Wrap(err, "error creating gemini client")
@@ -208,5 +115,96 @@ func (cmd *FetchCmd) processSummary(
 	sum.Edges.Feed = article.Edges.Feed
 
 	slog.Debug("Saving summary", "title", sum.Title, "summary", sum.Summary)
-	return cmd.summaryRepos.Save(ctx, sum)
+	if err := a.summaryRepos.Save(ctx, sum); err != nil {
+		slog.Error("Error saving summary", "link", article.URL, "error", err)
+		return err
+	}
+	return nil
+}
+
+func (cmd *FetchCmd) getItems(ctx context.Context) ([]progress.QueueItem, error) {
+
+	items := make([]progress.QueueItem, 0)
+
+	feeds, err := cmd.feedRepos.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(feeds) == 0 {
+		slog.Info("No feeds registered. Use 'add' command to add feeds.")
+		return nil, nil
+	}
+
+	for _, feed := range feeds {
+		if feed.IsBookmark {
+			// skip bookmark feeds
+			continue
+		}
+		res, err := cmd.processFeed(ctx, feed)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, res...)
+	}
+
+	return items, nil
+}
+
+func (cmd *FetchCmd) Run(client *ent.Client) error {
+	ctx := context.Background()
+	cmd.feedRepos = feed.NewFeedRepository(client)
+	cmd.articleRepos = article.NewArticleRepository(client)
+	cmd.summaryRepos = summary.NewSummaryRepository(client)
+
+	for {
+		items, err := cmd.getItems(ctx)
+		if err != nil {
+			return err
+		}
+
+		if len(items) > 0 {
+			if _, err := tea.NewProgram(progress.NewModel(items)).Run(); err != nil {
+				return errors.Wrap(err, "error running progress")
+			}
+		} else {
+			fmt.Println("No new items to process.")
+		}
+
+		if cmd.Interval > 0 {
+			time.Sleep(cmd.Interval)
+		} else {
+			break
+		}
+	}
+	return nil
+}
+
+// processFeed handles fetching and processing a single feed
+func (cmd *FetchCmd) processFeed(
+	ctx context.Context,
+	feed *ent.Feed,
+) ([]progress.QueueItem, error) {
+
+	items := make([]progress.QueueItem, 0)
+
+	fp := gofeed.NewParser()
+	slog.Info("Fetching feed", "title", feed.Title, "url", feed.URL)
+
+	parsedFeed, err := fp.ParseURLWithContext(feed.URL, ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "fetch error")
+	}
+
+	updatedFeed, err := cmd.feedRepos.UpdateFeed(ctx, feed, parsedFeed)
+	if err != nil {
+		return nil, errors.Wrap(err, "error updating feed")
+	}
+	feed = updatedFeed
+
+	for _, item := range parsedFeed.Items {
+		items = append(items, cmd.NewArticle(feed, item))
+	}
+
+	return items, nil
 }
