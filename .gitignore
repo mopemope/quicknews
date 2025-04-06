@@ -2,3 +2,5 @@ memory-bank
 .aider*
 main
 quicknews
+.env
+.envrc
