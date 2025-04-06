@@ -833,8 +833,9 @@ type FeedMutation struct {
 	_order           *int
 	add_order        *int
 	is_bookmark      *bool
-	updated_at       *time.Time
+	last_checked_at  *time.Time
 	created_at       *time.Time
+	updated_at       *time.Time
 	clearedFields    map[string]struct{}
 	articles         map[uuid.UUID]struct{}
 	removedarticles  map[uuid.UUID]struct{}
@@ -1213,40 +1214,53 @@ func (m *FeedMutation) ResetIsBookmark() {
 	m.is_bookmark = nil
 }
 
-// SetUpdatedAt sets the "updated_at" field.
-func (m *FeedMutation) SetUpdatedAt(t time.Time) {
-	m.updated_at = &t
+// SetLastCheckedAt sets the "last_checked_at" field.
+func (m *FeedMutation) SetLastCheckedAt(t time.Time) {
+	m.last_checked_at = &t
 }
 
-// UpdatedAt returns the value of the "updated_at" field in the mutation.
-func (m *FeedMutation) UpdatedAt() (r time.Time, exists bool) {
-	v := m.updated_at
+// LastCheckedAt returns the value of the "last_checked_at" field in the mutation.
+func (m *FeedMutation) LastCheckedAt() (r time.Time, exists bool) {
+	v := m.last_checked_at
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldUpdatedAt returns the old "updated_at" field's value of the Feed entity.
+// OldLastCheckedAt returns the old "last_checked_at" field's value of the Feed entity.
 // If the Feed object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *FeedMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+func (m *FeedMutation) OldLastCheckedAt(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+		return v, errors.New("OldLastCheckedAt is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+		return v, errors.New("OldLastCheckedAt requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+		return v, fmt.Errorf("querying old value for OldLastCheckedAt: %w", err)
 	}
-	return oldValue.UpdatedAt, nil
+	return oldValue.LastCheckedAt, nil
 }
 
-// ResetUpdatedAt resets all changes to the "updated_at" field.
-func (m *FeedMutation) ResetUpdatedAt() {
-	m.updated_at = nil
+// ClearLastCheckedAt clears the value of the "last_checked_at" field.
+func (m *FeedMutation) ClearLastCheckedAt() {
+	m.last_checked_at = nil
+	m.clearedFields[feed.FieldLastCheckedAt] = struct{}{}
+}
+
+// LastCheckedAtCleared returns if the "last_checked_at" field was cleared in this mutation.
+func (m *FeedMutation) LastCheckedAtCleared() bool {
+	_, ok := m.clearedFields[feed.FieldLastCheckedAt]
+	return ok
+}
+
+// ResetLastCheckedAt resets all changes to the "last_checked_at" field.
+func (m *FeedMutation) ResetLastCheckedAt() {
+	m.last_checked_at = nil
+	delete(m.clearedFields, feed.FieldLastCheckedAt)
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -1283,6 +1297,42 @@ func (m *FeedMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error
 // ResetCreatedAt resets all changes to the "created_at" field.
 func (m *FeedMutation) ResetCreatedAt() {
 	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *FeedMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *FeedMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the Feed entity.
+// If the Feed object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *FeedMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *FeedMutation) ResetUpdatedAt() {
+	m.updated_at = nil
 }
 
 // AddArticleIDs adds the "articles" edge to the Article entity by ids.
@@ -1427,7 +1477,7 @@ func (m *FeedMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *FeedMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 9)
 	if m.url != nil {
 		fields = append(fields, feed.FieldURL)
 	}
@@ -1446,11 +1496,14 @@ func (m *FeedMutation) Fields() []string {
 	if m.is_bookmark != nil {
 		fields = append(fields, feed.FieldIsBookmark)
 	}
-	if m.updated_at != nil {
-		fields = append(fields, feed.FieldUpdatedAt)
+	if m.last_checked_at != nil {
+		fields = append(fields, feed.FieldLastCheckedAt)
 	}
 	if m.created_at != nil {
 		fields = append(fields, feed.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, feed.FieldUpdatedAt)
 	}
 	return fields
 }
@@ -1472,10 +1525,12 @@ func (m *FeedMutation) Field(name string) (ent.Value, bool) {
 		return m.Order()
 	case feed.FieldIsBookmark:
 		return m.IsBookmark()
-	case feed.FieldUpdatedAt:
-		return m.UpdatedAt()
+	case feed.FieldLastCheckedAt:
+		return m.LastCheckedAt()
 	case feed.FieldCreatedAt:
 		return m.CreatedAt()
+	case feed.FieldUpdatedAt:
+		return m.UpdatedAt()
 	}
 	return nil, false
 }
@@ -1497,10 +1552,12 @@ func (m *FeedMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldOrder(ctx)
 	case feed.FieldIsBookmark:
 		return m.OldIsBookmark(ctx)
-	case feed.FieldUpdatedAt:
-		return m.OldUpdatedAt(ctx)
+	case feed.FieldLastCheckedAt:
+		return m.OldLastCheckedAt(ctx)
 	case feed.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
+	case feed.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown Feed field %s", name)
 }
@@ -1552,12 +1609,12 @@ func (m *FeedMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetIsBookmark(v)
 		return nil
-	case feed.FieldUpdatedAt:
+	case feed.FieldLastCheckedAt:
 		v, ok := value.(time.Time)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetUpdatedAt(v)
+		m.SetLastCheckedAt(v)
 		return nil
 	case feed.FieldCreatedAt:
 		v, ok := value.(time.Time)
@@ -1565,6 +1622,13 @@ func (m *FeedMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCreatedAt(v)
+		return nil
+	case feed.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Feed field %s", name)
@@ -1617,6 +1681,9 @@ func (m *FeedMutation) ClearedFields() []string {
 	if m.FieldCleared(feed.FieldLink) {
 		fields = append(fields, feed.FieldLink)
 	}
+	if m.FieldCleared(feed.FieldLastCheckedAt) {
+		fields = append(fields, feed.FieldLastCheckedAt)
+	}
 	return fields
 }
 
@@ -1636,6 +1703,9 @@ func (m *FeedMutation) ClearField(name string) error {
 		return nil
 	case feed.FieldLink:
 		m.ClearLink()
+		return nil
+	case feed.FieldLastCheckedAt:
+		m.ClearLastCheckedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown Feed nullable field %s", name)
@@ -1663,11 +1733,14 @@ func (m *FeedMutation) ResetField(name string) error {
 	case feed.FieldIsBookmark:
 		m.ResetIsBookmark()
 		return nil
-	case feed.FieldUpdatedAt:
-		m.ResetUpdatedAt()
+	case feed.FieldLastCheckedAt:
+		m.ResetLastCheckedAt()
 		return nil
 	case feed.FieldCreatedAt:
 		m.ResetCreatedAt()
+		return nil
+	case feed.FieldUpdatedAt:
+		m.ResetUpdatedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown Feed field %s", name)

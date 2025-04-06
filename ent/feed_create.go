@@ -91,16 +91,16 @@ func (fc *FeedCreate) SetNillableIsBookmark(b *bool) *FeedCreate {
 	return fc
 }
 
-// SetUpdatedAt sets the "updated_at" field.
-func (fc *FeedCreate) SetUpdatedAt(t time.Time) *FeedCreate {
-	fc.mutation.SetUpdatedAt(t)
+// SetLastCheckedAt sets the "last_checked_at" field.
+func (fc *FeedCreate) SetLastCheckedAt(t time.Time) *FeedCreate {
+	fc.mutation.SetLastCheckedAt(t)
 	return fc
 }
 
-// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (fc *FeedCreate) SetNillableUpdatedAt(t *time.Time) *FeedCreate {
+// SetNillableLastCheckedAt sets the "last_checked_at" field if the given value is not nil.
+func (fc *FeedCreate) SetNillableLastCheckedAt(t *time.Time) *FeedCreate {
 	if t != nil {
-		fc.SetUpdatedAt(*t)
+		fc.SetLastCheckedAt(*t)
 	}
 	return fc
 }
@@ -115,6 +115,20 @@ func (fc *FeedCreate) SetCreatedAt(t time.Time) *FeedCreate {
 func (fc *FeedCreate) SetNillableCreatedAt(t *time.Time) *FeedCreate {
 	if t != nil {
 		fc.SetCreatedAt(*t)
+	}
+	return fc
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (fc *FeedCreate) SetUpdatedAt(t time.Time) *FeedCreate {
+	fc.mutation.SetUpdatedAt(t)
+	return fc
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (fc *FeedCreate) SetNillableUpdatedAt(t *time.Time) *FeedCreate {
+	if t != nil {
+		fc.SetUpdatedAt(*t)
 	}
 	return fc
 }
@@ -206,13 +220,13 @@ func (fc *FeedCreate) defaults() {
 		v := feed.DefaultIsBookmark
 		fc.mutation.SetIsBookmark(v)
 	}
-	if _, ok := fc.mutation.UpdatedAt(); !ok {
-		v := feed.DefaultUpdatedAt()
-		fc.mutation.SetUpdatedAt(v)
-	}
 	if _, ok := fc.mutation.CreatedAt(); !ok {
 		v := feed.DefaultCreatedAt()
 		fc.mutation.SetCreatedAt(v)
+	}
+	if _, ok := fc.mutation.UpdatedAt(); !ok {
+		v := feed.DefaultUpdatedAt()
+		fc.mutation.SetUpdatedAt(v)
 	}
 	if _, ok := fc.mutation.ID(); !ok {
 		v := feed.DefaultID()
@@ -244,11 +258,11 @@ func (fc *FeedCreate) check() error {
 	if _, ok := fc.mutation.IsBookmark(); !ok {
 		return &ValidationError{Name: "is_bookmark", err: errors.New(`ent: missing required field "Feed.is_bookmark"`)}
 	}
-	if _, ok := fc.mutation.UpdatedAt(); !ok {
-		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Feed.updated_at"`)}
-	}
 	if _, ok := fc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Feed.created_at"`)}
+	}
+	if _, ok := fc.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Feed.updated_at"`)}
 	}
 	return nil
 }
@@ -309,13 +323,17 @@ func (fc *FeedCreate) createSpec() (*Feed, *sqlgraph.CreateSpec) {
 		_spec.SetField(feed.FieldIsBookmark, field.TypeBool, value)
 		_node.IsBookmark = value
 	}
-	if value, ok := fc.mutation.UpdatedAt(); ok {
-		_spec.SetField(feed.FieldUpdatedAt, field.TypeTime, value)
-		_node.UpdatedAt = value
+	if value, ok := fc.mutation.LastCheckedAt(); ok {
+		_spec.SetField(feed.FieldLastCheckedAt, field.TypeTime, value)
+		_node.LastCheckedAt = value
 	}
 	if value, ok := fc.mutation.CreatedAt(); ok {
 		_spec.SetField(feed.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
+	}
+	if value, ok := fc.mutation.UpdatedAt(); ok {
+		_spec.SetField(feed.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
 	}
 	if nodes := fc.mutation.ArticlesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

@@ -39,14 +39,17 @@ func (Feed) Fields() []ent.Field {
 		field.Bool("is_bookmark").
 			Default(false).
 			Comment("Bookmark feed flag"),
-		field.Time("updated_at").
-			Default(time.Now).       // デフォルトで現在時刻を設定
-			UpdateDefault(time.Now). // 更新時に現在時刻を設定
-			Comment("Last updated time from the feed"),
+		field.Time("last_checked_at").
+			Optional().
+			Comment("Time the feed was checked"),
 		field.Time("created_at").
 			Default(time.Now). // デフォルトで現在時刻を設定
 			Immutable().       // 作成後は変更不可
 			Comment("Time the feed was added"),
+		field.Time("updated_at").
+			Default(time.Now).       // デフォルトで現在時刻を設定
+			UpdateDefault(time.Now). // 更新時に現在時刻を設定
+			Comment("Last updated time from the feed"),
 	}
 }
 

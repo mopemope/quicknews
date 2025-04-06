@@ -134,6 +134,26 @@ func (fu *FeedUpdate) SetNillableIsBookmark(b *bool) *FeedUpdate {
 	return fu
 }
 
+// SetLastCheckedAt sets the "last_checked_at" field.
+func (fu *FeedUpdate) SetLastCheckedAt(t time.Time) *FeedUpdate {
+	fu.mutation.SetLastCheckedAt(t)
+	return fu
+}
+
+// SetNillableLastCheckedAt sets the "last_checked_at" field if the given value is not nil.
+func (fu *FeedUpdate) SetNillableLastCheckedAt(t *time.Time) *FeedUpdate {
+	if t != nil {
+		fu.SetLastCheckedAt(*t)
+	}
+	return fu
+}
+
+// ClearLastCheckedAt clears the value of the "last_checked_at" field.
+func (fu *FeedUpdate) ClearLastCheckedAt() *FeedUpdate {
+	fu.mutation.ClearLastCheckedAt()
+	return fu
+}
+
 // SetUpdatedAt sets the "updated_at" field.
 func (fu *FeedUpdate) SetUpdatedAt(t time.Time) *FeedUpdate {
 	fu.mutation.SetUpdatedAt(t)
@@ -306,6 +326,12 @@ func (fu *FeedUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := fu.mutation.IsBookmark(); ok {
 		_spec.SetField(feed.FieldIsBookmark, field.TypeBool, value)
+	}
+	if value, ok := fu.mutation.LastCheckedAt(); ok {
+		_spec.SetField(feed.FieldLastCheckedAt, field.TypeTime, value)
+	}
+	if fu.mutation.LastCheckedAtCleared() {
+		_spec.ClearField(feed.FieldLastCheckedAt, field.TypeTime)
 	}
 	if value, ok := fu.mutation.UpdatedAt(); ok {
 		_spec.SetField(feed.FieldUpdatedAt, field.TypeTime, value)
@@ -523,6 +549,26 @@ func (fuo *FeedUpdateOne) SetNillableIsBookmark(b *bool) *FeedUpdateOne {
 	return fuo
 }
 
+// SetLastCheckedAt sets the "last_checked_at" field.
+func (fuo *FeedUpdateOne) SetLastCheckedAt(t time.Time) *FeedUpdateOne {
+	fuo.mutation.SetLastCheckedAt(t)
+	return fuo
+}
+
+// SetNillableLastCheckedAt sets the "last_checked_at" field if the given value is not nil.
+func (fuo *FeedUpdateOne) SetNillableLastCheckedAt(t *time.Time) *FeedUpdateOne {
+	if t != nil {
+		fuo.SetLastCheckedAt(*t)
+	}
+	return fuo
+}
+
+// ClearLastCheckedAt clears the value of the "last_checked_at" field.
+func (fuo *FeedUpdateOne) ClearLastCheckedAt() *FeedUpdateOne {
+	fuo.mutation.ClearLastCheckedAt()
+	return fuo
+}
+
 // SetUpdatedAt sets the "updated_at" field.
 func (fuo *FeedUpdateOne) SetUpdatedAt(t time.Time) *FeedUpdateOne {
 	fuo.mutation.SetUpdatedAt(t)
@@ -725,6 +771,12 @@ func (fuo *FeedUpdateOne) sqlSave(ctx context.Context) (_node *Feed, err error) 
 	}
 	if value, ok := fuo.mutation.IsBookmark(); ok {
 		_spec.SetField(feed.FieldIsBookmark, field.TypeBool, value)
+	}
+	if value, ok := fuo.mutation.LastCheckedAt(); ok {
+		_spec.SetField(feed.FieldLastCheckedAt, field.TypeTime, value)
+	}
+	if fuo.mutation.LastCheckedAtCleared() {
+		_spec.ClearField(feed.FieldLastCheckedAt, field.TypeTime)
 	}
 	if value, ok := fuo.mutation.UpdatedAt(); ok {
 		_spec.SetField(feed.FieldUpdatedAt, field.TypeTime, value)

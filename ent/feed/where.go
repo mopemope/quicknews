@@ -86,14 +86,19 @@ func IsBookmark(v bool) predicate.Feed {
 	return predicate.Feed(sql.FieldEQ(FieldIsBookmark, v))
 }
 
-// UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
-func UpdatedAt(v time.Time) predicate.Feed {
-	return predicate.Feed(sql.FieldEQ(FieldUpdatedAt, v))
+// LastCheckedAt applies equality check predicate on the "last_checked_at" field. It's identical to LastCheckedAtEQ.
+func LastCheckedAt(v time.Time) predicate.Feed {
+	return predicate.Feed(sql.FieldEQ(FieldLastCheckedAt, v))
 }
 
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.Feed {
 	return predicate.Feed(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
+func UpdatedAt(v time.Time) predicate.Feed {
+	return predicate.Feed(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
 // URLEQ applies the EQ predicate on the "url" field.
@@ -426,44 +431,54 @@ func IsBookmarkNEQ(v bool) predicate.Feed {
 	return predicate.Feed(sql.FieldNEQ(FieldIsBookmark, v))
 }
 
-// UpdatedAtEQ applies the EQ predicate on the "updated_at" field.
-func UpdatedAtEQ(v time.Time) predicate.Feed {
-	return predicate.Feed(sql.FieldEQ(FieldUpdatedAt, v))
+// LastCheckedAtEQ applies the EQ predicate on the "last_checked_at" field.
+func LastCheckedAtEQ(v time.Time) predicate.Feed {
+	return predicate.Feed(sql.FieldEQ(FieldLastCheckedAt, v))
 }
 
-// UpdatedAtNEQ applies the NEQ predicate on the "updated_at" field.
-func UpdatedAtNEQ(v time.Time) predicate.Feed {
-	return predicate.Feed(sql.FieldNEQ(FieldUpdatedAt, v))
+// LastCheckedAtNEQ applies the NEQ predicate on the "last_checked_at" field.
+func LastCheckedAtNEQ(v time.Time) predicate.Feed {
+	return predicate.Feed(sql.FieldNEQ(FieldLastCheckedAt, v))
 }
 
-// UpdatedAtIn applies the In predicate on the "updated_at" field.
-func UpdatedAtIn(vs ...time.Time) predicate.Feed {
-	return predicate.Feed(sql.FieldIn(FieldUpdatedAt, vs...))
+// LastCheckedAtIn applies the In predicate on the "last_checked_at" field.
+func LastCheckedAtIn(vs ...time.Time) predicate.Feed {
+	return predicate.Feed(sql.FieldIn(FieldLastCheckedAt, vs...))
 }
 
-// UpdatedAtNotIn applies the NotIn predicate on the "updated_at" field.
-func UpdatedAtNotIn(vs ...time.Time) predicate.Feed {
-	return predicate.Feed(sql.FieldNotIn(FieldUpdatedAt, vs...))
+// LastCheckedAtNotIn applies the NotIn predicate on the "last_checked_at" field.
+func LastCheckedAtNotIn(vs ...time.Time) predicate.Feed {
+	return predicate.Feed(sql.FieldNotIn(FieldLastCheckedAt, vs...))
 }
 
-// UpdatedAtGT applies the GT predicate on the "updated_at" field.
-func UpdatedAtGT(v time.Time) predicate.Feed {
-	return predicate.Feed(sql.FieldGT(FieldUpdatedAt, v))
+// LastCheckedAtGT applies the GT predicate on the "last_checked_at" field.
+func LastCheckedAtGT(v time.Time) predicate.Feed {
+	return predicate.Feed(sql.FieldGT(FieldLastCheckedAt, v))
 }
 
-// UpdatedAtGTE applies the GTE predicate on the "updated_at" field.
-func UpdatedAtGTE(v time.Time) predicate.Feed {
-	return predicate.Feed(sql.FieldGTE(FieldUpdatedAt, v))
+// LastCheckedAtGTE applies the GTE predicate on the "last_checked_at" field.
+func LastCheckedAtGTE(v time.Time) predicate.Feed {
+	return predicate.Feed(sql.FieldGTE(FieldLastCheckedAt, v))
 }
 
-// UpdatedAtLT applies the LT predicate on the "updated_at" field.
-func UpdatedAtLT(v time.Time) predicate.Feed {
-	return predicate.Feed(sql.FieldLT(FieldUpdatedAt, v))
+// LastCheckedAtLT applies the LT predicate on the "last_checked_at" field.
+func LastCheckedAtLT(v time.Time) predicate.Feed {
+	return predicate.Feed(sql.FieldLT(FieldLastCheckedAt, v))
 }
 
-// UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
-func UpdatedAtLTE(v time.Time) predicate.Feed {
-	return predicate.Feed(sql.FieldLTE(FieldUpdatedAt, v))
+// LastCheckedAtLTE applies the LTE predicate on the "last_checked_at" field.
+func LastCheckedAtLTE(v time.Time) predicate.Feed {
+	return predicate.Feed(sql.FieldLTE(FieldLastCheckedAt, v))
+}
+
+// LastCheckedAtIsNil applies the IsNil predicate on the "last_checked_at" field.
+func LastCheckedAtIsNil() predicate.Feed {
+	return predicate.Feed(sql.FieldIsNull(FieldLastCheckedAt))
+}
+
+// LastCheckedAtNotNil applies the NotNil predicate on the "last_checked_at" field.
+func LastCheckedAtNotNil() predicate.Feed {
+	return predicate.Feed(sql.FieldNotNull(FieldLastCheckedAt))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -504,6 +519,46 @@ func CreatedAtLT(v time.Time) predicate.Feed {
 // CreatedAtLTE applies the LTE predicate on the "created_at" field.
 func CreatedAtLTE(v time.Time) predicate.Feed {
 	return predicate.Feed(sql.FieldLTE(FieldCreatedAt, v))
+}
+
+// UpdatedAtEQ applies the EQ predicate on the "updated_at" field.
+func UpdatedAtEQ(v time.Time) predicate.Feed {
+	return predicate.Feed(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// UpdatedAtNEQ applies the NEQ predicate on the "updated_at" field.
+func UpdatedAtNEQ(v time.Time) predicate.Feed {
+	return predicate.Feed(sql.FieldNEQ(FieldUpdatedAt, v))
+}
+
+// UpdatedAtIn applies the In predicate on the "updated_at" field.
+func UpdatedAtIn(vs ...time.Time) predicate.Feed {
+	return predicate.Feed(sql.FieldIn(FieldUpdatedAt, vs...))
+}
+
+// UpdatedAtNotIn applies the NotIn predicate on the "updated_at" field.
+func UpdatedAtNotIn(vs ...time.Time) predicate.Feed {
+	return predicate.Feed(sql.FieldNotIn(FieldUpdatedAt, vs...))
+}
+
+// UpdatedAtGT applies the GT predicate on the "updated_at" field.
+func UpdatedAtGT(v time.Time) predicate.Feed {
+	return predicate.Feed(sql.FieldGT(FieldUpdatedAt, v))
+}
+
+// UpdatedAtGTE applies the GTE predicate on the "updated_at" field.
+func UpdatedAtGTE(v time.Time) predicate.Feed {
+	return predicate.Feed(sql.FieldGTE(FieldUpdatedAt, v))
+}
+
+// UpdatedAtLT applies the LT predicate on the "updated_at" field.
+func UpdatedAtLT(v time.Time) predicate.Feed {
+	return predicate.Feed(sql.FieldLT(FieldUpdatedAt, v))
+}
+
+// UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
+func UpdatedAtLTE(v time.Time) predicate.Feed {
+	return predicate.Feed(sql.FieldLTE(FieldUpdatedAt, v))
 }
 
 // HasArticles applies the HasEdge predicate on the "articles" edge.

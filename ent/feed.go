@@ -31,10 +31,12 @@ type Feed struct {
 	Order int `json:"order,omitempty"`
 	// Bookmark feed flag
 	IsBookmark bool `json:"is_bookmark,omitempty"`
-	// Last updated time from the feed
-	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// Time the feed was checked
+	LastCheckedAt time.Time `json:"last_checked_at,omitempty"`
 	// Time the feed was added
 	CreatedAt time.Time `json:"created_at,omitempty"`
+	// Last updated time from the feed
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the FeedQuery when eager-loading is set.
 	Edges        FeedEdges `json:"edges"`
@@ -81,7 +83,7 @@ func (*Feed) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case feed.FieldURL, feed.FieldTitle, feed.FieldDescription, feed.FieldLink:
 			values[i] = new(sql.NullString)
-		case feed.FieldUpdatedAt, feed.FieldCreatedAt:
+		case feed.FieldLastCheckedAt, feed.FieldCreatedAt, feed.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
 		case feed.FieldID:
 			values[i] = new(uuid.UUID)
@@ -142,17 +144,23 @@ func (f *Feed) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				f.IsBookmark = value.Bool
 			}
-		case feed.FieldUpdatedAt:
+		case feed.FieldLastCheckedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+				return fmt.Errorf("unexpected type %T for field last_checked_at", values[i])
 			} else if value.Valid {
-				f.UpdatedAt = value.Time
+				f.LastCheckedAt = value.Time
 			}
 		case feed.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
 				f.CreatedAt = value.Time
+			}
+		case feed.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				f.UpdatedAt = value.Time
 			}
 		default:
 			f.selectValues.Set(columns[i], values[i])
@@ -218,11 +226,14 @@ func (f *Feed) String() string {
 	builder.WriteString("is_bookmark=")
 	builder.WriteString(fmt.Sprintf("%v", f.IsBookmark))
 	builder.WriteString(", ")
-	builder.WriteString("updated_at=")
-	builder.WriteString(f.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString("last_checked_at=")
+	builder.WriteString(f.LastCheckedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(f.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("updated_at=")
+	builder.WriteString(f.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }
