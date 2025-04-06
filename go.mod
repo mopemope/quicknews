@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go/texttospeech v1.12.0
 	entgo.io/ent v0.14.4
 	github.com/alecthomas/kong v1.10.0
+	github.com/alitto/pond/v2 v2.3.2
 	github.com/charmbracelet/bubbles v0.20.0
 	github.com/charmbracelet/bubbletea v1.3.4
 	github.com/charmbracelet/lipgloss v1.1.0
