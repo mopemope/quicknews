@@ -67,6 +67,7 @@ func (r *FeedRepositoryImpl) ExistBookmarkFeed(ctx context.Context) (bool, error
 // UpdateFeed updates the feed with the given ID using the parsed feed data.
 func (r *FeedRepositoryImpl) UpdateFeed(ctx context.Context, f *ent.Feed, parsedFeed *gofeed.Feed) (*ent.Feed, error) {
 
+	now := clock.Now()
 	var updatedFeed *ent.Feed
 	err := database.WithTx(ctx, r.client, func(tx *ent.Tx) error {
 
@@ -80,7 +81,7 @@ func (r *FeedRepositoryImpl) UpdateFeed(ctx context.Context, f *ent.Feed, parsed
 		} else if len(parsedFeed.Items) > 0 && parsedFeed.Items[0].PublishedParsed != nil {
 			updateQuery.SetUpdatedAt(*parsedFeed.Items[0].PublishedParsed)
 		}
-
+		updateQuery.SetLastCheckedAt(now)
 		var err error
 		updatedFeed, err = updateQuery.Save(ctx)
 		if err != nil {
