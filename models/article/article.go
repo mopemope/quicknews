@@ -8,6 +8,7 @@ import (
 	"github.com/mopemope/quicknews/ent"
 	"github.com/mopemope/quicknews/ent/article"
 	"github.com/mopemope/quicknews/ent/feed"
+	"github.com/mopemope/quicknews/ent/summary"
 	"github.com/mopemope/quicknews/pkg/clock"
 	"github.com/mopemope/quicknews/pkg/database"
 )
@@ -15,6 +16,7 @@ import (
 type ArticleRepository interface {
 	GetById(ctx context.Context, id uuid.UUID) (*ent.Article, error)
 	GetByFeed(ctx context.Context, feedID uuid.UUID) (ent.Articles, error)
+	GetByUnreaded(ctx context.Context, feedID uuid.UUID) (ent.Articles, error)
 	GetFromURL(ctx context.Context, url string) (*ent.Article, error)
 	Save(ctx context.Context, article *ent.Article) (*ent.Article, error)
 	SaveAll(ctx context.Context, articles ent.Articles) error
@@ -52,6 +54,21 @@ func (r *ArticleRepositoryImpl) GetByFeed(ctx context.Context, feedID uuid.UUID)
 		Order(ent.Desc(article.FieldPublishedAt)).
 		All(ctx)
 
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get articles by feed ID")
+	}
+	return articles, nil
+}
+
+func (r *ArticleRepositoryImpl) GetByUnreaded(ctx context.Context, feedID uuid.UUID) (ent.Articles, error) {
+	articles, err := r.client.Article.
+		Query().
+		Where(article.HasFeedWith(feed.ID(feedID))).
+		WithSummary(func(q *ent.SummaryQuery) {
+			q.Where(summary.Readed(false))
+		}).
+		Order(ent.Desc(article.FieldPublishedAt)).
+		All(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get articles by feed ID")
 	}

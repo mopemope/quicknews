@@ -89,7 +89,7 @@ func (m *articleListModel) fetchArticlesCmd() tea.Cmd {
 
 	ctx := context.Background()
 	return func() tea.Msg {
-		articles, err := m.repos.GetByFeed(ctx, m.feed.id)
+		articles, err := m.repos.GetByUnreaded(ctx, m.feed.id)
 		if err != nil {
 			slog.Error("Failed to fetch articles", "error", err, "feedID", m.feed.id)
 			return fmt.Errorf("failed to fetch articles for feed %s: %w", m.feed.id, err)
@@ -120,8 +120,6 @@ func (m *articleListModel) fetchArticlesCmd() tea.Cmd {
 		return items // Return fetched items as message
 	}
 }
-
-// Removed fetchArticleContentCmd, handled by main model
 
 func (m articleListModel) Init() tea.Cmd {
 	slog.Debug("ArticleList model Init called")

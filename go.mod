@@ -6,7 +6,6 @@ require (
 	cloud.google.com/go/texttospeech v1.12.0
 	entgo.io/ent v0.14.4
 	github.com/alecthomas/kong v1.10.0
-	github.com/alitto/pond/v2 v2.3.1
 	github.com/charmbracelet/bubbles v0.20.0
 	github.com/charmbracelet/bubbletea v1.3.4
 	github.com/charmbracelet/lipgloss v1.1.0
@@ -18,7 +17,6 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.26
 	github.com/mmcdole/gofeed v1.3.0
 	github.com/stretchr/testify v1.10.0
-	golang.org/x/exp v0.0.0-20220909182711-5c715a9e8561
 	google.golang.org/api v0.228.0
 )
 
