@@ -84,6 +84,10 @@ func (m summaryViewModel) Update(msg tea.Msg) (summaryViewModel, tea.Cmd) {
 			m.viewport.GotoTop()
 		case "G":
 			m.viewport.GotoBottom()
+		case "o":
+			if err := OpenArticleURL(m.article.URL); err != nil {
+				slog.Error("Failed to open url", "error", err)
+			}
 		case "r":
 			if m.article != nil && m.article.Edges.Summary != nil {
 				if err := m.summaryRepos.UpdateReaded(context.Background(), m.article.Edges.Summary); err != nil {
@@ -162,5 +166,5 @@ func (m summaryViewModel) footerView() string {
 	return lipgloss.NewStyle().
 		Foreground(lipgloss.Color("240")). // Dim color
 		Padding(0, 1).
-		Render("Scroll: ↑/k ↓/j | Go top: g | Go bottom: G | Read aloud: p | Mark readed: r | Back: b ")
+		Render("Scroll: ↑/k ↓/j | Go top: g | Go bottom: G | Read aloud: p | Mark readed: r | Open browser: o | Back: b ")
 }

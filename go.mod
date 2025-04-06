@@ -18,6 +18,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.26
 	github.com/mmcdole/gofeed v1.3.0
 	github.com/stretchr/testify v1.10.0
+	github.com/toqueteos/webbrowser v1.2.0
 	google.golang.org/api v0.228.0
 )
 

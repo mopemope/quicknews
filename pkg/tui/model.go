@@ -1,15 +1,17 @@
 package tui
 
 import (
-	"context" // Add context import
-	"fmt"     // Add fmt import
+	"context"
+	"fmt"
 	"log/slog"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss" // Add lipgloss import
-	"github.com/google/uuid"            // Add uuid import
+	"github.com/charmbracelet/lipgloss"
+	"github.com/cockroachdb/errors"
+	"github.com/google/uuid"
 	"github.com/mopemope/quicknews/ent"
-	"github.com/mopemope/quicknews/models/article" // Import article repository
+	"github.com/mopemope/quicknews/models/article"
+	"github.com/toqueteos/webbrowser"
 )
 
 // Message indicating a feed has been selected
@@ -315,4 +317,12 @@ func (m model) View() string {
 
 	// Otherwise, just return the current view's content
 	return currentViewContent
+}
+
+func OpenArticleURL(url string) error {
+	if err := webbrowser.Open(url); err != nil {
+		return errors.Wrap(err, "failed to open URL in browser")
+	}
+
+	return nil
 }
