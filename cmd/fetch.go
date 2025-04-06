@@ -75,6 +75,10 @@ func (cmd *FetchCmd) checkFeeds(ctx context.Context) (int32, error) {
 	feedPool := pond.NewPool(3)
 
 	for _, f := range feeds {
+		if f.IsBookmark {
+			// Skip bookmark feeds
+			continue
+		}
 		feedPool.Submit(func() {
 			count, err := cmd.processFeed(ctx, f)
 			if err != nil {
