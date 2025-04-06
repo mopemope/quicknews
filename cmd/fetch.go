@@ -185,7 +185,6 @@ func (cmd *FetchCmd) Run(client *ent.Client) error {
 		}
 
 		if cmd.Interval > 0 {
-			fmt.Println("wait...")
 			time.Sleep(cmd.Interval)
 		} else {
 			break
