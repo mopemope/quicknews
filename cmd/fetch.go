@@ -179,11 +179,13 @@ func (cmd *FetchCmd) Run(client *ent.Client) error {
 			if _, err := tea.NewProgram(progress.NewModel(items)).Run(); err != nil {
 				return errors.Wrap(err, "error running progress")
 			}
+
 		} else {
 			fmt.Println("No new items to process.")
 		}
 
 		if cmd.Interval > 0 {
+			fmt.Println("wait...")
 			time.Sleep(cmd.Interval)
 		} else {
 			break
