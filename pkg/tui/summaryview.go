@@ -86,6 +86,12 @@ func (m summaryViewModel) Update(msg tea.Msg) (summaryViewModel, tea.Cmd) {
 			m.viewport.GotoBottom()
 		case "r":
 			if m.article != nil && m.article.Edges.Summary != nil {
+				if err := m.summaryRepos.UpdateReaded(context.Background(), m.article.Edges.Summary); err != nil {
+					slog.Error("Failed to update summary as readed", "error", err)
+				}
+			}
+		case "p":
+			if m.article != nil && m.article.Edges.Summary != nil {
 				// Play audio for the summary if available
 				slog.Debug("Playing audio for summary")
 				go func() {
@@ -94,6 +100,7 @@ func (m summaryViewModel) Update(msg tea.Msg) (summaryViewModel, tea.Cmd) {
 					}
 				}()
 			}
+
 		}
 	case tea.WindowSizeMsg:
 		// Only update if ready, otherwise SetContent will handle initial sizing
@@ -147,5 +154,5 @@ func (m summaryViewModel) footerView() string {
 	return lipgloss.NewStyle().
 		Foreground(lipgloss.Color("240")). // Dim color
 		Padding(0, 1).
-		Render("Scroll: ↑/k ↓/j | Go top: g | Go bottom: G | Read aloud: r | Back: b ")
+		Render("Scroll: ↑/k ↓/j | Go top: g | Go bottom: G | Read aloud: p | Mark readed: r | Back: b ")
 }
