@@ -102,8 +102,7 @@ func (c *Client) Summarize(ctx context.Context, url string) (*PageSummary, error
 	// Parse JSON if the response is wrapped in code blocks
 	result, err := parseResponse(summary)
 	if err != nil {
-		slog.Error("Failed to parse JSON from response", "error", err, "summary", summary)
-		return nil, errors.Wrap(err, "failed to parse JSON from response")
+		return nil, errors.Wrap(err, "failed to parse llm response")
 	}
 	if result == nil {
 		return nil, errors.New("parsed result is nil")

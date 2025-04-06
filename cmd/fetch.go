@@ -99,9 +99,21 @@ func (a *Article) processSummary(ctx context.Context, article *ent.Article) erro
 		return errors.Wrap(err, "error creating gemini client")
 	}
 
-	pageSummary, err := geminiClient.Summarize(ctx, article.URL)
+	var pageSummary *gemini.PageSummary
+	for i := range 3 {
+		pageSummary, err = geminiClient.Summarize(ctx, article.URL)
+		if err != nil || pageSummary == nil {
+			// retry if error
+			slog.Info("retrying to summarize page", "link", article.URL, "error", err)
+			i += 1
+			wait := i * i
+			time.Sleep(time.Duration(wait) * time.Second)
+		} else {
+			break
+		}
+	}
 	if err != nil {
-		return errors.Wrap(err, "error summarizing article")
+		return errors.Wrap(err, "error summarizing page")
 	}
 
 	sum := &ent.Summary{
