@@ -21,6 +21,7 @@ type FeedInput struct {
 
 type FeedRepository interface {
 	GetByID(ctx context.Context, id uuid.UUID) (*ent.Feed, error)
+	ExistBookmarkFeed(ctx context.Context) (bool, error)
 	All(ctx context.Context) ([]*ent.Feed, error)
 	UpdateFeed(ctx context.Context, feed *ent.Feed, parsedFeed *gofeed.Feed) (*ent.Feed, error)
 	// Exist checks if a feed with the given URL already exists.
@@ -49,6 +50,18 @@ func (r *FeedRepositoryImpl) GetByID(ctx context.Context, id uuid.UUID) (*ent.Fe
 		return nil, errors.Wrap(err, "failed to get feed by ID")
 	}
 	return feed, nil
+}
+
+func (r *FeedRepositoryImpl) ExistBookmarkFeed(ctx context.Context) (bool, error) {
+	result, err := r.client.Feed.
+		Query().
+		Where(feed.IsBookmarkEQ(true)).
+		Exist(ctx)
+
+	if err != nil {
+		return false, errors.Wrap(err, "failed to get bookmark feeds")
+	}
+	return result, nil
 }
 
 // UpdateFeed updates the feed with the given ID using the parsed feed data.
