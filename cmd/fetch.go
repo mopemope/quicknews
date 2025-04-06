@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"sync/atomic"
+	"time"
 
 	"github.com/alitto/pond/v2"
 	"github.com/cockroachdb/errors"
@@ -19,6 +20,8 @@ import (
 
 // FetchCmd represents the fetch command.
 type FetchCmd struct {
+	Interval time.Duration `short:"i" help:"Fetch feeds updated within the specified interval (e.g., 24h). Default is 0 (fetch all)."`
+
 	pool         pond.Pool
 	client       *ent.Client
 	feedRepos    feed.FeedRepository
@@ -29,6 +32,7 @@ type FetchCmd struct {
 // Run executes the fetch command.
 func (cmd *FetchCmd) Run(client *ent.Client) error {
 	ctx := context.Background()
+	var newArticlesCount atomic.Int32
 
 	cmd.pool = pond.NewPool(3)
 	cmd.client = client
@@ -36,22 +40,41 @@ func (cmd *FetchCmd) Run(client *ent.Client) error {
 	cmd.articleRepos = article.NewArticleRepository(client)
 	cmd.summaryRepos = summary.NewSummaryRepository(client)
 
+	for {
+		// Check if there are any bookmark feeds
+		count, err := cmd.checkFeeds(ctx)
+		if err != nil {
+			return err
+		}
+		// Log the number of new articles
+		newArticlesCount.Add(count)
+		if cmd.Interval > 0 {
+			time.Sleep(cmd.Interval)
+		} else {
+			break
+		}
+	}
+
+	cmd.pool.StopAndWait()
+	return nil
+}
+
+func (cmd *FetchCmd) checkFeeds(ctx context.Context) (int32, error) {
+	var newArticlesCount atomic.Int32
 	feeds, err := cmd.feedRepos.All(ctx)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	if len(feeds) == 0 {
 		slog.Info("No feeds registered. Use 'add' command to add feeds.")
-		return nil
+		return 0, nil
 	}
 
 	slog.Info("Fetching articles", "count", len(feeds))
-
-	var newArticlesCount atomic.Int32
 	feedPool := pond.NewPool(3)
-	for _, f := range feeds {
 
+	for _, f := range feeds {
 		feedPool.Submit(func() {
 			count, err := cmd.processFeed(ctx, f)
 			if err != nil {
@@ -60,12 +83,10 @@ func (cmd *FetchCmd) Run(client *ent.Client) error {
 			}
 			newArticlesCount.Add(int32(count))
 		})
-
 	}
 
 	feedPool.StopAndWait()
-	cmd.pool.StopAndWait()
-	return nil
+	return newArticlesCount.Load(), nil
 }
 
 // processFeed handles fetching and processing a single feed
