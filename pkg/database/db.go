@@ -3,18 +3,12 @@ package database
 import (
 	"context"
 	"log/slog"
-	"sync"
 
 	"github.com/cockroachdb/errors"
 	"github.com/mopemope/quicknews/ent"
 )
 
-var databaseMutex = &sync.Mutex{}
-
 func WithTx(ctx context.Context, client *ent.Client, fn func(tx *ent.Tx) error) error {
-	databaseMutex.Lock()
-	defer databaseMutex.Unlock()
-
 	tx, err := client.Tx(ctx)
 	if err != nil {
 		return err
