@@ -27,8 +27,6 @@ type Summary struct {
 	Title string `json:"title,omitempty"`
 	// Summary text
 	Summary string `json:"summary,omitempty"`
-	// Image data
-	AudioData []byte `json:"audio_data,omitempty"`
 	// Read status
 	Readed bool `json:"readed,omitempty"`
 	// Listened status
@@ -81,8 +79,6 @@ func (*Summary) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case summary.FieldAudioData:
-			values[i] = new([]byte)
 		case summary.FieldReaded, summary.FieldListend:
 			values[i] = new(sql.NullBool)
 		case summary.FieldURL, summary.FieldTitle, summary.FieldSummary:
@@ -133,12 +129,6 @@ func (s *Summary) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field summary", values[i])
 			} else if value.Valid {
 				s.Summary = value.String
-			}
-		case summary.FieldAudioData:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field audio_data", values[i])
-			} else if value != nil {
-				s.AudioData = *value
 			}
 		case summary.FieldReaded:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -226,9 +216,6 @@ func (s *Summary) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("summary=")
 	builder.WriteString(s.Summary)
-	builder.WriteString(", ")
-	builder.WriteString("audio_data=")
-	builder.WriteString(fmt.Sprintf("%v", s.AudioData))
 	builder.WriteString(", ")
 	builder.WriteString("readed=")
 	builder.WriteString(fmt.Sprintf("%v", s.Readed))

@@ -95,7 +95,15 @@ func (m summaryViewModel) Update(msg tea.Msg) (summaryViewModel, tea.Cmd) {
 				// Play audio for the summary if available
 				slog.Debug("Playing audio for summary")
 				go func() {
-					if err := tts.PlayAudioData(m.article.Edges.Summary.AudioData); err != nil {
+					sum := m.article.Edges.Summary
+					sum.Edges.Feed = m.article.Edges.Feed
+					ctx := context.Background()
+					audioData, err := summary.GetAudioData(ctx, sum)
+					if err != nil {
+						slog.Error("Failed to get audio data", "error", err)
+						return
+					}
+					if err := tts.PlayAudioData(audioData); err != nil {
 						slog.Error("Failed to play audio data", "error", err)
 					}
 				}()

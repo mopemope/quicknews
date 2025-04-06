@@ -1865,7 +1865,6 @@ type SummaryMutation struct {
 	url            *string
 	title          *string
 	summary        *string
-	audio_data     *[]byte
 	readed         *bool
 	listend        *bool
 	created_at     *time.Time
@@ -2117,55 +2116,6 @@ func (m *SummaryMutation) ResetSummary() {
 	delete(m.clearedFields, summary.FieldSummary)
 }
 
-// SetAudioData sets the "audio_data" field.
-func (m *SummaryMutation) SetAudioData(b []byte) {
-	m.audio_data = &b
-}
-
-// AudioData returns the value of the "audio_data" field in the mutation.
-func (m *SummaryMutation) AudioData() (r []byte, exists bool) {
-	v := m.audio_data
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldAudioData returns the old "audio_data" field's value of the Summary entity.
-// If the Summary object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *SummaryMutation) OldAudioData(ctx context.Context) (v []byte, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldAudioData is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldAudioData requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldAudioData: %w", err)
-	}
-	return oldValue.AudioData, nil
-}
-
-// ClearAudioData clears the value of the "audio_data" field.
-func (m *SummaryMutation) ClearAudioData() {
-	m.audio_data = nil
-	m.clearedFields[summary.FieldAudioData] = struct{}{}
-}
-
-// AudioDataCleared returns if the "audio_data" field was cleared in this mutation.
-func (m *SummaryMutation) AudioDataCleared() bool {
-	_, ok := m.clearedFields[summary.FieldAudioData]
-	return ok
-}
-
-// ResetAudioData resets all changes to the "audio_data" field.
-func (m *SummaryMutation) ResetAudioData() {
-	m.audio_data = nil
-	delete(m.clearedFields, summary.FieldAudioData)
-}
-
 // SetReaded sets the "readed" field.
 func (m *SummaryMutation) SetReaded(b bool) {
 	m.readed = &b
@@ -2386,7 +2336,7 @@ func (m *SummaryMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *SummaryMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 6)
 	if m.url != nil {
 		fields = append(fields, summary.FieldURL)
 	}
@@ -2395,9 +2345,6 @@ func (m *SummaryMutation) Fields() []string {
 	}
 	if m.summary != nil {
 		fields = append(fields, summary.FieldSummary)
-	}
-	if m.audio_data != nil {
-		fields = append(fields, summary.FieldAudioData)
 	}
 	if m.readed != nil {
 		fields = append(fields, summary.FieldReaded)
@@ -2422,8 +2369,6 @@ func (m *SummaryMutation) Field(name string) (ent.Value, bool) {
 		return m.Title()
 	case summary.FieldSummary:
 		return m.Summary()
-	case summary.FieldAudioData:
-		return m.AudioData()
 	case summary.FieldReaded:
 		return m.Readed()
 	case summary.FieldListend:
@@ -2445,8 +2390,6 @@ func (m *SummaryMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldTitle(ctx)
 	case summary.FieldSummary:
 		return m.OldSummary(ctx)
-	case summary.FieldAudioData:
-		return m.OldAudioData(ctx)
 	case summary.FieldReaded:
 		return m.OldReaded(ctx)
 	case summary.FieldListend:
@@ -2482,13 +2425,6 @@ func (m *SummaryMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetSummary(v)
-		return nil
-	case summary.FieldAudioData:
-		v, ok := value.([]byte)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetAudioData(v)
 		return nil
 	case summary.FieldReaded:
 		v, ok := value.(bool)
@@ -2547,9 +2483,6 @@ func (m *SummaryMutation) ClearedFields() []string {
 	if m.FieldCleared(summary.FieldSummary) {
 		fields = append(fields, summary.FieldSummary)
 	}
-	if m.FieldCleared(summary.FieldAudioData) {
-		fields = append(fields, summary.FieldAudioData)
-	}
 	return fields
 }
 
@@ -2570,9 +2503,6 @@ func (m *SummaryMutation) ClearField(name string) error {
 	case summary.FieldSummary:
 		m.ClearSummary()
 		return nil
-	case summary.FieldAudioData:
-		m.ClearAudioData()
-		return nil
 	}
 	return fmt.Errorf("unknown Summary nullable field %s", name)
 }
@@ -2589,9 +2519,6 @@ func (m *SummaryMutation) ResetField(name string) error {
 		return nil
 	case summary.FieldSummary:
 		m.ResetSummary()
-		return nil
-	case summary.FieldAudioData:
-		m.ResetAudioData()
 		return nil
 	case summary.FieldReaded:
 		m.ResetReaded()

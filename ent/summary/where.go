@@ -71,11 +71,6 @@ func Summary(v string) predicate.Summary {
 	return predicate.Summary(sql.FieldEQ(FieldSummary, v))
 }
 
-// AudioData applies equality check predicate on the "audio_data" field. It's identical to AudioDataEQ.
-func AudioData(v []byte) predicate.Summary {
-	return predicate.Summary(sql.FieldEQ(FieldAudioData, v))
-}
-
 // Readed applies equality check predicate on the "readed" field. It's identical to ReadedEQ.
 func Readed(v bool) predicate.Summary {
 	return predicate.Summary(sql.FieldEQ(FieldReaded, v))
@@ -304,56 +299,6 @@ func SummaryEqualFold(v string) predicate.Summary {
 // SummaryContainsFold applies the ContainsFold predicate on the "summary" field.
 func SummaryContainsFold(v string) predicate.Summary {
 	return predicate.Summary(sql.FieldContainsFold(FieldSummary, v))
-}
-
-// AudioDataEQ applies the EQ predicate on the "audio_data" field.
-func AudioDataEQ(v []byte) predicate.Summary {
-	return predicate.Summary(sql.FieldEQ(FieldAudioData, v))
-}
-
-// AudioDataNEQ applies the NEQ predicate on the "audio_data" field.
-func AudioDataNEQ(v []byte) predicate.Summary {
-	return predicate.Summary(sql.FieldNEQ(FieldAudioData, v))
-}
-
-// AudioDataIn applies the In predicate on the "audio_data" field.
-func AudioDataIn(vs ...[]byte) predicate.Summary {
-	return predicate.Summary(sql.FieldIn(FieldAudioData, vs...))
-}
-
-// AudioDataNotIn applies the NotIn predicate on the "audio_data" field.
-func AudioDataNotIn(vs ...[]byte) predicate.Summary {
-	return predicate.Summary(sql.FieldNotIn(FieldAudioData, vs...))
-}
-
-// AudioDataGT applies the GT predicate on the "audio_data" field.
-func AudioDataGT(v []byte) predicate.Summary {
-	return predicate.Summary(sql.FieldGT(FieldAudioData, v))
-}
-
-// AudioDataGTE applies the GTE predicate on the "audio_data" field.
-func AudioDataGTE(v []byte) predicate.Summary {
-	return predicate.Summary(sql.FieldGTE(FieldAudioData, v))
-}
-
-// AudioDataLT applies the LT predicate on the "audio_data" field.
-func AudioDataLT(v []byte) predicate.Summary {
-	return predicate.Summary(sql.FieldLT(FieldAudioData, v))
-}
-
-// AudioDataLTE applies the LTE predicate on the "audio_data" field.
-func AudioDataLTE(v []byte) predicate.Summary {
-	return predicate.Summary(sql.FieldLTE(FieldAudioData, v))
-}
-
-// AudioDataIsNil applies the IsNil predicate on the "audio_data" field.
-func AudioDataIsNil() predicate.Summary {
-	return predicate.Summary(sql.FieldIsNull(FieldAudioData))
-}
-
-// AudioDataNotNil applies the NotNil predicate on the "audio_data" field.
-func AudioDataNotNil() predicate.Summary {
-	return predicate.Summary(sql.FieldNotNull(FieldAudioData))
 }
 
 // ReadedEQ applies the EQ predicate on the "readed" field.

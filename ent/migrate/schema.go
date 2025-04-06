@@ -58,7 +58,6 @@ var (
 		{Name: "url", Type: field.TypeString, Unique: true},
 		{Name: "title", Type: field.TypeString, Nullable: true},
 		{Name: "summary", Type: field.TypeString, Nullable: true},
-		{Name: "audio_data", Type: field.TypeBytes, Nullable: true},
 		{Name: "readed", Type: field.TypeBool, Default: false},
 		{Name: "listend", Type: field.TypeBool, Default: false},
 		{Name: "created_at", Type: field.TypeTime},
@@ -73,13 +72,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "summaries_articles_summary",
-				Columns:    []*schema.Column{SummariesColumns[8]},
+				Columns:    []*schema.Column{SummariesColumns[7]},
 				RefColumns: []*schema.Column{ArticlesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "summaries_feeds_summaries",
-				Columns:    []*schema.Column{SummariesColumns[9]},
+				Columns:    []*schema.Column{SummariesColumns[8]},
 				RefColumns: []*schema.Column{FeedsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

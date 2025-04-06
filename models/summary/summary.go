@@ -16,7 +16,6 @@ import (
 type SummaryRepository interface {
 	GetFromURL(ctx context.Context, url string) (*ent.Summary, error)
 	Save(ctx context.Context, sum *ent.Summary) error
-	UpdateAudioData(ctx context.Context, url string, audioData []byte) error
 	GetUnlistened(ctx context.Context) ([]*ent.Summary, error)
 	UpdateListened(ctx context.Context, sum *ent.Summary) error
 	UpdateReaded(ctx context.Context, sum *ent.Summary) error
@@ -52,11 +51,6 @@ func (r *SummaryRepositoryImpl) Save(ctx context.Context, sum *ent.Summary) erro
 
 	now := clock.Now()
 
-	audioData, err := GetAudioData(ctx, sum)
-	if err != nil && err != tts.ErrNoCredentials {
-		return errors.Wrap(err, "failed to synthesize text")
-	}
-
 	return database.WithTx(ctx, r.client, func(tx *ent.Tx) error {
 		_, err := tx.Summary.
 			Create().
@@ -64,7 +58,6 @@ func (r *SummaryRepositoryImpl) Save(ctx context.Context, sum *ent.Summary) erro
 			SetSummary(sum.Summary).
 			SetURL(sum.URL).
 			SetCreatedAt(now).
-			SetAudioData(audioData).
 			SetArticle(sum.Edges.Article).
 			SetFeed(sum.Edges.Feed).
 			Save(ctx)
@@ -75,32 +68,11 @@ func (r *SummaryRepositoryImpl) Save(ctx context.Context, sum *ent.Summary) erro
 	})
 }
 
-func (r *SummaryRepositoryImpl) UpdateAudioData(ctx context.Context, url string, audioData []byte) error {
-	return database.WithTx(ctx, r.client, func(tx *ent.Tx) error {
-		sum, err := tx.Summary.
-			Query().
-			Where(summary.URL(url)).
-			Only(ctx)
-		if err != nil {
-			return errors.Wrap(err, "failed to get summary for update")
-		}
-
-		_, err = tx.Summary.
-			UpdateOne(sum).
-			SetAudioData(audioData).
-			Save(ctx)
-		if err != nil {
-			return errors.Wrap(err, "failed to update summary with audio data")
-		}
-		return nil
-	})
-}
-
 func (r *SummaryRepositoryImpl) GetUnlistened(ctx context.Context) ([]*ent.Summary, error) {
 	sums, err := r.client.Summary.
 		Query().
-		Where(summary.AudioDataNotNil()).
 		Where(summary.Listend(false)).
+		WithFeed().
 		Order(ent.Asc(summary.FieldCreatedAt)).
 		All(ctx)
 

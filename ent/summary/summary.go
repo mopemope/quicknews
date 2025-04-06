@@ -21,8 +21,6 @@ const (
 	FieldTitle = "title"
 	// FieldSummary holds the string denoting the summary field in the database.
 	FieldSummary = "summary"
-	// FieldAudioData holds the string denoting the audio_data field in the database.
-	FieldAudioData = "audio_data"
 	// FieldReaded holds the string denoting the readed field in the database.
 	FieldReaded = "readed"
 	// FieldListend holds the string denoting the listend field in the database.
@@ -57,7 +55,6 @@ var Columns = []string{
 	FieldURL,
 	FieldTitle,
 	FieldSummary,
-	FieldAudioData,
 	FieldReaded,
 	FieldListend,
 	FieldCreatedAt,

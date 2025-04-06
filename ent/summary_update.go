@@ -84,18 +84,6 @@ func (su *SummaryUpdate) ClearSummary() *SummaryUpdate {
 	return su
 }
 
-// SetAudioData sets the "audio_data" field.
-func (su *SummaryUpdate) SetAudioData(b []byte) *SummaryUpdate {
-	su.mutation.SetAudioData(b)
-	return su
-}
-
-// ClearAudioData clears the value of the "audio_data" field.
-func (su *SummaryUpdate) ClearAudioData() *SummaryUpdate {
-	su.mutation.ClearAudioData()
-	return su
-}
-
 // SetReaded sets the "readed" field.
 func (su *SummaryUpdate) SetReaded(b bool) *SummaryUpdate {
 	su.mutation.SetReaded(b)
@@ -238,12 +226,6 @@ func (su *SummaryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if su.mutation.SummaryCleared() {
 		_spec.ClearField(summary.FieldSummary, field.TypeString)
 	}
-	if value, ok := su.mutation.AudioData(); ok {
-		_spec.SetField(summary.FieldAudioData, field.TypeBytes, value)
-	}
-	if su.mutation.AudioDataCleared() {
-		_spec.ClearField(summary.FieldAudioData, field.TypeBytes)
-	}
 	if value, ok := su.mutation.Readed(); ok {
 		_spec.SetField(summary.FieldReaded, field.TypeBool, value)
 	}
@@ -379,18 +361,6 @@ func (suo *SummaryUpdateOne) SetNillableSummary(s *string) *SummaryUpdateOne {
 // ClearSummary clears the value of the "summary" field.
 func (suo *SummaryUpdateOne) ClearSummary() *SummaryUpdateOne {
 	suo.mutation.ClearSummary()
-	return suo
-}
-
-// SetAudioData sets the "audio_data" field.
-func (suo *SummaryUpdateOne) SetAudioData(b []byte) *SummaryUpdateOne {
-	suo.mutation.SetAudioData(b)
-	return suo
-}
-
-// ClearAudioData clears the value of the "audio_data" field.
-func (suo *SummaryUpdateOne) ClearAudioData() *SummaryUpdateOne {
-	suo.mutation.ClearAudioData()
 	return suo
 }
 
@@ -565,12 +535,6 @@ func (suo *SummaryUpdateOne) sqlSave(ctx context.Context) (_node *Summary, err e
 	}
 	if suo.mutation.SummaryCleared() {
 		_spec.ClearField(summary.FieldSummary, field.TypeString)
-	}
-	if value, ok := suo.mutation.AudioData(); ok {
-		_spec.SetField(summary.FieldAudioData, field.TypeBytes, value)
-	}
-	if suo.mutation.AudioDataCleared() {
-		_spec.ClearField(summary.FieldAudioData, field.TypeBytes)
 	}
 	if value, ok := suo.mutation.Readed(); ok {
 		_spec.SetField(summary.FieldReaded, field.TypeBool, value)

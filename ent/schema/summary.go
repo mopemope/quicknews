@@ -28,9 +28,6 @@ func (Summary) Fields() []ent.Field {
 		field.String("summary").
 			Optional().
 			Comment("Summary text"),
-		field.Bytes("audio_data").
-			Optional().
-			Comment("Image data"),
 		field.Bool("readed").
 			Default(false).
 			Comment("Read status"),

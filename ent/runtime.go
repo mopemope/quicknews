@@ -73,15 +73,15 @@ func init() {
 	// summary.URLValidator is a validator for the "url" field. It is called by the builders before save.
 	summary.URLValidator = summaryDescURL.Validators[0].(func(string) error)
 	// summaryDescReaded is the schema descriptor for readed field.
-	summaryDescReaded := summaryFields[5].Descriptor()
+	summaryDescReaded := summaryFields[4].Descriptor()
 	// summary.DefaultReaded holds the default value on creation for the readed field.
 	summary.DefaultReaded = summaryDescReaded.Default.(bool)
 	// summaryDescListend is the schema descriptor for listend field.
-	summaryDescListend := summaryFields[6].Descriptor()
+	summaryDescListend := summaryFields[5].Descriptor()
 	// summary.DefaultListend holds the default value on creation for the listend field.
 	summary.DefaultListend = summaryDescListend.Default.(bool)
 	// summaryDescCreatedAt is the schema descriptor for created_at field.
-	summaryDescCreatedAt := summaryFields[7].Descriptor()
+	summaryDescCreatedAt := summaryFields[6].Descriptor()
 	// summary.DefaultCreatedAt holds the default value on creation for the created_at field.
 	summary.DefaultCreatedAt = summaryDescCreatedAt.Default.(func() time.Time)
 	// summaryDescID is the schema descriptor for id field.

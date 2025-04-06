@@ -27,7 +27,13 @@ func (a *playArticle) DisplayName() string {
 
 func (a *playArticle) Process() {
 	ctx := context.Background()
-	if err := tts.PlayAudioData(a.summary.AudioData); err != nil {
+	audioData, err := summary.GetAudioData(ctx, a.summary)
+	if err != nil {
+		slog.Error("Failed to get audio data", "error", err)
+		return
+	}
+
+	if err := tts.PlayAudioData(audioData); err != nil {
 		slog.Error("failed to play audio data", "error", err)
 		return
 	}

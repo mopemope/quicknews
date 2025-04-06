@@ -57,12 +57,6 @@ func (sc *SummaryCreate) SetNillableSummary(s *string) *SummaryCreate {
 	return sc
 }
 
-// SetAudioData sets the "audio_data" field.
-func (sc *SummaryCreate) SetAudioData(b []byte) *SummaryCreate {
-	sc.mutation.SetAudioData(b)
-	return sc
-}
-
 // SetReaded sets the "readed" field.
 func (sc *SummaryCreate) SetReaded(b bool) *SummaryCreate {
 	sc.mutation.SetReaded(b)
@@ -270,10 +264,6 @@ func (sc *SummaryCreate) createSpec() (*Summary, *sqlgraph.CreateSpec) {
 	if value, ok := sc.mutation.Summary(); ok {
 		_spec.SetField(summary.FieldSummary, field.TypeString, value)
 		_node.Summary = value
-	}
-	if value, ok := sc.mutation.AudioData(); ok {
-		_spec.SetField(summary.FieldAudioData, field.TypeBytes, value)
-		_node.AudioData = value
 	}
 	if value, ok := sc.mutation.Readed(); ok {
 		_spec.SetField(summary.FieldReaded, field.TypeBool, value)
