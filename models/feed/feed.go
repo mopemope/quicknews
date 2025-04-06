@@ -26,7 +26,7 @@ type FeedRepository interface {
 	UpdateFeed(ctx context.Context, feed *ent.Feed, parsedFeed *gofeed.Feed) (*ent.Feed, error)
 	// Exist checks if a feed with the given URL already exists.
 	Exist(ctx context.Context, url string) (bool, error)
-	Save(ctx context.Context, input *FeedInput) error
+	Save(ctx context.Context, input *FeedInput, bookmark bool) error
 	// SaveFeeds saves multiple feeds in a single transaction.
 	SaveFeeds(ctx context.Context, inputs []*FeedInput) error
 }
@@ -113,7 +113,7 @@ func (r *FeedRepositoryImpl) Exist(ctx context.Context, url string) (bool, error
 	return exists, nil
 }
 
-func (r *FeedRepositoryImpl) Save(ctx context.Context, input *FeedInput) error {
+func (r *FeedRepositoryImpl) Save(ctx context.Context, input *FeedInput, bookmark bool) error {
 	now := clock.Now()
 
 	return database.WithTx(ctx, r.client, func(tx *ent.Tx) error {
@@ -124,6 +124,7 @@ func (r *FeedRepositoryImpl) Save(ctx context.Context, input *FeedInput) error {
 			SetDescription(input.Description).
 			SetLink(input.Link).
 			SetUpdatedAt(now). // Set initial updated_at
+			SetIsBookmark(bookmark).
 			Save(ctx)
 		if err != nil {
 			return errors.Wrap(err, "failed to save feed")

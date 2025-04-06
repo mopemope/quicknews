@@ -8,6 +8,7 @@ import (
 	_ "github.com/mattn/go-sqlite3" // SQLite driver
 	"github.com/mopemope/quicknews/cmd"
 	"github.com/mopemope/quicknews/ent"
+	"github.com/mopemope/quicknews/models/feed"
 	"github.com/mopemope/quicknews/pkg/log" // Import log package
 )
 
@@ -67,4 +68,24 @@ func main() {
 	// Call the Run() method of the selected parsed command.
 	err = kctx.Run()
 	kctx.FatalIfErrorf(err)
+}
+
+func setup(ctx context.Context, cilent *ent.Client) error {
+	repo := feed.NewFeedRepository(cilent)
+	exist, err := repo.ExistBookmarkFeed(ctx)
+	if err != nil {
+		return err
+	}
+	if !exist {
+		input := &feed.FeedInput{
+			URL:         "https://quicknews.org/bookmark/rss",
+			Title:       "Bookmark",
+			Description: "Bookmark",
+			Link:        "https://quicknews.org/bookmark/rss",
+		}
+		if err := repo.Save(ctx, input, true); err != nil {
+			return err
+		}
+	}
+	return nil
 }

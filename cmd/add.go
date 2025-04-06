@@ -47,7 +47,7 @@ func (a *AddCmd) Run(client *ent.Client) error {
 			Description: parsedFeed.Description,
 			Link:        parsedFeed.Link,
 		}
-		err = repo.Save(ctx, input)
+		err = repo.Save(ctx, input, false)
 		if err != nil {
 			slog.Error("Error saving feed", "url", url, "error", err)
 			continue // Skip this URL on error
