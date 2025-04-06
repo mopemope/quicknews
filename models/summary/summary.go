@@ -3,6 +3,10 @@ package summary
 import (
 	"context"
 	"fmt"
+	"log/slog"
+	"os"
+	"path"
+	"strings"
 	"sync"
 
 	"github.com/cockroachdb/errors"
@@ -52,7 +56,7 @@ func (r *SummaryRepositoryImpl) Save(ctx context.Context, sum *ent.Summary) erro
 	now := clock.Now()
 
 	return database.WithTx(ctx, r.client, func(tx *ent.Tx) error {
-		_, err := tx.Summary.
+		sum, err := tx.Summary.
 			Create().
 			SetTitle(sum.Title).
 			SetSummary(sum.Summary).
@@ -63,6 +67,9 @@ func (r *SummaryRepositoryImpl) Save(ctx context.Context, sum *ent.Summary) erro
 			Save(ctx)
 		if err != nil {
 			return errors.Wrap(err, "failed to save summary")
+		}
+		if err := ExportOrg(sum); err != nil {
+			slog.Error("failed to export org", "error", err)
 		}
 		return nil
 	})
@@ -124,4 +131,59 @@ func GetAudioData(ctx context.Context, sum *ent.Summary) ([]byte, error) {
 		return nil, errors.Wrap(err, "failed to synthesize text")
 	}
 	return audioData, nil
+}
+
+// ExportOrg exports the summary to an Org file.
+func ExportOrg(sum *ent.Summary) error {
+	dst := os.Getenv("EXPORT_ORG")
+	if dst == "" {
+		return nil
+	}
+	if sum.Edges.Feed == nil || sum.Edges.Article == nil {
+		return nil
+	}
+	feed := sum.Edges.Feed
+	article := sum.Edges.Article
+
+	dst = path.Join(dst, convertPathName(feed.Title))
+	if err := os.MkdirAll(dst, os.ModePerm); err != nil {
+		return errors.Wrap(err, "failed to create directory")
+	}
+
+	timestamp := sum.CreatedAt.Format("20060102150405")
+	orgFile := timestamp + "-" + convertPathName(sum.Title)
+	dst = path.Join(dst, orgFile)
+
+	contentTemplate := `:PROPERTIES:
+:ID:       %s
+:FEEDURL:  %s
+:FEED:     %s
+:LINK:     %s
+:TITLE:    %s
+:END:
+#+TITLE:   %s
+#+TAGS: feed
+#+STARTUP: overview
+#+STARTUP: inlineimages
+#+OPTIONS: ^:nil
+
+# [[%s][%s]] :feed:
+
+%s
+`
+	content := fmt.Sprintf(contentTemplate,
+		sum.ID,
+		feed.URL,
+		feed.Title,
+		article.URL,
+		article.Title,
+		sum.Title,
+		sum.URL,
+		sum.Title,
+		sum.Summary)
+	return os.WriteFile(dst, []byte(content), os.ModePerm)
+}
+
+func convertPathName(name string) string {
+	return strings.ReplaceAll(name, " ", "_")
 }
