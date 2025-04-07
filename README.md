@@ -6,11 +6,14 @@ This tool is a personal project. Its primary purpose is for my own use.
 
 ## Features
 
-- Add, edit, and delete RSS feeds from the command line.
-- Fetch and update RSS feeds.
-- Browse feeds and articles using a TUI (Terminal User Interface).
-- Summarize articles using LLMs (Large Language Models).
+- Add RSS feeds from the command line (`add`). (Editing and deleting are not yet implemented)
+- Import feeds from an OPML file (`import`).
+- Fetch and update RSS feeds (`fetch`), optionally at regular intervals (`fetch --interval`).
+- Browse feeds and articles using a TUI (Terminal User Interface) (`read`).
+- Summarize articles using LLMs (Large Language Models) like Google Gemini.
 - Convert summaries to audio using Google Text-to-Speech.
+- Play unlistened summaries aloud (`play`).
+- Export summaries to Org mode files (optional, requires `EXPORT_ORG` environment variable).
 
 ## How to Compile
 
@@ -51,5 +54,9 @@ Some features require specific environment variables to be set:
     - If you want to use the article summarization feature with Google Gemini, you need an API key.
     - Set the `GEMINI_API_KEY` environment variable to your API key.
     - Example: `export GEMINI_API_KEY="YOUR_API_KEY"`
+
+- **Org Mode Export (Optional):**
+    - To export summaries as Org mode files, set the `EXPORT_ORG` environment variable to the desired destination directory path.
+    - Example: `export EXPORT_ORG="/path/to/your/org/files"`
 
 These features are optional. The core RSS reading functionality works without these environment variables.
