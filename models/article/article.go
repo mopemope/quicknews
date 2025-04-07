@@ -20,6 +20,7 @@ type ArticleRepository interface {
 	GetFromURL(ctx context.Context, url string) (*ent.Article, error)
 	Save(ctx context.Context, article *ent.Article) (*ent.Article, error)
 	SaveAll(ctx context.Context, articles ent.Articles) error
+	Delete(ctx context.Context, id string) error
 }
 
 type ArticleRepositoryImpl struct {
@@ -139,4 +140,32 @@ func (r *ArticleRepositoryImpl) SaveAll(ctx context.Context, articles ent.Articl
 		return nil
 	})
 
+}
+
+func (r *ArticleRepositoryImpl) Delete(ctx context.Context, id string) error {
+	return database.WithTx(ctx, r.client, func(tx *ent.Tx) error {
+		delArticle, err := tx.Article.
+			Query().
+			Where(article.IDEQ(uuid.MustParse(id))).
+			Only(ctx)
+		if err != nil {
+			return errors.Wrap(err, "failed to get article by ID")
+		}
+
+		if _, err := tx.Summary.
+			Delete().
+			Where(summary.HasArticleWith(article.IDEQ(delArticle.ID))).
+			Exec(ctx); err != nil {
+			return errors.Wrap(err, "failed to delete summary")
+		}
+
+		if _, err := tx.Article.
+			Delete().
+			Where(article.IDEQ(delArticle.ID)).
+			Exec(ctx); err != nil {
+			return errors.Wrap(err, "failed to delete article")
+		}
+
+		return nil
+	})
 }
