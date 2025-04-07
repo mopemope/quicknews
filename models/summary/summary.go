@@ -56,7 +56,7 @@ func (r *SummaryRepositoryImpl) Save(ctx context.Context, sum *ent.Summary) erro
 	now := clock.Now()
 
 	return database.WithTx(ctx, r.client, func(tx *ent.Tx) error {
-		sum, err := tx.Summary.
+		newSum, err := tx.Summary.
 			Create().
 			SetTitle(sum.Title).
 			SetSummary(sum.Summary).
@@ -68,7 +68,9 @@ func (r *SummaryRepositoryImpl) Save(ctx context.Context, sum *ent.Summary) erro
 		if err != nil {
 			return errors.Wrap(err, "failed to save summary")
 		}
-		if err := ExportOrg(sum); err != nil {
+		newSum.Edges.Article = sum.Edges.Article
+		newSum.Edges.Feed = sum.Edges.Feed
+		if err := ExportOrg(newSum); err != nil {
 			slog.Error("failed to export org", "error", err)
 		}
 		return nil
@@ -137,9 +139,11 @@ func GetAudioData(ctx context.Context, sum *ent.Summary) ([]byte, error) {
 func ExportOrg(sum *ent.Summary) error {
 	dst := os.Getenv("EXPORT_ORG")
 	if dst == "" {
+		slog.Info("EXPORT_ORG is not set")
 		return nil
 	}
 	if sum.Edges.Feed == nil || sum.Edges.Article == nil {
+		slog.Info("Feed or Article is nil")
 		return nil
 	}
 	feed := sum.Edges.Feed
