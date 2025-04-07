@@ -14,7 +14,7 @@ import (
 	"github.com/mopemope/quicknews/models/feed"
 	"github.com/mopemope/quicknews/models/summary"
 	"github.com/mopemope/quicknews/pkg/gemini"
-	"github.com/mopemope/quicknews/pkg/tui/progress"
+	"github.com/mopemope/quicknews/tui/progress"
 
 	_ "github.com/mattn/go-sqlite3" // SQLite driver
 )

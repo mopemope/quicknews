@@ -11,7 +11,7 @@ import (
 	"github.com/mopemope/quicknews/models/article"
 	"github.com/mopemope/quicknews/models/feed"
 	"github.com/mopemope/quicknews/models/summary"
-	"github.com/mopemope/quicknews/pkg/tui"
+	"github.com/mopemope/quicknews/tui"
 )
 
 // ReadCmd represents the TUI command.

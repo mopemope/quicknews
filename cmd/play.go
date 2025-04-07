@@ -10,7 +10,7 @@ import (
 	"github.com/mopemope/quicknews/ent"
 	"github.com/mopemope/quicknews/models/summary"
 	"github.com/mopemope/quicknews/pkg/tts"
-	"github.com/mopemope/quicknews/pkg/tui/progress"
+	"github.com/mopemope/quicknews/tui/progress"
 )
 
 type PlayCmd struct {
