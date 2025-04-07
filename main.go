@@ -28,6 +28,8 @@ type CLI struct {
 
 	// Version flag
 	Version kong.VersionFlag `short:"V" help:"Show version information."`
+
+	Debug bool `short:"d" help:"Enable debug logging."`
 }
 
 func main() {
@@ -41,7 +43,7 @@ func main() {
 			Compact: true,
 		}),
 	)
-	if err := log.InitializeLogger(cli.LogPath); err != nil {
+	if err := log.InitializeLogger(cli.LogPath, cli.Debug); err != nil {
 		slog.Error("failed to initialize logger", "error", err)
 		return
 	}

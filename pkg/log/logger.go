@@ -9,7 +9,8 @@ import (
 // InitializeLogger initializes the global slog logger.
 // If logPath is empty, it logs to os.Stdout.
 // Otherwise, it logs to the specified file path.
-func InitializeLogger(logPath string) error {
+// If debug is true, the log level is set to Debug.
+func InitializeLogger(logPath string, debug bool) error {
 	var output io.Writer = os.Stdout
 	var err error
 
@@ -26,7 +27,16 @@ func InitializeLogger(logPath string) error {
 		// The OS will close the file descriptor on process exit.
 	}
 
-	logger := slog.New(slog.NewJSONHandler(output, nil))
+	logLevel := slog.LevelInfo
+	if debug {
+		logLevel = slog.LevelDebug
+	}
+
+	opts := &slog.HandlerOptions{
+		Level: logLevel,
+	}
+
+	logger := slog.New(slog.NewJSONHandler(output, opts))
 	slog.SetDefault(logger)
 	return nil
 }
