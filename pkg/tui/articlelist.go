@@ -8,20 +8,23 @@ import (
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/cockroachdb/errors"
 	"github.com/google/uuid"
 	"github.com/mopemope/quicknews/ent"
 	"github.com/mopemope/quicknews/models/article"
 	"github.com/mopemope/quicknews/models/feed"
+	"github.com/mopemope/quicknews/models/summary"
 )
 
 // Message to indicate going back to the feed list
 type backToFeedListMsg struct{}
 
 type articleListModel struct {
-	feedRepos feed.FeedRepository
-	repos     article.ArticleRepository
-	list      list.Model
-	feed      feedItem
+	feedRepos    feed.FeedRepository
+	repos        article.ArticleRepository
+	summaryRepos summary.SummaryRepository
+	list         list.Model
+	feed         feedItem
 	// selectedArticle *ent.Article // Removed: Selection handled by main model
 	listWidth int
 	err       error
@@ -64,9 +67,10 @@ func newArticleListModel(client *ent.Client) articleListModel {
 	l.Title = "Articles"
 
 	return articleListModel{
-		feedRepos: feed.NewFeedRepository(client),
-		repos:     article.NewArticleRepository(client),
-		list:      l,
+		feedRepos:    feed.NewFeedRepository(client),
+		repos:        article.NewArticleRepository(client),
+		summaryRepos: summary.NewSummaryRepository(client),
+		list:         l,
 	}
 }
 
@@ -92,7 +96,7 @@ func (m *articleListModel) fetchArticlesCmd() tea.Cmd {
 		articles, err := m.repos.GetByUnreaded(ctx, m.feed.id)
 		if err != nil {
 			slog.Error("Failed to fetch articles", "error", err, "feedID", m.feed.id)
-			return fmt.Errorf("failed to fetch articles for feed %s: %w", m.feed.id, err)
+			return errors.Wrapf(err, "failed to fetch articles for feed %s: %w", m.feed.id)
 		}
 		slog.Debug("Fetched articles successfully", "count", len(articles), "feedID", m.feed.id)
 
@@ -160,7 +164,20 @@ func (m articleListModel) Update(msg tea.Msg) (articleListModel, tea.Cmd) {
 					slog.Error("Failed to open url", "error", err)
 				}
 			}
-
+		case "r":
+			selectedItem, ok := m.list.SelectedItem().(articleItem)
+			if ok {
+				id := selectedItem.id
+				ctx := context.Background()
+				article, err := m.repos.GetById(ctx, id)
+				if err != nil {
+					slog.Error("Failed to get article by ID", "error", err)
+					return m, nil
+				}
+				if err := m.summaryRepos.UpdateReaded(ctx, article.Edges.Summary); err != nil {
+					slog.Error("Failed to open url", "error", err)
+				}
+			}
 		case "enter":
 			selectedItem, ok := m.list.SelectedItem().(articleItem)
 			if ok {
@@ -171,8 +188,6 @@ func (m articleListModel) Update(msg tea.Msg) (articleListModel, tea.Cmd) {
 				}
 				cmds = append(cmds, cmd)
 			}
-			// Viewport scrolling is handled in the summary view.
-			// For now, rely on list navigation triggering content load.
 		}
 	}
 
