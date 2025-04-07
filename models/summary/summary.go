@@ -155,7 +155,7 @@ func ExportOrg(sum *ent.Summary) error {
 	}
 
 	timestamp := sum.CreatedAt.Format("20060102150405")
-	orgFile := timestamp + "-" + convertPathName(sum.Title)
+	orgFile := timestamp + "-" + convertPathName(sum.Title) + ".org"
 	dst = path.Join(dst, orgFile)
 
 	contentTemplate := `:PROPERTIES:
