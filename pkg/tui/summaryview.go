@@ -158,7 +158,7 @@ func (m summaryViewModel) headerView() string {
 		Bold(true).
 		Foreground(lipgloss.Color("62")). // Example color
 		Padding(0, 1).
-		Render(title)
+		Render(title + "\n\n" + m.article.URL)
 }
 
 func (m summaryViewModel) footerView() string {
