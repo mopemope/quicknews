@@ -171,7 +171,7 @@ func ExportOrg(sum *ent.Summary) error {
 #+STARTUP: inlineimages
 #+OPTIONS: ^:nil
 
-# [[%s][%s]] :feed:
+# [[%s][%s]]
 
 %s
 `
