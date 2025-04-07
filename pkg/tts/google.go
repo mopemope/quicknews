@@ -24,7 +24,33 @@ var (
 	ErrEmptyAudioData  = errors.New("audio data cannot be empty")
 	mutex              = &sync.Mutex{}
 	speakerInitialized = false
+
+	SpeachOpt = &SpeechOptions{
+		Pitch:        1.3,
+		SpeakingRate: 1.3,
+	}
 )
+
+type SpeechOptions struct {
+	Pitch        float64
+	SpeakingRate float64
+}
+
+func (s *SpeechOptions) UpPitch() {
+	s.Pitch += 0.1
+}
+
+func (s *SpeechOptions) DownPitch() {
+	s.Pitch -= 0.1
+}
+
+func (s *SpeechOptions) UpSpeakingRate() {
+	s.SpeakingRate += 0.1
+}
+
+func (s *SpeechOptions) DownSpeakingRate() {
+	s.SpeakingRate -= 0.1
+}
 
 // Client wraps the Google Cloud Text-to-Speech client.
 type Client struct {
@@ -66,8 +92,8 @@ func (c *Client) SynthesizeSpeech(ctx context.Context, text string) ([]byte, err
 		AudioConfig: &texttospeechpb.AudioConfig{
 			AudioEncoding:    texttospeechpb.AudioEncoding_MP3,
 			EffectsProfileId: []string{"small-bluetooth-speaker-class-device"},
-			SpeakingRate:     1.5,
-			Pitch:            1.3,
+			SpeakingRate:     SpeachOpt.SpeakingRate,
+			Pitch:            SpeachOpt.Pitch,
 		},
 	}
 
