@@ -22,8 +22,6 @@ func TestNewClient(t *testing.T) {
 
 	require.NoError(t, err, "NewClient should not return an error with a valid API key")
 	require.NotNil(t, client, "NewClient should return a non-nil client")
-	assert.NotNil(t, client.genaiClient, "Client should have a non-nil genaiClient")
-
 	err = client.Close()
 	assert.NoError(t, err, "Close should not return an error")
 }
@@ -53,14 +51,22 @@ func TestSummarizeText(t *testing.T) {
 	require.NoError(t, err)
 	defer client.Close()
 
-	// This is an integration test part - requires actual API call
-	summary, err := client.Summarize(context.Background(), "https://www.theregister.com/2025/04/03/openai_copyright_bypass/")
-
-	require.NoError(t, err, "SummarizeText should not return an error for a valid request")
-	assert.NotEmpty(t, summary, "SummarizeText should return a non-empty summary")
-
-	t.Log(len([]rune(summary.Summary)))
-	// Add more specific assertions based on expected summary format if possible
-	t.Logf("Received summary: %s", summary.Title)
-	t.Logf("Received summary: %s", summary.Summary)
+	{
+		// This is an integration test part - requires actual API call
+		url := "https://www.theregister.com/2025/04/03/openai_copyright_bypass/"
+		summary, err := client.Summarize(context.Background(), url)
+		require.NoError(t, err, "SummarizeText should not return an error for a valid request")
+		t.Log(len([]rune(summary.Summary)))
+		t.Logf("Received summary: %s", summary.Title)
+		t.Logf("Received summary: %s", summary.Summary)
+	}
+	{
+		// This is an integration test part - requires actual API call
+		url := "https://zenn.dev/moneyforward/articles/6deaa22428a109"
+		summary, err := client.Summarize(context.Background(), url)
+		require.NoError(t, err, "SummarizeText should not return an error for a valid request")
+		t.Log(len([]rune(summary.Summary)))
+		t.Logf("Received summary: %s", summary.Title)
+		t.Logf("Received summary: %s", summary.Summary)
+	}
 }

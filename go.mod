@@ -12,20 +12,19 @@ require (
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/cockroachdb/errors v1.11.3
 	github.com/gilliek/go-opml v1.0.0
-	github.com/google/generative-ai-go v0.19.0
 	github.com/google/uuid v1.6.0
 	github.com/gopxl/beep/v2 v2.1.1
-	github.com/mattn/go-sqlite3 v1.14.26
+	github.com/mattn/go-sqlite3 v1.14.27
 	github.com/mmcdole/gofeed v1.3.0
 	github.com/stretchr/testify v1.10.0
 	github.com/toqueteos/webbrowser v1.2.0
 	google.golang.org/api v0.228.0
+	google.golang.org/genai v0.7.0
 )
 
 require (
 	ariga.io/atlas v0.31.1-0.20250212144724-069be8033e83 // indirect
 	cloud.google.com/go v0.118.3 // indirect
-	cloud.google.com/go/ai v0.8.0 // indirect
 	cloud.google.com/go/auth v0.15.0 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.8 // indirect
 	cloud.google.com/go/compute/metadata v0.6.0 // indirect
@@ -59,6 +58,7 @@ require (
 	github.com/google/s2a-go v0.1.9 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.6 // indirect
 	github.com/googleapis/gax-go/v2 v2.14.1 // indirect
+	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/hajimehoshi/go-mp3 v0.3.4 // indirect
 	github.com/hashicorp/hcl/v2 v2.13.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect

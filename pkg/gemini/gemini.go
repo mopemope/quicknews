@@ -8,9 +8,8 @@ import (
 	"strings"
 
 	"github.com/cockroachdb/errors"
-	"github.com/google/generative-ai-go/genai"
 	_ "github.com/mopemope/quicknews/pkg/log"
-	"google.golang.org/api/option"
+	"google.golang.org/genai"
 )
 
 var ModelName = "gemini-2.0-flash"
@@ -22,15 +21,15 @@ const summaryPrompt = `
 URL: %s
 
 出力する際は、以下のルールを厳守してください。
-
-1.  **タイトル:** Webサイトのタイトルを正確に日本語に翻訳し、余計な修飾は加えないでください。
-2.  **要約:** 記事の主要な内容を、客観的で分かりやすいニュース記事のようなスタイルで要約してください。
-3.  **文字数:** 要約の文字数は800文字以上を目安とし、内容を十分に伝えられるように記述してください。ただし、情報量が少ない場合は、可能な範囲で詳細に記述してください。
-4.  **区切り文字:** タイトルと要約の間には、必ず「-----」という区切り文字を入れてください。
-5.  **エラー処理:**
+1.  出力: 出力結果をプログラムで整形するのでタイトル、要約のみをシンプルなテキストで出力します。了解しました。などの返事は出力しません。
+2.  タイトル: Webサイトのタイトルを正確に日本語に翻訳し、余計な修飾は加えないでください。
+3.  要約: 記事の主要な内容を、客観的で分かりやすいニュース記事のようなスタイルで要約してください。**などの強調も不要です。
+4.  文字数: 要約の文字数は800文字以上を目安とし、内容を十分に伝えられるように記述してください。ただし、情報量が少ない場合は、可能な範囲で詳細に記述してください。
+5.  区切り文字: タイトルと要約の間には、必ず「-----」という区切り文字を入れてください。
+6.  エラー処理:
     * 指定されたURLが存在しない場合や、アクセスできない場合は、「指定されたURLにアクセスできませんでした。」と出力してください。
     * Webサイトの内容が要約に適さない場合（例：画像や動画が主体である、内容が極めて短いなど）は、「このWebサイトは要約に適していません。」と出力してください。
-6.  **出力形式は以下です**
+7.  出力形式は以下です。
 
 <記事のタイトル>
 -----
@@ -46,7 +45,7 @@ type PageSummary struct {
 
 // Client wraps the genai.Client.
 type Client struct {
-	genaiClient *genai.Client
+	client *genai.Client
 }
 
 // NewClient creates a new Gemini client.
@@ -57,41 +56,49 @@ func NewClient(ctx context.Context) (*Client, error) {
 		return nil, errors.New("GEMINI_API_KEY environment variable not set")
 	}
 
-	genaiClient, err := genai.NewClient(ctx, option.WithAPIKey(apiKey))
+	client, err := genai.NewClient(ctx, &genai.ClientConfig{
+		APIKey:  apiKey,
+		Backend: genai.BackendGeminiAPI,
+	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to create genai client: %w", err)
+		return nil, errors.Wrap(err, "failed to create genai client")
 	}
 
 	return &Client{
-		genaiClient: genaiClient,
+		client: client,
 	}, nil
 }
 
 // Close closes the underlying genai.Client.
 func (c *Client) Close() error {
-	return c.genaiClient.Close()
+	return nil
 }
 
 // Summarize sends a request to the Gemini API to summarize the given text.
 func (c *Client) Summarize(ctx context.Context, url string) (*PageSummary, error) {
-	model := c.genaiClient.GenerativeModel(ModelName)
 
 	prompt := fmt.Sprintf(summaryPrompt, url)
 
-	slog.Debug("Sending request to Gemini API", slog.String("model", ModelName), slog.String("url", url))
-
-	resp, err := model.GenerateContent(ctx, genai.Text(prompt))
+	res, err := c.client.Models.GenerateContent(ctx,
+		ModelName,
+		genai.Text(prompt),
+		&genai.GenerateContentConfig{
+			Tools: []*genai.Tool{
+				{
+					GoogleSearch: &genai.GoogleSearch{},
+				},
+			},
+		})
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to generate content")
 	}
+	slog.Debug("Sending request to Gemini API", slog.String("model", ModelName), slog.String("url", url))
 
 	// Aggregate text parts from the response
 	var summary string
-	if len(resp.Candidates) > 0 && len(resp.Candidates[0].Content.Parts) > 0 {
-		for _, part := range resp.Candidates[0].Content.Parts {
-			if textPart, ok := part.(genai.Text); ok {
-				summary += string(textPart)
-			}
+	if len(res.Candidates) > 0 && len(res.Candidates[0].Content.Parts) > 0 {
+		for _, part := range res.Candidates[0].Content.Parts {
+			summary += part.Text
 		}
 	} else {
 		slog.Warn("Gemini API returned no content or candidates")
@@ -127,10 +134,11 @@ func parseResponse(text string) (*PageSummary, error) {
 	title = strings.ReplaceAll(title, "**記事のタイトル**", "")
 	title = strings.ReplaceAll(title, "*", "")
 
+	sum := strings.ReplaceAll(result[1], "\n\n", "\n")
 	summaryResponse := PageSummary{
 		URL:     "",
 		Title:   strings.TrimSpace(title),
-		Summary: strings.TrimSpace(result[1]),
+		Summary: strings.TrimSpace(sum),
 	}
 	return &summaryResponse, nil
 }
