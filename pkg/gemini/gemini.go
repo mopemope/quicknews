@@ -39,6 +39,7 @@ URL: %s
 `
 
 type PageSummary struct {
+	URL     string `json:"url"`
 	Title   string `json:"title"`
 	Summary string `json:"summary"`
 }
@@ -77,7 +78,7 @@ func (c *Client) Summarize(ctx context.Context, url string) (*PageSummary, error
 
 	prompt := fmt.Sprintf(summaryPrompt, url)
 
-	slog.Debug("Sending request to Gemini API", slog.String("model", ModelName)) // Log model name using the variable
+	slog.Debug("Sending request to Gemini API", slog.String("model", ModelName), slog.String("url", url))
 
 	resp, err := model.GenerateContent(ctx, genai.Text(prompt))
 	if err != nil {
@@ -108,6 +109,7 @@ func (c *Client) Summarize(ctx context.Context, url string) (*PageSummary, error
 		return nil, errors.New("parsed result is nil")
 	}
 
+	result.URL = url
 	slog.Debug("Successfully received summary from Gemini API")
 	return result, nil
 }
@@ -126,6 +128,7 @@ func parseResponse(text string) (*PageSummary, error) {
 	title = strings.ReplaceAll(title, "*", "")
 
 	summaryResponse := PageSummary{
+		URL:     "",
 		Title:   strings.TrimSpace(title),
 		Summary: strings.TrimSpace(result[1]),
 	}

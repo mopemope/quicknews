@@ -99,12 +99,13 @@ func (a *Article) processSummary(ctx context.Context, article *ent.Article) erro
 		return errors.Wrap(err, "error creating gemini client")
 	}
 
+	url := article.URL
 	var pageSummary *gemini.PageSummary
 	for i := range 3 {
-		pageSummary, err = geminiClient.Summarize(ctx, article.URL)
+		pageSummary, err = geminiClient.Summarize(ctx, url)
 		if err != nil || pageSummary == nil {
 			// retry if error
-			slog.Info("retrying to summarize page", "link", article.URL, "error", err)
+			slog.Info("retrying to summarize page", "link", url, "error", err)
 			i += 1
 			wait := i * i
 			time.Sleep(time.Duration(wait) * time.Second)
@@ -117,7 +118,7 @@ func (a *Article) processSummary(ctx context.Context, article *ent.Article) erro
 	}
 
 	sum := &ent.Summary{
-		URL:     article.URL,
+		URL:     url,
 		Title:   pageSummary.Title,
 		Summary: pageSummary.Summary,
 		Readed:  false,
