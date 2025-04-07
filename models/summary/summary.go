@@ -56,6 +56,14 @@ func (r *SummaryRepositoryImpl) Save(ctx context.Context, sum *ent.Summary) erro
 	now := clock.Now()
 
 	return database.WithTx(ctx, r.client, func(tx *ent.Tx) error {
+
+		slog.Debug("Saving summary",
+			slog.String("articleTitle", sum.Edges.Article.Title),
+			slog.String("articleUrl", sum.Edges.Article.URL),
+			slog.String("summaryTitle", sum.Title),
+			slog.String("summaryUrl", sum.URL),
+		)
+
 		newSum, err := tx.Summary.
 			Create().
 			SetTitle(sum.Title).
