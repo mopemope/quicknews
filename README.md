@@ -6,7 +6,7 @@ This tool is a personal project. Its primary purpose is for my own use.
 
 ## Features
 
-- Add RSS feeds from the command line (`add`). (Editing and deleting are not yet implemented)
+- Add RSS feeds from the command line (`add`).
 - Import feeds from an OPML file (`import`).
 - Fetch and update RSS feeds (`fetch`), optionally at regular intervals (`fetch --interval`).
 - Browse feeds and articles using a TUI (Terminal User Interface) (`read`).
