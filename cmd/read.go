@@ -16,6 +16,7 @@ import (
 
 // ReadCmd represents the TUI command.
 type ReadCmd struct {
+	Confirm bool `short:"c" help:"Ask for confirmation before action."`
 	// TUI command specific flags can be added here.
 }
 
@@ -44,7 +45,7 @@ func (t *ReadCmd) Run(client *ent.Client) error {
 		pool.StopAndWait()
 	}()
 
-	model := tui.InitialModel(client)
+	model := tui.InitialModel(client, t.Confirm)
 	p := tea.NewProgram(model,
 		tea.WithAltScreen(),
 		tea.WithMouseCellMotion(),

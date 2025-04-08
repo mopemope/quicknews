@@ -32,6 +32,7 @@ type articleListModel struct {
 	confirmDialogMsg  string
 	onConfirmYes      func() tea.Cmd
 	onConfirmNo       func() tea.Cmd
+	confirm           bool
 }
 
 type articleItem struct {
@@ -63,7 +64,7 @@ func (i articleItem) Description() string { return i.link }
 
 func (i articleItem) FilterValue() string { return i.title }
 
-func newArticleListModel(client *ent.Client) articleListModel {
+func newArticleListModel(client *ent.Client, confirm bool) articleListModel {
 	defaultDelegate := list.NewDefaultDelegate()
 
 	l := list.New([]list.Item{}, defaultDelegate, 0, 0)
@@ -75,6 +76,7 @@ func newArticleListModel(client *ent.Client) articleListModel {
 		summaryRepos:      summary.NewSummaryRepository(client),
 		list:              l,
 		showConfirmDialog: false,
+		confirm:           confirm,
 	}
 }
 
@@ -225,21 +227,29 @@ func (m articleListModel) Update(msg tea.Msg) (articleListModel, tea.Cmd) {
 					return m, nil
 				}
 
-				m.ShowConfirmationDialog(
-					"記事を既読にしますか？ (y/N)",
-					func() tea.Cmd {
-						ctx := context.Background()
-						return func() tea.Msg {
-							if err := m.summaryRepos.UpdateReaded(ctx, article.Edges.Summary); err != nil {
-								slog.Error("Failed to mark as read", "error", err)
-								return errors.Wrap(err, "failed to mark article as read")
+				if m.confirm {
+					m.ShowConfirmationDialog(
+						"記事を既読にしますか？ (y/N)",
+						func() tea.Cmd {
+							ctx := context.Background()
+							return func() tea.Msg {
+								if err := m.summaryRepos.UpdateReaded(ctx, article.Edges.Summary); err != nil {
+									slog.Error("Failed to mark as read", "error", err)
+									return errors.Wrap(err, "failed to mark article as read")
+								}
+								m.list.RemoveItem(m.list.Index())
+								return nil
 							}
-							m.list.RemoveItem(m.list.Index())
-							return nil
-						}
-					},
-					nil,
-				)
+						},
+						nil,
+					)
+				} else {
+					if err := m.summaryRepos.UpdateReaded(ctx, article.Edges.Summary); err != nil {
+						slog.Error("Failed to mark as read", "error", err)
+						return m, nil
+					}
+					m.list.RemoveItem(m.list.Index())
+				}
 				return m, nil
 			}
 		case "enter":

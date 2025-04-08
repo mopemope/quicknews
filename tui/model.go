@@ -43,6 +43,7 @@ type model struct {
 	err                  error
 	windowWidth          int
 	windowHeight         int
+	confirm              bool
 }
 
 type viewState int
@@ -53,14 +54,15 @@ const (
 	summaryView // Add summary view state
 )
 
-func InitialModel(client *ent.Client) model {
+func InitialModel(client *ent.Client, confirm bool) model {
 	return model{
 		client:       client,
 		articleRepos: article.NewArticleRepository(client), // Initialize article repository
 		feedList:     newFeedListModel(client),
-		articleList:  newArticleListModel(client),
+		articleList:  newArticleListModel(client, confirm),
 		summaryView:  newSummaryViewModel(client), // Initialize summary view model
 		currentView:  feedListView,
+		confirm:      confirm,
 	}
 }
 
