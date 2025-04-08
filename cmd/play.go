@@ -5,12 +5,9 @@ import (
 	"fmt"
 	"log/slog"
 
-	pond "github.com/alitto/pond/v2"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/cockroachdb/errors"
 	"github.com/mopemope/quicknews/ent"
-	"github.com/mopemope/quicknews/models/article"
-	"github.com/mopemope/quicknews/models/feed"
 	"github.com/mopemope/quicknews/models/summary"
 	"github.com/mopemope/quicknews/pkg/tts"
 	"github.com/mopemope/quicknews/tui/progress"
@@ -18,6 +15,7 @@ import (
 
 type PlayCmd struct {
 	SpeakingRate float64 `short:"s" help:"Set the speaking rate." default:"1.5"`
+	NoFetch      bool    `help:"Do not fetch articles background."`
 }
 
 type playArticle struct {
@@ -58,27 +56,11 @@ func (a *PlayCmd) Run(client *ent.Client) error {
 
 	tts.SpeachOpt.SpeakingRate = a.SpeakingRate
 	ctx := context.Background()
-
-	go func() {
-		fetchCmd := FetchCmd{
-			feedRepos:    feed.NewFeedRepository(client),
-			articleRepos: article.NewArticleRepository(client),
-			summaryRepos: summary.NewSummaryRepository(client),
-		}
-		ctx := context.Background()
-		items, err := fetchCmd.getItems(ctx)
-		if err != nil {
-			slog.Error("Error fetching items", "error", err)
-			return
-		}
-		pool := pond.NewPool(3)
-		for _, item := range items {
-			pool.Submit(func() {
-				item.Process()
-			})
-		}
-		pool.StopAndWait()
-	}()
+	if !a.NoFetch {
+		go func() {
+			fetchArticles(client)
+		}()
+	}
 
 	repo := summary.NewSummaryRepository(client)
 
