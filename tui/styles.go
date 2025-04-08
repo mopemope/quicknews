@@ -4,7 +4,7 @@ import "github.com/charmbracelet/lipgloss"
 
 // Define styles here to be shared across TUI components
 var (
-	docStyle         = lipgloss.NewStyle().Margin(1, 2) // Basic margin for the overall view container
+	docStyle         = lipgloss.NewStyle().Margin(1, 2)  // Basic margin for the overall view container
 	summaryViewStyle = lipgloss.NewStyle().Padding(1, 2) // Style for the summary viewport content area
 )
 

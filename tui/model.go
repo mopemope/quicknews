@@ -102,26 +102,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
-	// Handle delete confirmation dialog input first if it's active
-	if m.showingDeleteConfirm {
-		switch msg := msg.(type) {
-		case tea.KeyMsg:
-			switch msg.String() {
-			case "y", "Y":
-				slog.Debug("Delete confirmed (no action)", "feedID", m.feedToDeleteID)
-				m.showingDeleteConfirm = false
-				// In a real scenario, send a delete command here
-				// cmd = m.deleteFeedCmd(m.feedToDeleteID)
-				// cmds = append(cmds, cmd)
-				return m, tea.Batch(cmds...) // Return early
-			case "n", "N", "esc":
-				slog.Debug("Delete cancelled", "feedID", m.feedToDeleteID)
-				m.showingDeleteConfirm = false
-				return m, nil // Return early
-			}
-		}
-	}
-
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		// Global keybindings when not in delete confirm dialog
@@ -203,19 +183,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmd = m.articleList.fetchArticlesCmd()
 		cmds = append(cmds, cmd)
 		return m, tea.Batch(cmds...) // Return early as view changed
-
-	case confirmDeleteFeedMsg: // Handle request to show delete confirmation
-		slog.Debug("Received confirmDeleteFeedMsg", "feedID", msg.feedID, "feedTitle", msg.feedTitle)
-		// Only show confirmation if we are in the feed list view
-		if m.currentView == feedListView {
-			m.showingDeleteConfirm = true
-			m.feedToDeleteID = msg.feedID
-			m.feedToDeleteTitle = msg.feedTitle
-			m.err = nil // Clear any previous errors
-		} else {
-			slog.Warn("Received confirmDeleteFeedMsg while not in feedListView", "currentView", m.currentView)
-		}
-		return m, nil // No command needed, just update state
 
 	case error:
 		// Handle errors, potentially from fetch commands or sub-models

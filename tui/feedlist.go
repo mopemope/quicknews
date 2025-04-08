@@ -7,6 +7,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/cockroachdb/errors"
 	"github.com/google/uuid"
 	"github.com/mopemope/quicknews/ent"
@@ -14,15 +15,13 @@ import (
 )
 
 type feedListModel struct {
-	repos feed.FeedRepository
-	list  list.Model
-	err   error
-}
-
-// confirmDeleteFeedMsg is a message sent when the user confirms feed deletion.
-type confirmDeleteFeedMsg struct {
-	feedID    uuid.UUID
-	feedTitle string
+	repos             feed.FeedRepository
+	list              list.Model
+	err               error
+	showConfirmDialog bool
+	confirmDialogMsg  string
+	onConfirmYes      func() tea.Cmd
+	onConfirmNo       func() tea.Cmd
 }
 
 type feedItem struct {
@@ -74,6 +73,32 @@ func (m feedListModel) Init() tea.Cmd {
 func (m feedListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	slog.Debug("FeedList model Update called", "msg", msg)
 	var cmd tea.Cmd
+	var cmds []tea.Cmd
+
+	if m.showConfirmDialog {
+		switch msg := msg.(type) {
+		case tea.KeyMsg:
+			switch msg.String() {
+			case "y", "Y":
+				m.showConfirmDialog = false
+				if m.onConfirmYes != nil {
+					cmd = m.onConfirmYes()
+					cmds = append(cmds, cmd)
+				}
+				return m, tea.Batch(cmds...)
+			case "n", "N", "esc":
+				m.showConfirmDialog = false
+				if m.onConfirmNo != nil {
+					cmd = m.onConfirmNo()
+					cmds = append(cmds, cmd)
+				}
+				return m, tea.Batch(cmds...)
+			default:
+				// Ignore other keypresses when dialog is shown
+				return m, nil
+			}
+		}
+	}
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
@@ -103,11 +128,21 @@ func (m feedListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "d":
 			selectedItem, ok := m.list.SelectedItem().(feedItem)
 			if ok {
-				slog.Debug("Delete key pressed for feed", "id", selectedItem.id, "title", selectedItem.title)
-				// Send a message to the main model to show confirmation dialog
-				return m, func() tea.Msg {
-					return confirmDeleteFeedMsg{feedID: selectedItem.id, feedTitle: selectedItem.title}
-				}
+				m.ShowConfirmationDialog(
+					"このフィード削除しますか？ (y/N)",
+					func() tea.Cmd {
+						ctx := context.Background()
+						return func() tea.Msg {
+							if err := m.repos.DeleteWithArticle(ctx, selectedItem.id); err != nil {
+								slog.Error("Failed to mark as read", "error", err)
+								return errors.Wrap(err, "failed to mark article as read")
+							}
+							m.list.RemoveItem(m.list.Index())
+							return m.fetchFeedsCmd()
+						}
+					},
+					nil,
+				)
 			}
 		}
 	}
@@ -119,6 +154,21 @@ func (m feedListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
+func (m *feedListModel) ShowConfirmationDialog(message string, onYes, onNo func() tea.Cmd) {
+	m.showConfirmDialog = true
+	m.confirmDialogMsg = message
+	m.onConfirmYes = onYes
+	m.onConfirmNo = onNo
+}
+
+// HideConfirmationDialog hides the confirmation dialog
+func (m *feedListModel) HideConfirmationDialog() {
+	m.showConfirmDialog = false
+	m.confirmDialogMsg = ""
+	m.onConfirmYes = nil
+	m.onConfirmNo = nil
+}
+
 func (m feedListModel) View() string {
 	slog.Debug("FeedList model View called")
 	if m.err != nil {
@@ -126,5 +176,25 @@ func (m feedListModel) View() string {
 		return fmt.Sprintf("Error fetching feeds: %v\n\nPress q to quit.", m.err)
 	}
 	// Render the list using its View method, wrapped in a basic style
-	return docStyle.Render(m.list.View())
+	content := docStyle.Render(m.list.View())
+	if m.showConfirmDialog {
+		dialogStyle := lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color("63")).
+			Padding(1, 2).
+			Width(40)
+
+		dialogBox := dialogStyle.Render(m.confirmDialogMsg)
+
+		return lipgloss.Place(
+			m.list.Width(),
+			m.list.Height(),
+			lipgloss.Center,
+			lipgloss.Center,
+			dialogBox,
+			lipgloss.WithWhitespaceChars(" "),
+			lipgloss.WithWhitespaceForeground(lipgloss.Color("0")),
+		)
+	}
+	return content
 }

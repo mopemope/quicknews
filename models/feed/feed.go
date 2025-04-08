@@ -166,6 +166,9 @@ func (r *FeedRepositoryImpl) DeleteWithArticle(ctx context.Context, id uuid.UUID
 			return errors.Wrap(err, "failed to get feed")
 		}
 
+		if target.IsBookmark {
+			return nil
+		}
 		if _, err := tx.Summary.
 			Delete().
 			Where(summary.HasFeedWith(feed.ID(target.ID))).
@@ -183,5 +186,4 @@ func (r *FeedRepositoryImpl) DeleteWithArticle(ctx context.Context, id uuid.UUID
 		}
 		return nil
 	})
-	return nil
 }
