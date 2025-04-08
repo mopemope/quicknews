@@ -7,7 +7,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/mmcdole/gofeed"
 	"github.com/mopemope/quicknews/ent"
+	"github.com/mopemope/quicknews/ent/article"
 	"github.com/mopemope/quicknews/ent/feed"
+	"github.com/mopemope/quicknews/ent/summary"
 	"github.com/mopemope/quicknews/pkg/clock"
 	"github.com/mopemope/quicknews/pkg/database"
 )
@@ -29,6 +31,7 @@ type FeedRepository interface {
 	Save(ctx context.Context, input *FeedInput, bookmark bool) error
 	// SaveFeeds saves multiple feeds in a single transaction.
 	SaveFeeds(ctx context.Context, inputs []*FeedInput) error
+	DeleteWithArticle(ctx context.Context, id uuid.UUID) error
 }
 
 type FeedRepositoryImpl struct {
@@ -154,4 +157,31 @@ func (r *FeedRepositoryImpl) SaveFeeds(ctx context.Context, inputs []*FeedInput)
 		}
 		return nil
 	})
+}
+
+func (r *FeedRepositoryImpl) DeleteWithArticle(ctx context.Context, id uuid.UUID) error {
+	return database.WithTx(ctx, r.client, func(tx *ent.Tx) error {
+		target, err := tx.Feed.Query().Where(feed.IDEQ(id)).Only(ctx)
+		if err != nil {
+			return errors.Wrap(err, "failed to get feed")
+		}
+
+		if _, err := tx.Summary.
+			Delete().
+			Where(summary.HasFeedWith(feed.ID(target.ID))).
+			Exec(ctx); err != nil {
+			return errors.Wrap(err, "failed to delete summaries")
+		}
+		if _, err := tx.Article.
+			Delete().
+			Where(article.HasFeedWith(feed.ID(target.ID))).
+			Exec(ctx); err != nil {
+			return errors.Wrap(err, "failed to delete summaries")
+		}
+		if err := tx.Feed.DeleteOneID(target.ID).Exec(ctx); err != nil {
+			return errors.Wrap(err, "failed to delete feed")
+		}
+		return nil
+	})
+	return nil
 }
