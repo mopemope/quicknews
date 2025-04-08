@@ -199,7 +199,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		slog.Debug("Received backToArticleListMsg")
 		m.currentView = articleListView
 		m.err = nil // Clear any errors from the summary view
-		// No specific command needed usually, article list retains state
+		// Trigger article list refetch
+		cmd = m.articleList.fetchArticlesCmd()
+		cmds = append(cmds, cmd)
 		return m, tea.Batch(cmds...) // Return early as view changed
 
 	case confirmDeleteFeedMsg: // Handle request to show delete confirmation
