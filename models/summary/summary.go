@@ -132,7 +132,7 @@ func GetAudioData(ctx context.Context, sum *ent.Summary) ([]byte, error) {
 これはフィード %s の記事です。
 タイトル
 %s
-要約
+解説
 %s
 `, feed.Title, sum.Title, sum.Summary)
 
