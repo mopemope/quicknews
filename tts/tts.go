@@ -62,10 +62,7 @@ func NewTTSEngine() TTSEngine {
 	}
 }
 
-// PlayAudioData plays the given audio data using the beep package.
-
-// PlayAudioData plays the given MP3 audio data using beep.
-func PlayAudioDataMP3(audioData []byte) error {
+func PlayMP3Audio(audioData []byte) error {
 	mutex.Lock()
 	defer mutex.Unlock()
 

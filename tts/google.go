@@ -46,7 +46,7 @@ func (g *GoogleTTS) PlayAudioData(audioData []byte) error {
 	if len(audioData) == 0 {
 		return ErrEmptyAudioData
 	}
-	if err := PlayAudioDataMP3(audioData); err != nil {
+	if err := PlayMP3Audio(audioData); err != nil {
 		return err
 	}
 	return nil
