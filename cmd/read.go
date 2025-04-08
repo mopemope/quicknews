@@ -12,6 +12,7 @@ import (
 // ReadCmd represents the TUI command.
 type ReadCmd struct {
 	Confirm bool `short:"c" help:"Ask for confirmation before action."`
+	Fetch   bool `short:"f" help:"Fetch articles background."`
 	// TUI command specific flags can be added here.
 }
 
@@ -19,9 +20,11 @@ type ReadCmd struct {
 func (t *ReadCmd) Run(client *ent.Client) error {
 	slog.Debug("Starting TUI mode")
 
-	go func() {
-		fetchArticles(client)
-	}()
+	if t.Fetch {
+		go func() {
+			fetchArticles(client)
+		}()
+	}
 
 	model := tui.InitialModel(client, t.Confirm)
 	p := tea.NewProgram(model,
