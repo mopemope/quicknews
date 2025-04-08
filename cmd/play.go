@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/cockroachdb/errors"
@@ -58,7 +59,10 @@ func (a *PlayCmd) Run(client *ent.Client) error {
 	ctx := context.Background()
 	if !a.NoFetch {
 		go func() {
-			fetchArticles(client)
+			for {
+				fetchArticles(client)
+				time.Sleep(time.Hour)
+			}
 		}()
 	}
 
