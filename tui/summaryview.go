@@ -152,7 +152,10 @@ func (m summaryViewModel) headerView() string {
 		title = m.article.Title
 	}
 	if m.article.Edges.Summary != nil && m.article.Edges.Summary.Title != "" {
-		title = m.article.Edges.Summary.Title + "\n" + m.article.Title
+		title = fmt.Sprintf("%s [%d]\n%s",
+			m.article.Edges.Summary.Title,
+			len([]rune(m.article.Edges.Summary.Summary)),
+			m.article.Title)
 	}
 	return lipgloss.NewStyle().
 		Bold(true).
