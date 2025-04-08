@@ -25,9 +25,10 @@ type feedListModel struct {
 }
 
 type feedItem struct {
-	id    uuid.UUID
-	title string
-	url   string
+	id         uuid.UUID
+	title      string
+	url        string
+	isBookmark bool
 }
 
 func (i feedItem) Title() string       { return i.title }
@@ -59,7 +60,12 @@ func (m *feedListModel) fetchFeedsCmd() tea.Msg {
 
 	items := make([]list.Item, len(feeds))
 	for i, f := range feeds {
-		items[i] = feedItem{id: f.ID, title: f.Title, url: f.URL}
+		items[i] = feedItem{
+			id:         f.ID,
+			title:      f.Title,
+			url:        f.URL,
+			isBookmark: f.IsBookmark,
+		}
 	}
 	return items // Return fetched items as message
 }
@@ -127,7 +133,7 @@ func (m feedListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case "d":
 			selectedItem, ok := m.list.SelectedItem().(feedItem)
-			if ok {
+			if ok && !selectedItem.isBookmark {
 				m.ShowConfirmationDialog(
 					"このフィード削除しますか？ (y/N)",
 					func() tea.Cmd {
