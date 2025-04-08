@@ -52,7 +52,7 @@ func (r *ArticleRepositoryImpl) GetByFeed(ctx context.Context, feedID uuid.UUID)
 		Query().
 		Where(article.HasFeedWith(feed.ID(feedID))).
 		WithSummary().
-		Order(ent.Desc(article.FieldPublishedAt)).
+		Order(ent.Desc(article.FieldPublishedAt), ent.Desc(article.FieldCreatedAt)).
 		All(ctx)
 
 	if err != nil {
@@ -68,7 +68,7 @@ func (r *ArticleRepositoryImpl) GetByUnreaded(ctx context.Context, feedID uuid.U
 		WithSummary(func(q *ent.SummaryQuery) {
 			q.Where(summary.Readed(false))
 		}).
-		Order(ent.Desc(article.FieldPublishedAt)).
+		Order(ent.Desc(article.FieldPublishedAt), ent.Desc(article.FieldCreatedAt)).
 		All(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get articles by feed ID")
