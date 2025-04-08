@@ -17,6 +17,7 @@ import (
 )
 
 type PlayCmd struct {
+	SpeakingRate float64 `short:"s" help:"Set the speaking rate." default:"1.5"`
 }
 
 type playArticle struct {
@@ -55,6 +56,7 @@ func newArticle(summary *ent.Summary, repo summary.SummaryRepository) *playArtic
 
 func (a *PlayCmd) Run(client *ent.Client) error {
 
+	tts.SpeachOpt.SpeakingRate = a.SpeakingRate
 	ctx := context.Background()
 
 	go func() {
