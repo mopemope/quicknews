@@ -60,7 +60,7 @@ func InitialModel(client *ent.Client, confirm bool) model {
 		articleRepos: article.NewArticleRepository(client), // Initialize article repository
 		feedList:     newFeedListModel(client),
 		articleList:  newArticleListModel(client, confirm),
-		summaryView:  newSummaryViewModel(client), // Initialize summary view model
+		summaryView:  newSummaryViewModel(client, confirm), // Initialize summary view model
 		currentView:  feedListView,
 		confirm:      confirm,
 	}

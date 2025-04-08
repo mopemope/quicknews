@@ -8,6 +8,7 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/cockroachdb/errors"
 	"github.com/mopemope/quicknews/ent"
 	"github.com/mopemope/quicknews/models/summary"
 	"github.com/mopemope/quicknews/pkg/tts"
@@ -17,18 +18,24 @@ import (
 type backToArticleListMsg struct{}
 
 type summaryViewModel struct {
-	viewport     viewport.Model
-	article      *ent.Article
-	ready        bool // Indicates if the viewport is ready
-	summaryRepos summary.SummaryRepository
+	viewport          viewport.Model
+	article           *ent.Article
+	ready             bool // Indicates if the viewport is ready
+	summaryRepos      summary.SummaryRepository
+	confirm           bool
+	showConfirmDialog bool
+	confirmDialogMsg  string
+	onConfirmYes      func() tea.Cmd
+	onConfirmNo       func() tea.Cmd
 }
 
-func newSummaryViewModel(client *ent.Client) summaryViewModel {
+func newSummaryViewModel(client *ent.Client, confirm bool) summaryViewModel {
 	vp := viewport.New(0, 0) // Initial size, will be updated
 	vp.Style = summaryViewStyle
 	return summaryViewModel{
 		viewport:     vp,
 		summaryRepos: summary.NewSummaryRepository(client),
+		confirm:      confirm,
 	}
 }
 
@@ -64,9 +71,48 @@ func (m summaryViewModel) Init() tea.Cmd {
 	return nil // Content is set via SetContent
 }
 
+func (m *summaryViewModel) ShowConfirmationDialog(message string, onYes, onNo func() tea.Cmd) {
+	m.showConfirmDialog = true
+	m.confirmDialogMsg = message
+	m.onConfirmYes = onYes
+	m.onConfirmNo = onNo
+}
+
+// HideConfirmationDialog hides the confirmation dialog
+func (m *summaryViewModel) HideConfirmationDialog() {
+	m.showConfirmDialog = false
+	m.confirmDialogMsg = ""
+	m.onConfirmYes = nil
+	m.onConfirmNo = nil
+}
+
 func (m summaryViewModel) Update(msg tea.Msg) (summaryViewModel, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
+	if m.showConfirmDialog {
+		switch msg := msg.(type) {
+		case tea.KeyMsg:
+			switch msg.String() {
+			case "y", "Y":
+				m.showConfirmDialog = false
+				if m.onConfirmYes != nil {
+					cmd = m.onConfirmYes()
+					cmds = append(cmds, cmd)
+				}
+				return m, tea.Batch(cmds...)
+			case "n", "N", "esc":
+				m.showConfirmDialog = false
+				if m.onConfirmNo != nil {
+					cmd = m.onConfirmNo()
+					cmds = append(cmds, cmd)
+				}
+				return m, tea.Batch(cmds...)
+			default:
+				// Ignore other keypresses when dialog is shown
+				return m, nil
+			}
+		}
+	}
 
 	slog.Debug("SummaryView model Update called", "msg", msg)
 
@@ -90,9 +136,30 @@ func (m summaryViewModel) Update(msg tea.Msg) (summaryViewModel, tea.Cmd) {
 			}
 		case "r":
 			if m.article != nil && m.article.Edges.Summary != nil {
-				if err := m.summaryRepos.UpdateReaded(context.Background(), m.article.Edges.Summary); err != nil {
-					slog.Error("Failed to update summary as readed", "error", err)
+
+				if m.confirm {
+					m.ShowConfirmationDialog(
+						"記事を既読にしますか？ (y/N)",
+						func() tea.Cmd {
+							ctx := context.Background()
+							return func() tea.Msg {
+								if err := m.summaryRepos.UpdateReaded(ctx, m.article.Edges.Summary); err != nil {
+									slog.Error("Failed to mark as read", "error", err)
+									return errors.Wrap(err, "failed to mark article as read")
+								}
+								return m
+							}
+						},
+						nil,
+					)
+					return m, nil
+				} else {
+					if err := m.summaryRepos.UpdateReaded(context.Background(), m.article.Edges.Summary); err != nil {
+						slog.Error("Failed to update summary as readed", "error", err)
+					}
+					return m, func() tea.Msg { return backToArticleListMsg{} }
 				}
+
 			}
 		case "p":
 			if m.article != nil && m.article.Edges.Summary != nil {
@@ -143,7 +210,28 @@ func (m summaryViewModel) View() string {
 	if !m.ready || m.article == nil {
 		return "Loading article..."
 	}
-	return fmt.Sprintf("%s\n%s\n%s", m.headerView(), m.viewport.View(), m.footerView())
+	content := fmt.Sprintf("%s\n%s\n%s", m.headerView(), m.viewport.View(), m.footerView())
+	if m.showConfirmDialog {
+		dialogStyle := lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color("63")).
+			Padding(1, 2).
+			Width(40)
+
+		dialogBox := dialogStyle.Render(m.confirmDialogMsg)
+
+		return lipgloss.Place(
+			m.viewport.Width,
+			m.viewport.Height,
+			lipgloss.Center,
+			lipgloss.Center,
+			dialogBox,
+			lipgloss.WithWhitespaceChars(" "),
+			lipgloss.WithWhitespaceForeground(lipgloss.Color("0")),
+		)
+
+	}
+	return content
 }
 
 func (m summaryViewModel) headerView() string {
