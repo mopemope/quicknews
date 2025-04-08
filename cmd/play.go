@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"log/slog"
 
+	pond "github.com/alitto/pond/v2"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/cockroachdb/errors"
 	"github.com/mopemope/quicknews/ent"
+	"github.com/mopemope/quicknews/models/article"
+	"github.com/mopemope/quicknews/models/feed"
 	"github.com/mopemope/quicknews/models/summary"
 	"github.com/mopemope/quicknews/pkg/tts"
 	"github.com/mopemope/quicknews/tui/progress"
@@ -53,6 +56,28 @@ func newArticle(summary *ent.Summary, repo summary.SummaryRepository) *playArtic
 func (a *PlayCmd) Run(client *ent.Client) error {
 
 	ctx := context.Background()
+
+	go func() {
+		fetchCmd := FetchCmd{
+			feedRepos:    feed.NewFeedRepository(client),
+			articleRepos: article.NewArticleRepository(client),
+			summaryRepos: summary.NewSummaryRepository(client),
+		}
+		ctx := context.Background()
+		items, err := fetchCmd.getItems(ctx)
+		if err != nil {
+			slog.Error("Error fetching items", "error", err)
+			return
+		}
+		pool := pond.NewPool(3)
+		for _, item := range items {
+			pool.Submit(func() {
+				item.Process()
+			})
+		}
+		pool.StopAndWait()
+	}()
+
 	repo := summary.NewSummaryRepository(client)
 
 	res, err := repo.GetUnlistened(ctx)
