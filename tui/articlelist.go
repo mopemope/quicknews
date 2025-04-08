@@ -38,6 +38,7 @@ type articleItem struct {
 	publishedAt  *time.Time
 	link         string
 	summaryTitle string
+	summaryCount int
 }
 
 func (i articleItem) Title() string {
@@ -51,7 +52,7 @@ func (i articleItem) Title() string {
 	}
 	if i.publishedAt != nil {
 		title = fmt.Sprintf("%s (%s)", title, i.publishedAt.Local().Format("2006-01-02 15:04"))
-		stitle = fmt.Sprintf("%s (%s)", stitle, i.publishedAt.Local().Format("2006-01-02 15:04"))
+		stitle = fmt.Sprintf("%s [%d] (%s)", stitle, i.summaryCount, i.publishedAt.Local().Format("2006-01-02 15:04"))
 	}
 	return fmt.Sprintf("%s\n%s", stitle, title)
 }
@@ -110,8 +111,10 @@ func (m *articleListModel) fetchArticlesCmd() tea.Cmd {
 				publishedAtPtr = &a.PublishedAt
 			}
 			summaryTitle := a.Title
+			count := 0
 			if a.Edges.Summary != nil {
 				summaryTitle = a.Edges.Summary.Title
+				count = len([]rune(a.Edges.Summary.Summary))
 			}
 			items[i] = articleItem{
 				id:           a.ID,
@@ -119,6 +122,7 @@ func (m *articleListModel) fetchArticlesCmd() tea.Cmd {
 				publishedAt:  publishedAtPtr, // Pass the pointer
 				link:         a.URL,
 				summaryTitle: summaryTitle,
+				summaryCount: count,
 			}
 		}
 		return items // Return fetched items as message
