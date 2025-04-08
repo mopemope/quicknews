@@ -38,7 +38,6 @@ type model struct {
 	summaryView          summaryViewModel // Add summary view model
 	currentView          viewState
 	showingDeleteConfirm bool // Flag to indicate if delete confirmation dialog is shown
-	feedToDeleteID       uuid.UUID
 	feedToDeleteTitle    string
 	err                  error
 	windowWidth          int
