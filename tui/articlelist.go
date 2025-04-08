@@ -8,6 +8,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/cockroachdb/errors"
 	"github.com/google/uuid"
 	"github.com/mopemope/quicknews/ent"
@@ -20,17 +21,18 @@ import (
 type backToFeedListMsg struct{}
 
 type articleListModel struct {
-	feedRepos    feed.FeedRepository
-	repos        article.ArticleRepository
-	summaryRepos summary.SummaryRepository
-	list         list.Model
-	feed         feedItem
-	// selectedArticle *ent.Article // Removed: Selection handled by main model
-	listWidth int
-	err       error
+	feedRepos         feed.FeedRepository
+	repos             article.ArticleRepository
+	summaryRepos      summary.SummaryRepository
+	list              list.Model
+	feed              feedItem
+	listWidth         int
+	err               error
+	showConfirmDialog bool
+	confirmDialogMsg  string
+	onConfirmYes      func() tea.Cmd
+	onConfirmNo       func() tea.Cmd
 }
-
-// Removed fetchedArticleContentMsg, handled by main model
 
 type articleItem struct {
 	id           uuid.UUID
@@ -68,10 +70,11 @@ func newArticleListModel(client *ent.Client) articleListModel {
 	l.Title = "Articles"
 
 	return articleListModel{
-		feedRepos:    feed.NewFeedRepository(client),
-		repos:        article.NewArticleRepository(client),
-		summaryRepos: summary.NewSummaryRepository(client),
-		list:         l,
+		feedRepos:         feed.NewFeedRepository(client),
+		repos:             article.NewArticleRepository(client),
+		summaryRepos:      summary.NewSummaryRepository(client),
+		list:              l,
+		showConfirmDialog: false,
 	}
 }
 
@@ -135,9 +138,52 @@ func (m articleListModel) Init() tea.Cmd {
 	return nil
 }
 
+// ShowConfirmationDialog shows a confirmation dialog with the provided message
+// and executes the provided callbacks when Yes or No is selected
+func (m *articleListModel) ShowConfirmationDialog(message string, onYes, onNo func() tea.Cmd) {
+	m.showConfirmDialog = true
+	m.confirmDialogMsg = message
+	m.onConfirmYes = onYes
+	m.onConfirmNo = onNo
+}
+
+// HideConfirmationDialog hides the confirmation dialog
+func (m *articleListModel) HideConfirmationDialog() {
+	m.showConfirmDialog = false
+	m.confirmDialogMsg = ""
+	m.onConfirmYes = nil
+	m.onConfirmNo = nil
+}
+
 func (m articleListModel) Update(msg tea.Msg) (articleListModel, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
+
+	// Handle confirmation dialog first if it's active
+	if m.showConfirmDialog {
+		switch msg := msg.(type) {
+		case tea.KeyMsg:
+			switch msg.String() {
+			case "y", "Y":
+				m.showConfirmDialog = false
+				if m.onConfirmYes != nil {
+					cmd = m.onConfirmYes()
+					cmds = append(cmds, cmd)
+				}
+				return m, tea.Batch(cmds...)
+			case "n", "N", "esc":
+				m.showConfirmDialog = false
+				if m.onConfirmNo != nil {
+					cmd = m.onConfirmNo()
+					cmds = append(cmds, cmd)
+				}
+				return m, tea.Batch(cmds...)
+			default:
+				// Ignore other keypresses when dialog is shown
+				return m, nil
+			}
+		}
+	}
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
@@ -178,9 +224,23 @@ func (m articleListModel) Update(msg tea.Msg) (articleListModel, tea.Cmd) {
 					slog.Error("Failed to get article by ID", "error", err)
 					return m, nil
 				}
-				if err := m.summaryRepos.UpdateReaded(ctx, article.Edges.Summary); err != nil {
-					slog.Error("Failed to open url", "error", err)
-				}
+
+				m.ShowConfirmationDialog(
+					"記事を既読にしますか？ (y/N)",
+					func() tea.Cmd {
+						ctx := context.Background()
+						return func() tea.Msg {
+							if err := m.summaryRepos.UpdateReaded(ctx, article.Edges.Summary); err != nil {
+								slog.Error("Failed to mark as read", "error", err)
+								return errors.Wrap(err, "failed to mark article as read")
+							}
+							m.list.RemoveItem(m.list.Index())
+							return nil
+						}
+					},
+					nil,
+				)
+				return m, nil
 			}
 		case "enter":
 			selectedItem, ok := m.list.SelectedItem().(articleItem)
@@ -202,6 +262,29 @@ func (m articleListModel) Update(msg tea.Msg) (articleListModel, tea.Cmd) {
 
 func (m articleListModel) View() string {
 	slog.Debug("ArticleList model View called", "listWidth", m.listWidth)
-	// Ensure the list view itself is rendered within the docStyle margin
-	return docStyle.Render(m.list.View())
+
+	content := docStyle.Render(m.list.View())
+
+	if m.showConfirmDialog {
+		dialogStyle := lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color("63")).
+			Padding(1, 2).
+			Width(40)
+
+		dialogBox := dialogStyle.Render(m.confirmDialogMsg)
+
+		return lipgloss.Place(
+			m.list.Width(),
+			m.list.Height(),
+			lipgloss.Center,
+			lipgloss.Center,
+			dialogBox,
+			lipgloss.WithWhitespaceChars(" "),
+			lipgloss.WithWhitespaceForeground(lipgloss.Color("0")),
+		)
+	}
+
+	// 通常表示
+	return content
 }
