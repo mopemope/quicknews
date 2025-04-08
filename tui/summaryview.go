@@ -11,7 +11,7 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/mopemope/quicknews/ent"
 	"github.com/mopemope/quicknews/models/summary"
-	"github.com/mopemope/quicknews/pkg/tts"
+	"github.com/mopemope/quicknews/tts"
 )
 
 // Message to indicate going back to the article list
@@ -174,7 +174,8 @@ func (m summaryViewModel) Update(msg tea.Msg) (summaryViewModel, tea.Cmd) {
 						slog.Error("Failed to get audio data", "error", err)
 						return
 					}
-					if err := tts.PlayAudioData(audioData); err != nil {
+					ttsEngine := tts.NewTTSEngine()
+					if err := ttsEngine.PlayAudioData(audioData); err != nil {
 						slog.Error("Failed to play audio data", "error", err)
 					}
 				}()

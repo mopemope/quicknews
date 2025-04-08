@@ -14,7 +14,7 @@ import (
 	"github.com/mopemope/quicknews/ent/summary"
 	"github.com/mopemope/quicknews/pkg/clock"
 	"github.com/mopemope/quicknews/pkg/database"
-	"github.com/mopemope/quicknews/pkg/tts"
+	"github.com/mopemope/quicknews/tts"
 )
 
 type SummaryRepository interface {
@@ -136,7 +136,8 @@ func GetAudioData(ctx context.Context, sum *ent.Summary) ([]byte, error) {
 %s
 `, feed.Title, sum.Title, sum.Summary)
 
-	audioData, err := tts.SynthesizeText(ctx, text)
+	ttsEngine := tts.NewTTSEngine()
+	audioData, err := ttsEngine.SynthesizeText(ctx, text)
 	if err != nil && err != tts.ErrNoCredentials {
 		return nil, errors.Wrap(err, "failed to synthesize text")
 	}
