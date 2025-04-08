@@ -37,10 +37,7 @@ func (a *playArticle) Process() {
 		slog.Error("failed to play audio data", "error", err)
 		return
 	}
-	// Update the summary as readed and listened
-	if err := a.repo.UpdateReaded(ctx, a.summary); err != nil {
-		slog.Error("failed to update listened status", "error", err)
-	}
+	// Update the summary as listened
 	if err := a.repo.UpdateListened(ctx, a.summary); err != nil {
 		slog.Error("failed to update listened status", "error", err)
 	}
