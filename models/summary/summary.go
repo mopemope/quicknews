@@ -92,6 +92,7 @@ func (r *SummaryRepositoryImpl) GetUnlistened(ctx context.Context) ([]*ent.Summa
 		Query().
 		Where(summary.Listend(false)).
 		WithFeed().
+		WithArticle().
 		Order(ent.Asc(summary.FieldCreatedAt)).
 		All(ctx)
 
