@@ -11,9 +11,11 @@ import (
 
 // ReadCmd represents the TUI command.
 type ReadCmd struct {
-	Confirm bool `short:"c" help:"Ask for confirmation before action."`
-	NoFetch bool `help:"Do not fetch articles background."`
-	// TUI command specific flags can be added here.
+	Confirm      bool    `short:"c" help:"Ask for confirmation before action."`
+	NoFetch      bool    `help:"Do not fetch articles background."`
+	SpeakingRate float64 `short:"s" help:"Set the speaking rate." default:"1.2"`
+	VoiceVox     bool    `help:"Use the voicevox engine." `
+	Speaker      int     `help:"Set the voicevox speaker." default:"10"`
 }
 
 // Run executes the TUI command.

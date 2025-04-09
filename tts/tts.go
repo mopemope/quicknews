@@ -9,8 +9,9 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/gopxl/beep"
-	"github.com/gopxl/beep/mp3"
-	"github.com/gopxl/beep/speaker"
+	"github.com/gopxl/beep/v2/mp3"
+	"github.com/gopxl/beep/v2/speaker"
+	"github.com/gopxl/beep/v2/wav"
 )
 
 var (
@@ -21,7 +22,7 @@ var (
 
 	SpeachOpt = &SpeechOptions{
 		Engine:       "google",
-		Style:        0,
+		Speaker:      0,
 		Pitch:        1.3,
 		SpeakingRate: 1.3,
 	}
@@ -34,7 +35,7 @@ type TTSEngine interface {
 
 type SpeechOptions struct {
 	Engine       string
-	Style        int
+	Speaker      int
 	Pitch        float64
 	SpeakingRate float64
 }
@@ -57,6 +58,10 @@ func (s *SpeechOptions) DownSpeakingRate() {
 
 func NewTTSEngine() TTSEngine {
 	switch SpeachOpt.Engine {
+	case "google":
+		return NewGoogleTTS(context.Background())
+	case "voicevox":
+		return NewVoiceVox(SpeachOpt.Speaker, 0)
 	default:
 		return NewGoogleTTS(context.Background())
 	}
@@ -99,6 +104,43 @@ func PlayMP3Audio(audioData []byte) error {
 	<-done // Wait until playback is finished.
 
 	// It's good practice to clear the speaker buffer after playing.
+	speaker.Clear()
+	return nil
+}
+
+func PlayWavAudio(audioData []byte) error {
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	if len(audioData) == 0 {
+		return ErrEmptyAudioData
+	}
+
+	reader := bytes.NewReader(audioData)
+	streamer, format, err := wav.Decode(io.NopCloser(reader))
+	if err != nil {
+		return errors.Wrap(err, "failed to decode mp3 data")
+	}
+	defer func() {
+		_ = streamer.Close()
+	}()
+
+	if !speakerInitialized {
+		err = speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/10))
+		if err != nil {
+			return errors.Wrap(err, "failed to initialize speaker")
+		}
+		speakerInitialized = true
+	}
+
+	done := make(chan struct{})
+
+	speaker.Play(beep.Seq(streamer, beep.Callback(func() {
+		close(done)
+	})))
+
+	<-done
+
 	speaker.Clear()
 	return nil
 }
