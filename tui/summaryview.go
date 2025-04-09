@@ -135,7 +135,10 @@ func (m summaryViewModel) Update(msg tea.Msg) (summaryViewModel, tea.Cmd) {
 				slog.Error("Failed to open url", "error", err)
 			}
 		case "r":
-			if m.article != nil && m.article.Edges.Summary != nil {
+			if m.article != nil &&
+				m.article.Edges.Feed != nil &&
+				!m.article.Edges.Feed.IsBookmark &&
+				m.article.Edges.Summary != nil {
 
 				if m.confirm {
 					m.ShowConfirmationDialog(

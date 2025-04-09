@@ -42,6 +42,7 @@ type articleItem struct {
 	link         string
 	summaryTitle string
 	summaryCount int
+	isBookmark   bool
 }
 
 func (i articleItem) Title() string {
@@ -128,6 +129,7 @@ func (m *articleListModel) fetchArticlesCmd() tea.Cmd {
 				link:         a.URL,
 				summaryTitle: summaryTitle,
 				summaryCount: count,
+				isBookmark:   a.Edges.Feed != nil && a.Edges.Feed.IsBookmark,
 			}
 		}
 		return items // Return fetched items as message
@@ -218,7 +220,8 @@ func (m articleListModel) Update(msg tea.Msg) (articleListModel, tea.Cmd) {
 			}
 		case "r":
 			selectedItem, ok := m.list.SelectedItem().(articleItem)
-			if ok {
+			// bookmark is not allowed to be readed
+			if ok && !selectedItem.isBookmark {
 				id := selectedItem.id
 				ctx := context.Background()
 				article, err := m.repos.GetById(ctx, id)

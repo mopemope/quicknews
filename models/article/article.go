@@ -67,6 +67,7 @@ func (r *ArticleRepositoryImpl) GetByUnreaded(ctx context.Context, feedID uuid.U
 		Where(article.HasFeedWith(feed.ID(feedID))).
 		Where(article.HasSummaryWith(summary.Readed(false))).
 		WithSummary().
+		WithFeed().
 		Order(ent.Desc(article.FieldPublishedAt), ent.Desc(article.FieldCreatedAt)).
 		All(ctx)
 	if err != nil {
@@ -80,6 +81,7 @@ func (r *ArticleRepositoryImpl) GetFromURL(ctx context.Context, url string) (*en
 	article, err := r.client.Article.
 		Query().
 		Where(article.URL(url)).
+		WithFeed().
 		WithSummary().
 		Only(ctx)
 

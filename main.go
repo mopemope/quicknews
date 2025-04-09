@@ -16,11 +16,12 @@ var version = "0.0.1"
 
 // CLI represents the command-line interface.
 type CLI struct {
-	Add    cmd.AddCmd    `cmd:"" aliases:"a" help:"Add a new RSS feed."`
-	Fetch  cmd.FetchCmd  `cmd:"" aliases:"f" help:"Fetch articles from RSS feeds."`
-	Read   cmd.ReadCmd   `cmd:"" aliases:"r" help:"Start read feeds."`
-	Play   cmd.PlayCmd   `cmd:"" aliases:"p" help:"Read aloud unlistend feeds."`
-	Import cmd.ImportCmd `cmd:"" help:"Import feeds from an OPML file."`
+	Add      cmd.AddCmd      `cmd:"" aliases:"a" help:"Add a new RSS feed."`
+	Fetch    cmd.FetchCmd    `cmd:"" aliases:"f" help:"Fetch articles from RSS feeds."`
+	Read     cmd.ReadCmd     `cmd:"" aliases:"r" help:"Start read feeds."`
+	Play     cmd.PlayCmd     `cmd:"" aliases:"p" help:"Read aloud unlistend feeds."`
+	Import   cmd.ImportCmd   `cmd:"" help:"Import feeds from an OPML file."`
+	Bookmark cmd.BookmarkCmd `cmd:"" aliases:"b" help:"Add a new bookmark."`
 
 	// Global flags
 	DbPath  string `name:"db" type:"path" default:"~/quicknews.db" help:"Path to the SQLite database file."`

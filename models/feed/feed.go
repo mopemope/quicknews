@@ -23,6 +23,7 @@ type FeedInput struct {
 
 type FeedRepository interface {
 	GetByID(ctx context.Context, id uuid.UUID) (*ent.Feed, error)
+	GetBookmarkFeed(ctx context.Context) (*ent.Feed, error)
 	ExistBookmarkFeed(ctx context.Context) (bool, error)
 	All(ctx context.Context) ([]*ent.Feed, error)
 	UpdateFeed(ctx context.Context, feed *ent.Feed, parsedFeed *gofeed.Feed) (*ent.Feed, error)
@@ -53,6 +54,20 @@ func (r *FeedRepositoryImpl) GetByID(ctx context.Context, id uuid.UUID) (*ent.Fe
 		return nil, errors.Wrap(err, "failed to get feed by ID")
 	}
 	return feed, nil
+}
+
+func (r *FeedRepositoryImpl) GetBookmarkFeed(ctx context.Context) (*ent.Feed, error) {
+	feeds, err := r.client.Feed.
+		Query().
+		Where(feed.IsBookmarkEQ(true)).
+		All(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get bookmark feeds")
+	}
+	if len(feeds) == 0 {
+		return nil, errors.New("no bookmark feed found")
+	}
+	return feeds[0], nil
 }
 
 func (r *FeedRepositoryImpl) ExistBookmarkFeed(ctx context.Context) (bool, error) {
