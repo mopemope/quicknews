@@ -135,6 +135,7 @@ func parseResponse(text string) (*PageSummary, error) {
 	title = strings.ReplaceAll(title, "了解しました。", "")
 	title = strings.ReplaceAll(title, "了解いたしました。", "")
 	title = strings.ReplaceAll(title, "*", "")
+	title = strings.ReplaceAll(title, "\n", "")
 
 	sum := strings.ReplaceAll(result[1], "\n\n", "\n")
 	summaryResponse := PageSummary{
