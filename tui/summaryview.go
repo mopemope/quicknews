@@ -10,6 +10,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/cockroachdb/errors"
 	"github.com/mopemope/quicknews/ent"
+	"github.com/mopemope/quicknews/models/article"
 	"github.com/mopemope/quicknews/models/summary"
 	"github.com/mopemope/quicknews/tts"
 )
@@ -22,6 +23,7 @@ type summaryViewModel struct {
 	article           *ent.Article
 	ready             bool // Indicates if the viewport is ready
 	summaryRepos      summary.SummaryRepository
+	articleRepos      article.ArticleRepository // Add ArticleRepository
 	confirm           bool
 	showConfirmDialog bool
 	confirmDialogMsg  string
@@ -35,6 +37,7 @@ func newSummaryViewModel(client *ent.Client, confirm bool) summaryViewModel {
 	return summaryViewModel{
 		viewport:     vp,
 		summaryRepos: summary.NewSummaryRepository(client),
+		articleRepos: article.NewArticleRepository(client), // Initialize ArticleRepository
 		confirm:      confirm,
 	}
 }
@@ -183,6 +186,25 @@ func (m summaryViewModel) Update(msg tea.Msg) (summaryViewModel, tea.Cmd) {
 					}
 				}()
 			}
+		case "d": // Add delete key binding
+			if m.article != nil {
+				m.ShowConfirmationDialog(
+					"この記事と要約を削除しますか？ (y/N)",
+					func() tea.Cmd {
+						ctx := context.Background()
+						return func() tea.Msg {
+							if err := m.articleRepos.Delete(ctx, m.article.ID.String()); err != nil {
+								slog.Error("Failed to delete article and summary", "error", err)
+								// Optionally return an error message to display to the user
+								return errors.Wrap(err, "failed to delete article")
+							}
+							slog.Debug("Article and summary deleted successfully", "articleID", m.article.ID)
+							return backToArticleListMsg{} // Go back to article list after deletion
+						}
+					},
+					nil, // No action on "No"
+				)
+			}
 
 		}
 	case tea.WindowSizeMsg:
@@ -261,5 +283,5 @@ func (m summaryViewModel) footerView() string {
 	return lipgloss.NewStyle().
 		Foreground(lipgloss.Color("240")). // Dim color
 		Padding(0, 1).
-		Render("Scroll: ↑/k ↓/j | Go top: g | Go bottom: G | Read aloud: p | Mark readed: r | Open browser: o | Back: b ")
+		Render("Scroll: ↑/k ↓/j | Top: g | Bottom: G | Play: p | Read: r | Delete: d | Open: o | Back: b ") // Add 'Delete: d'
 }

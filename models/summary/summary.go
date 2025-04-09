@@ -10,6 +10,7 @@ import (
 	"sync"
 
 	"github.com/cockroachdb/errors"
+	"github.com/google/uuid"
 	"github.com/mopemope/quicknews/ent"
 	"github.com/mopemope/quicknews/ent/summary"
 	"github.com/mopemope/quicknews/pkg/clock"
@@ -23,6 +24,7 @@ type SummaryRepository interface {
 	GetUnlistened(ctx context.Context) ([]*ent.Summary, error)
 	UpdateListened(ctx context.Context, sum *ent.Summary) error
 	UpdateReaded(ctx context.Context, sum *ent.Summary) error
+	Delete(ctx context.Context, id uuid.UUID) error
 }
 
 type SummaryRepositoryImpl struct {
@@ -120,6 +122,15 @@ func (r *SummaryRepositoryImpl) UpdateReaded(ctx context.Context, sum *ent.Summa
 			Save(ctx)
 		if err != nil {
 			return errors.Wrap(err, "failed to update summary as listened")
+		}
+		return nil
+	})
+}
+
+func (r *SummaryRepositoryImpl) Delete(ctx context.Context, id uuid.UUID) error {
+	return database.WithTx(ctx, r.client, func(tx *ent.Tx) error {
+		if err := tx.Summary.DeleteOneID(id).Exec(ctx); err != nil {
+			return errors.Wrap(err, "failed to delete summary")
 		}
 		return nil
 	})
