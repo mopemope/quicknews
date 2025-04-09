@@ -78,7 +78,7 @@ func (m singleProgressModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Batch(
 			progressCmd,
 			tea.Printf("%s %s", checkMark, name), // print success message above our program
-			processItem(m.items[m.index]),        // download the next package
+			m.processItem(m.items[m.index]),      // download the next package
 		)
 	case spinner.TickMsg:
 		var cmd tea.Cmd
@@ -128,15 +128,15 @@ type finishedItemMsg struct {
 	item QueueItem
 }
 
-func processItem(item QueueItem) tea.Cmd {
-	return func() tea.Msg {
-		item.Process()
-		return finishedItemMsg{item: item}
-	}
-}
-
 func max(a, b int) int {
 	if a > b {
+		return a
+	}
+	return b
+}
+
+func min(a, b int) int {
+	if a < b {
 		return a
 	}
 	return b

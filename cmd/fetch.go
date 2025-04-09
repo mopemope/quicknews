@@ -176,9 +176,16 @@ func (cmd *FetchCmd) Run(client *ent.Client) error {
 			return err
 		}
 
-		if len(items) > 0 {
-			if _, err := tea.NewProgram(progress.NewSingleProgressModel(items)).Run(); err != nil {
-				return errors.Wrap(err, "error running progress")
+		itemCount := len(items)
+		if itemCount > 0 {
+			if itemCount > 50 {
+				if _, err := tea.NewProgram(progress.NewParallelProgressModel(items, 5)).Run(); err != nil {
+					return errors.Wrap(err, "error running progress")
+				}
+			} else {
+				if _, err := tea.NewProgram(progress.NewSingleProgressModel(items)).Run(); err != nil {
+					return errors.Wrap(err, "error running progress")
+				}
 			}
 
 		} else {
