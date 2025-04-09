@@ -36,7 +36,13 @@ After building, you can run the program with the following command:
 - `add <URL>`: Adds a new RSS feed.
 - `fetch`: Fetches and updates registered feeds.
 - `read`: Launches the TUI to browse feeds and articles.
+    - `--speaking-rate` / `-s`: Sets the speaking rate (default: 1.2).
+    - `--voicevox`: Uses the VoiceVox engine for TTS.
+    - `--speaker`: Sets the VoiceVox speaker ID (default: 10).
 - `play`: Read aloud unlistened feeds.
+    - `--speaking-rate` / `-s`: Sets the speaking rate (default: 1.2).
+    - `--voicevox`: Uses the VoiceVox engine for TTS.
+    - `--speaker`: Sets the VoiceVox speaker ID (default: 10).
 - `import`: Import feeds from an OPML file.
 
 For detailed options, refer to `./quicknews --help`.
@@ -49,6 +55,7 @@ Some features require specific environment variables to be set:
     - If you want to use the text-to-speech feature, you need to set up Google Cloud authentication.
     - Set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to the path of your service account key file.
     - Example: `export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your/keyfile.json"`
+    - Alternatively, you can use the VoiceVox engine by running the `play` or `read` command with the `--voicevox` flag. Ensure the VoiceVox engine is running locally (usually at `http://localhost:50021`). You can specify the speaker ID using the `--speaker` flag (e.g., `--speaker 10`).
 
 - **Gemini Summarization:**
     - If you want to use the article summarization feature with Google Gemini, you need an API key.
