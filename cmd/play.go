@@ -28,7 +28,7 @@ type playArticle struct {
 }
 
 func (a *playArticle) DisplayName() string {
-	return a.summary.Title
+	return a.summary.Edges.Article.Title
 }
 
 func (a *playArticle) Process() {
