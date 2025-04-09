@@ -12,18 +12,19 @@ import (
 )
 
 type parallelProgressModel struct {
-	items       []QueueItem
-	itemCount   int
-	numParallel int
-	index       int
-	width       int
-	height      int
-	spinner     spinner.Model
-	progress    progress.Model
-	done        bool
+	items         []QueueItem
+	itemCount     int
+	numParallel   int
+	index         int
+	width         int
+	height        int
+	spinner       spinner.Model
+	progress      progress.Model
+	done          bool
+	progressLabel string
 }
 
-func NewParallelProgressModel(items []QueueItem, parallel int) parallelProgressModel {
+func NewParallelProgressModel(items []QueueItem, progressLabel string, parallel int) parallelProgressModel {
 	p := progress.New(
 		progress.WithDefaultGradient(),
 		progress.WithWidth(40),
@@ -35,11 +36,12 @@ func NewParallelProgressModel(items []QueueItem, parallel int) parallelProgressM
 	itemCount := len(items)
 
 	return parallelProgressModel{
-		items:       items,
-		itemCount:   itemCount,
-		numParallel: parallel,
-		spinner:     s,
-		progress:    p,
+		items:         items,
+		itemCount:     itemCount,
+		numParallel:   parallel,
+		spinner:       s,
+		progress:      p,
+		progressLabel: progressLabel,
 	}
 }
 
@@ -102,7 +104,7 @@ func (m parallelProgressModel) View() string {
 	prog := m.progress.View()
 	cellsAvail := max(0, m.width-lipgloss.Width(spin+prog+itemCount))
 
-	info := lipgloss.NewStyle().MaxWidth(cellsAvail).Render("Processing ")
+	info := lipgloss.NewStyle().MaxWidth(cellsAvail).Render(m.progressLabel + " ")
 
 	cellsRemaining := max(0, m.width-lipgloss.Width(spin+info+prog+itemCount))
 	gap := strings.Repeat(" ", cellsRemaining)

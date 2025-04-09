@@ -16,13 +16,14 @@ type QueueItem interface {
 }
 
 type singleProgressModel struct {
-	items    []QueueItem
-	index    int
-	width    int
-	height   int
-	spinner  spinner.Model
-	progress progress.Model
-	done     bool
+	items         []QueueItem
+	index         int
+	width         int
+	height        int
+	spinner       spinner.Model
+	progress      progress.Model
+	done          bool
+	progressLabel string
 }
 
 var (
@@ -31,7 +32,7 @@ var (
 	checkMark           = lipgloss.NewStyle().Foreground(lipgloss.Color("42")).SetString("✓")
 )
 
-func NewSingleProgressModel(items []QueueItem) singleProgressModel {
+func NewSingleProgressModel(items []QueueItem, progressLabel string) singleProgressModel {
 	p := progress.New(
 		progress.WithDefaultGradient(),
 		progress.WithWidth(40),
@@ -41,9 +42,10 @@ func NewSingleProgressModel(items []QueueItem) singleProgressModel {
 	s := spinner.New()
 	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("63"))
 	return singleProgressModel{
-		items:    items,
-		spinner:  s,
-		progress: p,
+		items:         items,
+		spinner:       s,
+		progress:      p,
+		progressLabel: progressLabel,
 	}
 }
 
@@ -109,7 +111,7 @@ func (m singleProgressModel) View() string {
 	cellsAvail := max(0, m.width-lipgloss.Width(spin+prog+itemCount))
 
 	itemName := currentPkgNameStyle.Render(m.items[m.index].DisplayName())
-	info := lipgloss.NewStyle().MaxWidth(cellsAvail).Render("Processing " + itemName)
+	info := lipgloss.NewStyle().MaxWidth(cellsAvail).Render(m.progressLabel + " " + itemName)
 
 	cellsRemaining := max(0, m.width-lipgloss.Width(spin+info+prog+itemCount))
 	gap := strings.Repeat(" ", cellsRemaining)

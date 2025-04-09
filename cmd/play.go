@@ -87,7 +87,7 @@ func (a *PlayCmd) Run(client *ent.Client) error {
 	}
 
 	if len(items) > 0 {
-		if _, err := tea.NewProgram(progress.NewSingleProgressModel(items)).Run(); err != nil {
+		if _, err := tea.NewProgram(progress.NewSingleProgressModel(items, "Playing")).Run(); err != nil {
 			return errors.Wrap(err, "error running progress")
 		}
 	} else {
