@@ -15,7 +15,7 @@ type QueueItem interface {
 	Process()
 }
 
-type model struct {
+type singleProgressModel struct {
 	items    []QueueItem
 	index    int
 	width    int
@@ -31,7 +31,7 @@ var (
 	checkMark           = lipgloss.NewStyle().Foreground(lipgloss.Color("42")).SetString("✓")
 )
 
-func NewModel(items []QueueItem) model {
+func NewSingleProgressModel(items []QueueItem) singleProgressModel {
 	p := progress.New(
 		progress.WithDefaultGradient(),
 		progress.WithWidth(40),
@@ -40,18 +40,18 @@ func NewModel(items []QueueItem) model {
 
 	s := spinner.New()
 	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("63"))
-	return model{
+	return singleProgressModel{
 		items:    items,
 		spinner:  s,
 		progress: p,
 	}
 }
 
-func (m model) Init() tea.Cmd {
-	return tea.Batch(processItem(m.items[m.index]), m.spinner.Tick)
+func (m singleProgressModel) Init() tea.Cmd {
+	return tea.Batch(m.processItem(m.items[m.index]), m.spinner.Tick)
 }
 
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m singleProgressModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
@@ -94,7 +94,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m model) View() string {
+func (m singleProgressModel) View() string {
 	n := len(m.items)
 	w := lipgloss.Width(fmt.Sprintf("%d", n))
 
@@ -115,6 +115,13 @@ func (m model) View() string {
 	gap := strings.Repeat(" ", cellsRemaining)
 
 	return spin + info + gap + prog + itemCount
+}
+
+func (m *singleProgressModel) processItem(item QueueItem) tea.Cmd {
+	return func() tea.Msg {
+		item.Process()
+		return finishedItemMsg{item: item}
+	}
 }
 
 type finishedItemMsg struct {
