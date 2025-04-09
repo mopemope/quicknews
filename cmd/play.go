@@ -18,7 +18,7 @@ import (
 type PlayCmd struct {
 	NoFetch      bool    `help:"Do not fetch articles background."`
 	SpeakingRate float64 `short:"s" help:"Set the speaking rate." default:"1.2"`
-	VoiceVox     bool    `help:"Use the voicevox engine." `
+	Voicevox     bool    `help:"Use the voicevox engine." `
 	Speaker      int     `help:"Set the voicevox speaker." default:"10"`
 }
 
@@ -60,7 +60,7 @@ func newArticle(summary *ent.Summary, repo summary.SummaryRepository) *playArtic
 func (a *PlayCmd) Run(client *ent.Client) error {
 
 	tts.SpeachOpt.SpeakingRate = a.SpeakingRate
-	if a.VoiceVox {
+	if a.Voicevox {
 		tts.SpeachOpt.Engine = "voicevox"
 		tts.SpeachOpt.Speaker = a.Speaker
 	}

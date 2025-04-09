@@ -6,6 +6,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/cockroachdb/errors"
 	"github.com/mopemope/quicknews/ent"
+	"github.com/mopemope/quicknews/tts"
 	"github.com/mopemope/quicknews/tui"
 )
 
@@ -14,13 +15,18 @@ type ReadCmd struct {
 	Confirm      bool    `short:"c" help:"Ask for confirmation before action."`
 	NoFetch      bool    `help:"Do not fetch articles background."`
 	SpeakingRate float64 `short:"s" help:"Set the speaking rate." default:"1.2"`
-	VoiceVox     bool    `help:"Use the voicevox engine." `
+	Voicevox     bool    `help:"Use the voicevox engine." `
 	Speaker      int     `help:"Set the voicevox speaker." default:"10"`
 }
 
 // Run executes the TUI command.
 func (t *ReadCmd) Run(client *ent.Client) error {
 	slog.Debug("Starting TUI mode")
+	tts.SpeachOpt.SpeakingRate = t.SpeakingRate
+	if t.Voicevox {
+		tts.SpeachOpt.Engine = "voicevox"
+		tts.SpeachOpt.Speaker = t.Speaker
+	}
 
 	if !t.NoFetch {
 		go func() {
