@@ -219,7 +219,7 @@ func (m articleListModel) Update(msg tea.Msg) (articleListModel, tea.Cmd) {
 					slog.Error("Failed to open url", "error", err)
 				}
 			}
-		case "r":
+		case "R":
 			selectedItem, ok := m.list.SelectedItem().(articleItem)
 			// bookmark is not allowed to be readed
 			if ok && !selectedItem.isBookmark {
