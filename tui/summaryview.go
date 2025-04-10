@@ -12,6 +12,7 @@ import (
 	"github.com/mopemope/quicknews/config"
 	"github.com/mopemope/quicknews/ent"
 	"github.com/mopemope/quicknews/models/article"
+	"github.com/mopemope/quicknews/models/bookmark"
 	"github.com/mopemope/quicknews/models/summary"
 	"github.com/mopemope/quicknews/tts"
 )
@@ -25,6 +26,7 @@ type summaryViewModel struct {
 	ready             bool // Indicates if the viewport is ready
 	summaryRepos      summary.SummaryRepository
 	articleRepos      article.ArticleRepository // Add ArticleRepository
+	bookmarkRepos     bookmark.Repository
 	showConfirmDialog bool
 	confirmDialogMsg  string
 	onConfirmYes      func() tea.Cmd
@@ -36,11 +38,13 @@ func newSummaryViewModel(client *ent.Client, config *config.Config) summaryViewM
 	vp := viewport.New(0, 0) // Initial size, will be updated
 	vp.Style = summaryViewStyle
 
+	bookmarkRepos, _ := bookmark.NewRepository(context.Background(), client, config)
 	return summaryViewModel{
-		viewport:     vp,
-		summaryRepos: summary.NewSummaryRepository(client),
-		articleRepos: article.NewArticleRepository(client), // Initialize ArticleRepository
-		config:       config,
+		viewport:      vp,
+		summaryRepos:  summary.NewSummaryRepository(client),
+		articleRepos:  article.NewArticleRepository(client), // Initialize ArticleRepository
+		config:        config,
+		bookmarkRepos: bookmarkRepos,
 	}
 }
 
@@ -138,6 +142,14 @@ func (m summaryViewModel) Update(msg tea.Msg) (summaryViewModel, tea.Cmd) {
 		case "o":
 			if err := OpenArticleURL(m.article.URL); err != nil {
 				slog.Error("Failed to open url", "error", err)
+			}
+		case "B":
+			if m.bookmarkRepos != nil {
+				if err := m.bookmarkRepos.AddBookmark(context.Background(), m.article.URL); err != nil {
+					slog.Error("Failed to add bookmark", slog.Any("error", err))
+				}
+			} else {
+				slog.Warn("Bookmark repository not initialized")
 			}
 		case "r":
 			if m.article != nil &&
@@ -285,5 +297,5 @@ func (m summaryViewModel) footerView() string {
 	return lipgloss.NewStyle().
 		Foreground(lipgloss.Color("240")). // Dim color
 		Padding(0, 1).
-		Render("Scroll: ↑/k ↓/j | Top: g | Bottom: G | Play: p | Read: r | Delete: d | Open: o | Back: b ") // Add 'Delete: d'
+		Render("Scroll: ↑/k ↓/j | Top: g | Bottom: G | Play: p | Read: r | Delete: d | Open: o | Bookmark: B | Back: b ")
 }
