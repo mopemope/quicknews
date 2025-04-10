@@ -43,7 +43,6 @@ type model struct {
 	err                  error
 	windowWidth          int
 	windowHeight         int
-	confirm              bool
 	config               *config.Config
 }
 
