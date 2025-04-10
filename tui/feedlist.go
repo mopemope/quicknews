@@ -131,6 +131,9 @@ func (m feedListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// Send a message to the main model to switch view
 				return m, func() tea.Msg { return selectFeedMsg{feed: selectedItem} }
 			}
+		case "r": // Reload feeds
+			slog.Debug("Reloading feeds")
+			cmds = append(cmds, m.fetchFeedsCmd) // Trigger feed fetch
 		case "d":
 			selectedItem, ok := m.list.SelectedItem().(feedItem)
 			if ok && !selectedItem.isBookmark {
@@ -182,7 +185,10 @@ func (m feedListModel) View() string {
 		return fmt.Sprintf("Error fetching feeds: %v\n\nPress q to quit.", m.err)
 	}
 	// Render the list using its View method, wrapped in a basic style
-	content := docStyle.Render(m.list.View())
+	listContent := m.list.View()
+	footer := m.footerView() // Get footer content
+	content := docStyle.Render(lipgloss.JoinVertical(lipgloss.Left, listContent, footer))
+
 	if m.showConfirmDialog {
 		dialogStyle := lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
@@ -203,4 +209,12 @@ func (m feedListModel) View() string {
 		)
 	}
 	return content
+}
+
+func (m feedListModel) footerView() string {
+	// Basic footer with keybindings
+	return lipgloss.NewStyle().
+		Foreground(lipgloss.Color("240")). // Dim color
+		Padding(0, 1).
+		Render("Select: Enter | Reload: r | Delete: d | Quit: q/Ctrl+c")
 }
