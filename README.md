@@ -36,12 +36,12 @@ After building, you can run the program with the following command:
 - `add <URL>`: Adds a new RSS feed.
 - `fetch`: Fetches and updates registered feeds.
 - `read`: Launches the TUI to browse feeds and articles.
-    - `--speaking-rate` / `-s`: Sets the speaking rate (default: 1.2).
-    - `--voicevox`: Uses the VoiceVox engine for TTS.
-    - `--speaker`: Sets the VoiceVox speaker ID (default: 10).
+  - `--speaking-rate` / `-s`: Sets the speaking rate (default: 1.2).
+  - `--voicevox`: Uses the VoiceVox engine for TTS.
+  - `--speaker`: Sets the VoiceVox speaker ID (default: 10).
 - `play`: Read aloud unlistened feeds.
-    - `--speaking-rate` / `-s`: Sets the speaking rate (default: 1.2).
-    - `--voicevox`: Uses the VoiceVox engine for TTS.
+  - `--speaking-rate` / `-s`: Sets the speaking rate (default: 1.2).
+  - `--voicevox`: Uses the VoiceVox engine for TTS.
     - `--speaker`: Sets the VoiceVox speaker ID (default: 10).
 - `import`: Import feeds from an OPML file.
 - `bookmark <URL>`: Adds a new bookmark.
@@ -97,6 +97,5 @@ export_org = "/path/to/your/org/files"
 speaker = 10
 
 ```
-
 
 The core RSS reading functionality works without configuring these optional features.
