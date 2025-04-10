@@ -212,6 +212,9 @@ func (m articleListModel) Update(msg tea.Msg) (articleListModel, tea.Cmd) {
 		case "b": // Go back to feed list view
 			slog.Debug("Back key pressed in article list")
 			return m, func() tea.Msg { return backToFeedListMsg{} } // Send message to main model
+		case "r": // Reload articles
+			slog.Debug("Reloading articles")
+			cmds = append(cmds, m.fetchArticlesCmd()) // Trigger article fetch
 		case "o":
 			selectedItem, ok := m.list.SelectedItem().(articleItem)
 			if ok {
