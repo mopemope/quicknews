@@ -192,7 +192,13 @@ func (cmd *FetchCmd) Run(client *ent.Client, config *config.Config) error {
 					return errors.Wrap(err, "error running progress")
 				}
 			} else {
-				if _, err := tea.NewProgram(progress.NewSingleProgressModel(items, "Fetching")).Run(); err != nil {
+				if _, err := tea.NewProgram(progress.NewSingleProgressModel(ctx,
+					&progress.Config{
+						Client:        client,
+						Config:        config,
+						Items:         items,
+						ProgressLabel: "Fetching",
+					})).Run(); err != nil {
 					return errors.Wrap(err, "error running progress")
 				}
 			}

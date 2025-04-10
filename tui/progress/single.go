@@ -1,6 +1,7 @@
 package progress
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"strings"
@@ -9,6 +10,9 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/mopemope/quicknews/config"
+	"github.com/mopemope/quicknews/ent"
+	"github.com/mopemope/quicknews/models/bookmark"
 	"github.com/mopemope/quicknews/tui"
 )
 
@@ -16,6 +20,13 @@ type QueueItem interface {
 	DisplayName() string
 	URL() string
 	Process()
+}
+
+type Config struct {
+	Client        *ent.Client
+	Config        *config.Config
+	Items         []QueueItem
+	ProgressLabel string
 }
 
 type singleProgressModel struct {
@@ -27,6 +38,7 @@ type singleProgressModel struct {
 	progress      progress.Model
 	done          bool
 	progressLabel string
+	bookmarkRepos bookmark.Repository
 }
 
 var (
@@ -35,20 +47,23 @@ var (
 	checkMark           = lipgloss.NewStyle().Foreground(lipgloss.Color("42")).SetString("✓")
 )
 
-func NewSingleProgressModel(items []QueueItem, progressLabel string) singleProgressModel {
+func NewSingleProgressModel(ctx context.Context, config *Config) singleProgressModel {
 	p := progress.New(
 		progress.WithDefaultGradient(),
 		progress.WithWidth(40),
 		progress.WithoutPercentage(),
 	)
 
+	bookmarkRepos, _ := bookmark.NewRepository(ctx, config.Client, config.Config)
+
 	s := spinner.New()
 	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("63"))
 	return singleProgressModel{
-		items:         items,
+		items:         config.Items,
 		spinner:       s,
 		progress:      p,
-		progressLabel: progressLabel,
+		progressLabel: config.ProgressLabel,
+		bookmarkRepos: bookmarkRepos,
 	}
 }
 
@@ -64,6 +79,16 @@ func (m singleProgressModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "ctrl+c", "esc", "q":
 			return m, tea.Quit
+		case "B":
+			if m.bookmarkRepos != nil {
+				if err := m.bookmarkRepos.AddBookmark(context.Background(), m.items[m.index].URL()); err != nil {
+					slog.Error("Failed to add bookmark", "error", err)
+				} else {
+					slog.Info("Bookmark added", "url", m.items[m.index].URL())
+				}
+			} else {
+				slog.Warn("Bookmark repository not initialized")
+			}
 		case "o":
 			if err := tui.OpenArticleURL(m.items[m.index].URL()); err != nil {
 				slog.Error("Failed to open url", "error", err)
