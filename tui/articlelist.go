@@ -11,6 +11,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/cockroachdb/errors"
 	"github.com/google/uuid"
+	"github.com/mopemope/quicknews/config"
 	"github.com/mopemope/quicknews/ent"
 	"github.com/mopemope/quicknews/models/article"
 	"github.com/mopemope/quicknews/models/feed"
@@ -32,7 +33,7 @@ type articleListModel struct {
 	confirmDialogMsg  string
 	onConfirmYes      func() tea.Cmd
 	onConfirmNo       func() tea.Cmd
-	confirm           bool
+	config            *config.Config
 }
 
 type articleItem struct {
@@ -65,7 +66,7 @@ func (i articleItem) Description() string { return i.link }
 
 func (i articleItem) FilterValue() string { return i.title }
 
-func newArticleListModel(client *ent.Client, confirm bool) articleListModel {
+func newArticleListModel(client *ent.Client, config *config.Config) articleListModel {
 	defaultDelegate := list.NewDefaultDelegate()
 
 	l := list.New([]list.Item{}, defaultDelegate, 0, 0)
@@ -77,7 +78,7 @@ func newArticleListModel(client *ent.Client, confirm bool) articleListModel {
 		summaryRepos:      summary.NewSummaryRepository(client),
 		list:              l,
 		showConfirmDialog: false,
-		confirm:           confirm,
+		config:            config,
 	}
 }
 
@@ -230,7 +231,7 @@ func (m articleListModel) Update(msg tea.Msg) (articleListModel, tea.Cmd) {
 					return m, nil
 				}
 
-				if m.confirm {
+				if m.config.RequireConfirm {
 					m.ShowConfirmationDialog(
 						"記事を既読にしますか？ (y/N)",
 						func() tea.Cmd {

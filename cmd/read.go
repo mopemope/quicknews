@@ -13,7 +13,6 @@ import (
 
 // ReadCmd represents the TUI command.
 type ReadCmd struct {
-	Confirm      bool     `short:"c" help:"Ask for confirmation before action."`
 	NoFetch      bool     `help:"Do not fetch articles background."`
 	SpeakingRate *float64 `short:"s" help:"Set the speaking rate."`
 	Voicevox     bool     `help:"Use the voicevox engine." `
@@ -39,7 +38,7 @@ func (t *ReadCmd) Run(client *ent.Client, config *config.Config) error {
 		}()
 	}
 
-	model := tui.InitialModel(client, config, t.Confirm)
+	model := tui.InitialModel(client, config)
 	p := tea.NewProgram(model,
 		tea.WithAltScreen(),
 		tea.WithMouseCellMotion(),

@@ -55,15 +55,15 @@ const (
 	summaryView // Add summary view state
 )
 
-func InitialModel(client *ent.Client, config *config.Config, confirm bool) model {
+func InitialModel(client *ent.Client, config *config.Config) model {
 	return model{
 		client:       client,
 		articleRepos: article.NewArticleRepository(client), // Initialize article repository
 		feedList:     newFeedListModel(client),
-		articleList:  newArticleListModel(client, confirm),
-		summaryView:  newSummaryViewModel(client, config, confirm), // Initialize summary view model
+		articleList:  newArticleListModel(client, config),
+		summaryView:  newSummaryViewModel(client, config), // Initialize summary view model
 		currentView:  feedListView,
-		confirm:      confirm,
+		config:       config,
 	}
 }
 

@@ -25,7 +25,6 @@ type summaryViewModel struct {
 	ready             bool // Indicates if the viewport is ready
 	summaryRepos      summary.SummaryRepository
 	articleRepos      article.ArticleRepository // Add ArticleRepository
-	confirm           bool
 	showConfirmDialog bool
 	confirmDialogMsg  string
 	onConfirmYes      func() tea.Cmd
@@ -33,14 +32,14 @@ type summaryViewModel struct {
 	config            *config.Config
 }
 
-func newSummaryViewModel(client *ent.Client, config *config.Config, confirm bool) summaryViewModel {
+func newSummaryViewModel(client *ent.Client, config *config.Config) summaryViewModel {
 	vp := viewport.New(0, 0) // Initial size, will be updated
 	vp.Style = summaryViewStyle
+
 	return summaryViewModel{
 		viewport:     vp,
 		summaryRepos: summary.NewSummaryRepository(client),
 		articleRepos: article.NewArticleRepository(client), // Initialize ArticleRepository
-		confirm:      confirm,
 		config:       config,
 	}
 }
@@ -146,7 +145,7 @@ func (m summaryViewModel) Update(msg tea.Msg) (summaryViewModel, tea.Cmd) {
 				!m.article.Edges.Feed.IsBookmark &&
 				m.article.Edges.Summary != nil {
 
-				if m.confirm {
+				if m.config.RequireConfirm {
 					m.ShowConfirmationDialog(
 						"記事を既読にしますか？ (y/N)",
 						func() tea.Cmd {
