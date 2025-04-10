@@ -29,9 +29,19 @@ func TestNewClient(t *testing.T) {
 // TestNewClient_NoApiKey tests client creation when the API key is missing.
 func TestNewClient_NoApiKey(t *testing.T) {
 	// Temporarily unset the API key for this test
-	originalApiKey := os.Getenv("GEMINI_API_KEY")
-	os.Unsetenv("GEMINI_API_KEY")
-	defer os.Setenv("GEMINI_API_KEY", originalApiKey) // Restore original value
+	originalApiKey, exists := os.LookupEnv("GEMINI_API_KEY")
+	err := os.Unsetenv("GEMINI_API_KEY")
+	require.NoError(t, err, "os.Unsetenv should not return an error")
+	defer func() {
+		if exists {
+			err := os.Setenv("GEMINI_API_KEY", originalApiKey) // Restore original value
+			assert.NoError(t, err, "os.Setenv should not return an error")
+		} else {
+			err := os.Unsetenv("GEMINI_API_KEY") // Ensure it remains unset if it wasn't set initially
+			assert.NoError(t, err, "os.Unsetenv should not return an error")
+		}
+	}()
+
 
 	client, err := NewClient(context.Background(), nil)
 
@@ -49,7 +59,10 @@ func TestSummarizeText(t *testing.T) {
 
 	client, err := NewClient(context.Background(), nil)
 	require.NoError(t, err)
-	defer client.Close()
+	defer func() {
+		err := client.Close()
+		assert.NoError(t, err, "client.Close should not return an error")
+	}()
 
 	{
 		// This is an integration test part - requires actual API call

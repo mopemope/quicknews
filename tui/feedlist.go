@@ -140,7 +140,8 @@ func (m feedListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case "r": // Reload feeds
 			slog.Debug("Reloading feeds")
-			cmds = append(cmds, m.fetchFeedsCmd) // Trigger feed fetch
+			cmd = m.fetchFeedsCmd // Trigger feed fetch
+			cmds = append(cmds, cmd)
 		case "d":
 			selectedItem, ok := m.list.SelectedItem().(feedItem)
 			if ok && !selectedItem.isBookmark {
@@ -164,10 +165,12 @@ func (m feedListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	// Delegate other message processing to the list component
-	m.list, cmd = m.list.Update(msg)
+	var listCmd tea.Cmd
+	m.list, listCmd = m.list.Update(msg)
+	cmds = append(cmds, listCmd)
 
 	// Return the updated model (m) which is implicitly a tea.Model now
-	return m, cmd
+	return m, tea.Batch(cmds...)
 }
 
 func (m *feedListModel) ShowConfirmationDialog(message string, onYes, onNo func() tea.Cmd) {

@@ -75,7 +75,11 @@ func getSpeakers(cfg voicevoxConfig) (voiceVoxSpeakers, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get speakers")
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			slog.Warn("failed to close response body", "error", err)
+		}
+	}()
 	var speakers voiceVoxSpeakers
 	if err := json.NewDecoder(resp.Body).Decode(&speakers); err != nil {
 		return nil, errors.Wrap(err, "failed to decode speakers")
@@ -96,7 +100,11 @@ func getQuery(cfg voicevoxConfig, id int, text string) (*voiceVoxParams, error) 
 	if err != nil {
 		return nil, errors.Wrap(err, " failed to get audio query")
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			slog.Warn("failed to close response body", "error", err)
+		}
+	}()
 	var params *voiceVoxParams
 	if err := json.NewDecoder(resp.Body).Decode(&params); err != nil {
 		return nil, errors.Wrap(err, "failed to decode params")
@@ -124,7 +132,11 @@ func synth(cfg voicevoxConfig, id int, params *voiceVoxParams) ([]byte, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to synthesize")
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			slog.Warn("failed to close response body", "error", err)
+		}
+	}()
 	buff := bytes.NewBuffer(nil)
 	if _, err := io.Copy(buff, resp.Body); err != nil {
 		return nil, errors.Wrap(err, "failed to copy response body")

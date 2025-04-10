@@ -19,7 +19,7 @@ func InitializeLogger(logPath string, debug bool) error {
 		if err != nil {
 			// Fallback to stdout if file opening fails
 			slog.Error("failed to open log file, falling back to stdout", "path", logPath, "error", err)
-			output = os.Stdout
+			// output = os.Stdout // This assignment is ineffectual because of the return below.
 			// Return the error so the caller knows initialization partially failed
 			return err
 		}
