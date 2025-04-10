@@ -2,12 +2,14 @@ package progress
 
 import (
 	"fmt"
+	"log/slog"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/progress"
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/mopemope/quicknews/tui"
 )
 
 type QueueItem interface {
@@ -62,6 +64,10 @@ func (m singleProgressModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "ctrl+c", "esc", "q":
 			return m, tea.Quit
+		case "o":
+			if err := tui.OpenArticleURL(m.items[m.index].URL()); err != nil {
+				slog.Error("Failed to open url", "error", err)
+			}
 		}
 	case finishedItemMsg:
 		name := m.items[m.index].DisplayName()
