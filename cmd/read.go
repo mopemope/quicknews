@@ -27,9 +27,10 @@ func (t *ReadCmd) Run(client *ent.Client, config *config.Config) error {
 		t.SpeakingRate = &config.SpeakingRate
 	}
 	tts.SpeachOpt.SpeakingRate = *t.SpeakingRate
-	if t.Voicevox {
+
+	if config.VoiceVox != nil {
 		tts.SpeachOpt.Engine = "voicevox"
-		tts.SpeachOpt.Speaker = t.Speaker
+		tts.SpeachOpt.Speaker = config.VoiceVox.Speaker
 	}
 
 	if !t.NoFetch {

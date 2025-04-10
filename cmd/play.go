@@ -66,6 +66,11 @@ func (a *PlayCmd) Run(client *ent.Client, config *config.Config) error {
 		a.SpeakingRate = &config.SpeakingRate
 	}
 	tts.SpeachOpt.SpeakingRate = *a.SpeakingRate
+	if config.VoiceVox != nil {
+		tts.SpeachOpt.Engine = "voicevox"
+		tts.SpeachOpt.Speaker = config.VoiceVox.Speaker
+	}
+
 	ctx := context.Background()
 	if !a.NoFetch {
 		go func() {
