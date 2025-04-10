@@ -26,12 +26,16 @@ type feedListModel struct {
 
 type feedItem struct {
 	id         uuid.UUID
-	title      string
-	url        string
-	isBookmark bool
+	title       string
+	url         string
+	isBookmark  bool
+	unreadCount int // 未読記事数を保持するフィールドを追加
 }
 
-func (i feedItem) Title() string       { return i.title }
+func (i feedItem) Title() string {
+	// 未読記事数をタイトルに含めて表示
+	return fmt.Sprintf("%s (%d)", i.title, i.unreadCount)
+}
 func (i feedItem) Description() string { return i.url } // Show URL in description for now
 func (i feedItem) FilterValue() string { return i.title }
 
@@ -60,11 +64,14 @@ func (m *feedListModel) fetchFeedsCmd() tea.Msg {
 
 	items := make([]list.Item, len(feeds))
 	for i, f := range feeds {
+		// Edges.Articles には未読の記事のみが含まれる
+		unreadCount := len(f.Edges.Articles)
 		items[i] = feedItem{
-			id:         f.ID,
-			title:      f.Title,
-			url:        f.URL,
-			isBookmark: f.IsBookmark,
+			id:          f.ID,
+			title:       f.Title,
+			url:         f.URL,
+			isBookmark:  f.IsBookmark,
+			unreadCount: unreadCount, // 未読記事数をセット
 		}
 	}
 	return items // Return fetched items as message

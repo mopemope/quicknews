@@ -114,6 +114,10 @@ func (r *FeedRepositoryImpl) All(ctx context.Context) ([]*ent.Feed, error) {
 	feeds, err := r.client.Feed.
 		Query().
 		Order(feed.ByOrder()).
+		// Eager load articles with a condition to count only unread ones
+		WithArticles(func(q *ent.ArticleQuery) {
+			q.Where(article.HasSummaryWith(summary.Readed(false)))
+		}).
 		All(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get all feeds")
