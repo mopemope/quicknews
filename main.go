@@ -26,11 +26,12 @@ type CLI struct {
 
 	// Global flags
 	DbPath     string           `name:"db" type:"path" default:"~/quicknews.db" help:"Path to the SQLite database file."`
-	ConfigPath string           `name:"config" type:"path" default:"~/.config/quicknews/config.toml" help:"Path to the config file."` // TODO use xdg path
-	LogPath    string           `name:"log" type:"path" default:"quicknews.log"  help:"Path to the log file. If not specified, logs to stdout."`
+	ConfigPath string           `name:"config" type:"path" default:"~/.config/quicknews/config.toml" help:"Path to the config file."`
+	LogPath    string           `name:"log" type:"path" default:"~/quicknews.log"  help:"Path to the log file. If not specified, logs to stdout."`
 	Version    kong.VersionFlag `short:"V" help:"Show version information."`
 	Debug      bool             `short:"d" help:"Enable debug logging."`
 
+	// Internal fields
 	config *config.Config
 }
 
