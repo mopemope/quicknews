@@ -7,11 +7,12 @@ import (
 )
 
 type Config struct {
-	GoogleApplicationCredentials string `toml:"google_application_credentials" env:"GOOGLE_APPLICATION_CREDENTIALS"`
-	GeminiApiKey                 string `toml:"gemini_api_key" env:"GEMINI_API_KEY"`
-	ExportOrg                    string `toml:"export_org" env:"EXPORT_ORG"`
-	EnableEnvOverride            bool   `toml:"enable_env_override" env:"ENABLE_ENV_OVERRIDE"`
-	VoiceVox                     VoiceVox
+	GoogleApplicationCredentials string  `toml:"google_application_credentials" env:"GOOGLE_APPLICATION_CREDENTIALS"`
+	GeminiApiKey                 string  `toml:"gemini_api_key" env:"GEMINI_API_KEY"`
+	ExportOrg                    string  `toml:"export_org" env:"EXPORT_ORG"`
+	EnableEnvOverride            bool    `toml:"enable_env_override" env:"ENABLE_ENV_OVERRIDE"`
+	SpeakingRate                 float64 `toml:"speaking_rate" env:"SPEAKING_RATE"`
+	VoiceVox                     *VoiceVox
 }
 
 type VoiceVox struct {
@@ -30,6 +31,9 @@ func LoadConfig(path string) (*Config, error) {
 		if err := env.Parse(&config); err != nil {
 			return nil, errors.Wrap(err, "failed to parse game config")
 		}
+	}
+	if config.SpeakingRate == 0 {
+		config.SpeakingRate = 1.3
 	}
 	return &config, nil
 }

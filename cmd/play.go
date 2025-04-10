@@ -17,10 +17,10 @@ import (
 )
 
 type PlayCmd struct {
-	NoFetch      bool    `help:"Do not fetch articles background."`
-	SpeakingRate float64 `short:"s" help:"Set the speaking rate." default:"1.2"`
-	Voicevox     bool    `help:"Use the voicevox engine." `
-	Speaker      int     `help:"Set the voicevox speaker." default:"10"`
+	NoFetch      bool     `help:"Do not fetch articles background."`
+	SpeakingRate *float64 `short:"s" help:"Set the speaking rate."`
+	Voicevox     bool     `help:"Use the voicevox engine." `
+	Speaker      int      `help:"Set the voicevox speaker." default:"10"`
 }
 
 type playArticle struct {
@@ -62,12 +62,10 @@ func newArticle(summary *ent.Summary, repo summary.SummaryRepository, config *co
 }
 
 func (a *PlayCmd) Run(client *ent.Client, config *config.Config) error {
-
-	tts.SpeachOpt.SpeakingRate = a.SpeakingRate
-	if a.Voicevox {
-		tts.SpeachOpt.Engine = "voicevox"
-		tts.SpeachOpt.Speaker = a.Speaker
+	if a.SpeakingRate == nil {
+		a.SpeakingRate = &config.SpeakingRate
 	}
+	tts.SpeachOpt.SpeakingRate = *a.SpeakingRate
 	ctx := context.Background()
 	if !a.NoFetch {
 		go func() {
