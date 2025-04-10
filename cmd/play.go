@@ -8,6 +8,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/cockroachdb/errors"
+	"github.com/mopemope/quicknews/config"
 	"github.com/mopemope/quicknews/ent"
 	"github.com/mopemope/quicknews/models/summary"
 	"github.com/mopemope/quicknews/tts"
@@ -25,6 +26,7 @@ type PlayCmd struct {
 type playArticle struct {
 	summary *ent.Summary
 	repo    summary.SummaryRepository
+	config  *config.Config
 }
 
 func (a *playArticle) DisplayName() string {
@@ -33,13 +35,14 @@ func (a *playArticle) DisplayName() string {
 
 func (a *playArticle) Process() {
 	ctx := context.Background()
-	audioData, err := summary.GetAudioData(ctx, a.summary)
+	// Pass config to GetAudioData
+	audioData, err := summary.GetAudioData(ctx, a.summary, a.config)
 	if err != nil {
 		slog.Error("Failed to get audio data", "error", err)
 		return
 	}
 
-	ttsEngine := tts.NewTTSEngine()
+	ttsEngine := tts.NewTTSEngine(a.config)
 	if err := ttsEngine.PlayAudioData(audioData); err != nil {
 		slog.Error("failed to play audio data", "error", err)
 		return
@@ -50,14 +53,15 @@ func (a *playArticle) Process() {
 	}
 }
 
-func newArticle(summary *ent.Summary, repo summary.SummaryRepository) *playArticle {
+func newArticle(summary *ent.Summary, repo summary.SummaryRepository, config *config.Config) *playArticle {
 	return &playArticle{
 		summary: summary,
 		repo:    repo,
+		config:  config,
 	}
 }
 
-func (a *PlayCmd) Run(client *ent.Client) error {
+func (a *PlayCmd) Run(client *ent.Client, config *config.Config) error {
 
 	tts.SpeachOpt.SpeakingRate = a.SpeakingRate
 	if a.Voicevox {
@@ -83,7 +87,7 @@ func (a *PlayCmd) Run(client *ent.Client) error {
 
 	items := make([]progress.QueueItem, 0)
 	for _, sum := range res {
-		items = append(items, newArticle(sum, repo))
+		items = append(items, newArticle(sum, repo, config))
 	}
 
 	if len(items) > 0 {

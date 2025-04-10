@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"os"
 	"strings"
 
 	"github.com/cockroachdb/errors"
+	"github.com/mopemope/quicknews/config"
 	_ "github.com/mopemope/quicknews/pkg/log"
 	"google.golang.org/genai"
 )
@@ -51,8 +51,8 @@ type Client struct {
 
 // NewClient creates a new Gemini client.
 // It expects the Google API Key to be set in the GEMINI_API_KEY environment variable.
-func NewClient(ctx context.Context) (*Client, error) {
-	apiKey := os.Getenv("GEMINI_API_KEY")
+func NewClient(ctx context.Context, config *config.Config) (*Client, error) {
+	apiKey := config.GeminiApiKey
 	if apiKey == "" {
 		return nil, errors.New("GEMINI_API_KEY environment variable not set")
 	}

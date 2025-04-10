@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/cockroachdb/errors"
+	"github.com/mopemope/quicknews/config"
 	"github.com/mopemope/quicknews/ent"
 	"github.com/mopemope/quicknews/models/article"
 	"github.com/mopemope/quicknews/models/feed"
@@ -23,14 +24,14 @@ type BookmarkCmd struct {
 	geminiClient *gemini.Client
 }
 
-func (a *BookmarkCmd) Run(client *ent.Client) error {
+func (a *BookmarkCmd) Run(client *ent.Client, config *config.Config) error {
 	ctx := context.Background()
 
 	if err := a.initializeRepositories(client); err != nil {
 		return err
 	}
 
-	if err := a.initializeGeminiClient(ctx); err != nil {
+	if err := a.initializeGeminiClient(ctx, config); err != nil {
 		return err
 	}
 
@@ -56,9 +57,9 @@ func (a *BookmarkCmd) initializeRepositories(client *ent.Client) error {
 	return nil // Currently no error conditions, but added for future flexibility
 }
 
-func (a *BookmarkCmd) initializeGeminiClient(ctx context.Context) error {
+func (a *BookmarkCmd) initializeGeminiClient(ctx context.Context, config *config.Config) error {
 	var err error
-	a.geminiClient, err = gemini.NewClient(ctx)
+	a.geminiClient, err = gemini.NewClient(ctx, config)
 	if err != nil {
 		return errors.Wrap(err, "error creating gemini client")
 	}

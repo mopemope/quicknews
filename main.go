@@ -7,6 +7,7 @@ import (
 	"github.com/alecthomas/kong"
 	_ "github.com/mattn/go-sqlite3" // SQLite driver
 	"github.com/mopemope/quicknews/cmd"
+	"github.com/mopemope/quicknews/config"
 	"github.com/mopemope/quicknews/ent"
 	"github.com/mopemope/quicknews/models/feed"
 	"github.com/mopemope/quicknews/pkg/log" // Import log package
@@ -24,13 +25,13 @@ type CLI struct {
 	Bookmark cmd.BookmarkCmd `cmd:"" aliases:"b" help:"Add a new bookmark."`
 
 	// Global flags
-	DbPath  string `name:"db" type:"path" default:"~/quicknews.db" help:"Path to the SQLite database file."`
-	LogPath string `name:"log" type:"path" default:"quicknews.log"  help:"Path to the log file. If not specified, logs to stdout."`
+	DbPath     string           `name:"db" type:"path" default:"~/quicknews.db" help:"Path to the SQLite database file."`
+	ConfigPath string           `name:"config" type:"path" default:"~/.config/quicknews/config.toml" help:"Path to the config file."` // TODO use xdg path
+	LogPath    string           `name:"log" type:"path" default:"quicknews.log"  help:"Path to the log file. If not specified, logs to stdout."`
+	Version    kong.VersionFlag `short:"V" help:"Show version information."`
+	Debug      bool             `short:"d" help:"Enable debug logging."`
 
-	// Version flag
-	Version kong.VersionFlag `short:"V" help:"Show version information."`
-
-	Debug bool `short:"d" help:"Enable debug logging."`
+	config *config.Config
 }
 
 func main() {
@@ -44,6 +45,14 @@ func main() {
 			Compact: true,
 		}),
 	)
+
+	cfg, err := config.LoadConfig(cli.ConfigPath)
+	if err != nil {
+		slog.Error("failed to load config", "error", err)
+		return
+	}
+	cli.config = cfg
+
 	if err := log.InitializeLogger(cli.LogPath, cli.Debug); err != nil {
 		slog.Error("failed to initialize logger", "error", err)
 		return
@@ -71,7 +80,7 @@ func main() {
 		slog.Error("failed to setup initial data", "error", err)
 		return
 	}
-	kctx.Bind(client)
+	kctx.Bind(client, cli.config)
 
 	// Call the Run() method of the selected parsed command.
 	err = kctx.Run()

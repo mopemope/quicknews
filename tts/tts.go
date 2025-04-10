@@ -12,10 +12,11 @@ import (
 	"github.com/gopxl/beep/v2/mp3"
 	"github.com/gopxl/beep/v2/speaker"
 	"github.com/gopxl/beep/v2/wav"
+	"github.com/mopemope/quicknews/config"
 )
 
 var (
-	ErrNoCredentials   = errors.New("GOOGLE_APPLICATION_CREDENTIALS environment variable is not set")
+	ErrNoCredentials   = errors.New("google application credentials not configured") // Updated error message
 	ErrEmptyAudioData  = errors.New("audio data cannot be empty")
 	mutex              = &sync.Mutex{}
 	speakerInitialized = false
@@ -56,14 +57,14 @@ func (s *SpeechOptions) DownSpeakingRate() {
 	s.SpeakingRate -= 0.1
 }
 
-func NewTTSEngine() TTSEngine {
+func NewTTSEngine(config *config.Config) TTSEngine {
 	switch SpeachOpt.Engine {
 	case "google":
-		return NewGoogleTTS(context.Background())
+		return NewGoogleTTS(config)
 	case "voicevox":
-		return NewVoiceVox(SpeachOpt.Speaker, 0)
+		return NewVoiceVox(config)
 	default:
-		return NewGoogleTTS(context.Background())
+		return NewGoogleTTS(config)
 	}
 }
 

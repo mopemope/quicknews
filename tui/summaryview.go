@@ -9,6 +9,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/cockroachdb/errors"
+	"github.com/mopemope/quicknews/config"
 	"github.com/mopemope/quicknews/ent"
 	"github.com/mopemope/quicknews/models/article"
 	"github.com/mopemope/quicknews/models/summary"
@@ -29,9 +30,10 @@ type summaryViewModel struct {
 	confirmDialogMsg  string
 	onConfirmYes      func() tea.Cmd
 	onConfirmNo       func() tea.Cmd
+	config            *config.Config
 }
 
-func newSummaryViewModel(client *ent.Client, confirm bool) summaryViewModel {
+func newSummaryViewModel(client *ent.Client, config *config.Config, confirm bool) summaryViewModel {
 	vp := viewport.New(0, 0) // Initial size, will be updated
 	vp.Style = summaryViewStyle
 	return summaryViewModel{
@@ -39,6 +41,7 @@ func newSummaryViewModel(client *ent.Client, confirm bool) summaryViewModel {
 		summaryRepos: summary.NewSummaryRepository(client),
 		articleRepos: article.NewArticleRepository(client), // Initialize ArticleRepository
 		confirm:      confirm,
+		config:       config,
 	}
 }
 
@@ -175,12 +178,12 @@ func (m summaryViewModel) Update(msg tea.Msg) (summaryViewModel, tea.Cmd) {
 					sum := m.article.Edges.Summary
 					sum.Edges.Feed = m.article.Edges.Feed
 					ctx := context.Background()
-					audioData, err := summary.GetAudioData(ctx, sum)
+					audioData, err := summary.GetAudioData(ctx, sum, m.config)
 					if err != nil {
 						slog.Error("Failed to get audio data", "error", err)
 						return
 					}
-					ttsEngine := tts.NewTTSEngine()
+					ttsEngine := tts.NewTTSEngine(m.config)
 					if err := ttsEngine.PlayAudioData(audioData); err != nil {
 						slog.Error("Failed to play audio data", "error", err)
 					}

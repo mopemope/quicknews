@@ -9,6 +9,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/cockroachdb/errors"
 	"github.com/mmcdole/gofeed"
+	"github.com/mopemope/quicknews/config"
 	"github.com/mopemope/quicknews/ent"
 	"github.com/mopemope/quicknews/models/article"
 	"github.com/mopemope/quicknews/models/feed"
@@ -26,6 +27,7 @@ type FetchCmd struct {
 	feedRepos    feed.FeedRepository
 	articleRepos article.ArticleRepository
 	summaryRepos summary.SummaryRepository
+	config       *config.Config
 }
 
 type Article struct {
@@ -34,6 +36,7 @@ type Article struct {
 	feedItem     *gofeed.Item
 	articleRepos article.ArticleRepository
 	summaryRepos summary.SummaryRepository
+	config       *config.Config
 }
 
 func (cmd *FetchCmd) NewArticle(feed *ent.Feed, item *gofeed.Item) *Article {
@@ -43,6 +46,7 @@ func (cmd *FetchCmd) NewArticle(feed *ent.Feed, item *gofeed.Item) *Article {
 		feedItem:     item,
 		articleRepos: cmd.articleRepos,
 		summaryRepos: cmd.summaryRepos,
+		config:       cmd.config,
 	}
 }
 
@@ -94,7 +98,7 @@ func (a *Article) Process() {
 }
 
 func (a *Article) processSummary(ctx context.Context, article *ent.Article) error {
-	geminiClient, err := gemini.NewClient(ctx)
+	geminiClient, err := gemini.NewClient(ctx, a.config)
 	if err != nil {
 		return errors.Wrap(err, "error creating gemini client")
 	}
@@ -164,11 +168,12 @@ func (cmd *FetchCmd) getItems(ctx context.Context) ([]progress.QueueItem, error)
 	return items, nil
 }
 
-func (cmd *FetchCmd) Run(client *ent.Client) error {
+func (cmd *FetchCmd) Run(client *ent.Client, config *config.Config) error {
 	ctx := context.Background()
 	cmd.feedRepos = feed.NewFeedRepository(client)
 	cmd.articleRepos = article.NewArticleRepository(client)
 	cmd.summaryRepos = summary.NewSummaryRepository(client)
+	cmd.config = config
 
 	for {
 		items, err := cmd.getItems(ctx)

@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/cockroachdb/errors"
 	"github.com/google/uuid"
+	"github.com/mopemope/quicknews/config"
 	"github.com/mopemope/quicknews/ent"
 	"github.com/mopemope/quicknews/models/article"
 	"github.com/toqueteos/webbrowser"
@@ -43,6 +44,7 @@ type model struct {
 	windowWidth          int
 	windowHeight         int
 	confirm              bool
+	config               *config.Config
 }
 
 type viewState int
@@ -53,13 +55,13 @@ const (
 	summaryView // Add summary view state
 )
 
-func InitialModel(client *ent.Client, confirm bool) model {
+func InitialModel(client *ent.Client, config *config.Config, confirm bool) model {
 	return model{
 		client:       client,
 		articleRepos: article.NewArticleRepository(client), // Initialize article repository
 		feedList:     newFeedListModel(client),
 		articleList:  newArticleListModel(client, confirm),
-		summaryView:  newSummaryViewModel(client, confirm), // Initialize summary view model
+		summaryView:  newSummaryViewModel(client, config, confirm), // Initialize summary view model
 		currentView:  feedListView,
 		confirm:      confirm,
 	}

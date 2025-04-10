@@ -18,7 +18,7 @@ func TestNewClient(t *testing.T) {
 		t.Skip("Skipping test: GEMINI_API_KEY environment variable not set")
 	}
 
-	client, err := NewClient(context.Background())
+	client, err := NewClient(context.Background(), nil)
 
 	require.NoError(t, err, "NewClient should not return an error with a valid API key")
 	require.NotNil(t, client, "NewClient should return a non-nil client")
@@ -33,7 +33,7 @@ func TestNewClient_NoApiKey(t *testing.T) {
 	os.Unsetenv("GEMINI_API_KEY")
 	defer os.Setenv("GEMINI_API_KEY", originalApiKey) // Restore original value
 
-	client, err := NewClient(context.Background())
+	client, err := NewClient(context.Background(), nil)
 
 	assert.Error(t, err, "NewClient should return an error when API key is missing")
 	assert.Nil(t, client, "NewClient should return a nil client when API key is missing")
@@ -47,7 +47,7 @@ func TestSummarizeText(t *testing.T) {
 		t.Skip("Skipping test: GEMINI_API_KEY environment variable not set")
 	}
 
-	client, err := NewClient(context.Background())
+	client, err := NewClient(context.Background(), nil)
 	require.NoError(t, err)
 	defer client.Close()
 

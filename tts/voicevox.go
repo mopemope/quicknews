@@ -10,9 +10,11 @@ import (
 	"strconv"
 
 	"github.com/cockroachdb/errors"
+	"github.com/mopemope/quicknews/config"
 )
 
 type VoiceVox struct {
+	Config  *config.Config
 	Speaker int
 	Style   int
 }
@@ -58,7 +60,7 @@ type voiceVoxStyles struct {
 	Name string `json:"name"`
 }
 
-type config struct {
+type voicevoxConfig struct {
 	endpoint   string
 	speaker    int
 	style      int
@@ -68,7 +70,7 @@ type config struct {
 	pitch      float64
 }
 
-func getSpeakers(cfg config) (voiceVoxSpeakers, error) {
+func getSpeakers(cfg voicevoxConfig) (voiceVoxSpeakers, error) {
 	resp, err := http.Get(cfg.endpoint + "/speakers")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get speakers")
@@ -81,7 +83,7 @@ func getSpeakers(cfg config) (voiceVoxSpeakers, error) {
 	return speakers, nil
 }
 
-func getQuery(cfg config, id int, text string) (*voiceVoxParams, error) {
+func getQuery(cfg voicevoxConfig, id int, text string) (*voiceVoxParams, error) {
 	req, err := http.NewRequest("POST", cfg.endpoint+"/audio_query", nil)
 	if err != nil {
 		return nil, err
@@ -102,7 +104,7 @@ func getQuery(cfg config, id int, text string) (*voiceVoxParams, error) {
 	return params, nil
 }
 
-func synth(cfg config, id int, params *voiceVoxParams) ([]byte, error) {
+func synth(cfg voicevoxConfig, id int, params *voiceVoxParams) ([]byte, error) {
 	b, err := json.MarshalIndent(params, "", "  ")
 	if err != nil {
 		return nil, err
@@ -133,16 +135,17 @@ func synth(cfg config, id int, params *voiceVoxParams) ([]byte, error) {
 	return buff.Bytes(), nil
 }
 
-func NewVoiceVox(speaker int, style int) *VoiceVox {
+func NewVoiceVox(config *config.Config) *VoiceVox {
 	return &VoiceVox{
-		Speaker: speaker,
-		Style:   style,
+		Config:  config,
+		Speaker: config.VoiceVox.Speaker,
+		Style:   config.VoiceVox.Style,
 	}
 }
 
 func (v *VoiceVox) SynthesizeText(ctx context.Context, text string) ([]byte, error) {
 
-	cfg := config{
+	cfg := voicevoxConfig{
 		endpoint:   "http://localhost:50021",
 		speaker:    v.Speaker,
 		style:      v.Style,

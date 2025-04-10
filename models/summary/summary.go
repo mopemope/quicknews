@@ -11,6 +11,7 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/google/uuid"
+	"github.com/mopemope/quicknews/config"
 	"github.com/mopemope/quicknews/ent"
 	"github.com/mopemope/quicknews/ent/summary"
 	"github.com/mopemope/quicknews/pkg/clock"
@@ -137,8 +138,11 @@ func (r *SummaryRepositoryImpl) Delete(ctx context.Context, id uuid.UUID) error 
 	})
 }
 
-// GetAudioData generates audio data for the given summary using Google TTS.
-func GetAudioData(ctx context.Context, sum *ent.Summary) ([]byte, error) {
+// GetAudioData generates audio data for the given summary using the configured TTS engine.
+func GetAudioData(ctx context.Context, sum *ent.Summary, cfg *config.Config) ([]byte, error) { // Accept config
+	if sum.Edges.Feed == nil {
+		return nil, errors.New("summary feed edge is not loaded")
+	}
 	feed := sum.Edges.Feed
 	text := fmt.Sprintf(`
 これはフィード %s の記事です。
@@ -148,9 +152,14 @@ func GetAudioData(ctx context.Context, sum *ent.Summary) ([]byte, error) {
 %s
 `, feed.Title, sum.Title, sum.Summary)
 
-	ttsEngine := tts.NewTTSEngine()
+	ttsEngine := tts.NewTTSEngine(cfg) // Pass config to TTSEngine factory
 	audioData, err := ttsEngine.SynthesizeText(ctx, text)
-	if err != nil && err != tts.ErrNoCredentials {
+	// Check for specific credentials error if applicable, otherwise wrap generally
+	if err != nil {
+		if errors.Is(err, tts.ErrNoCredentials) {
+			// Return the specific error if it's about credentials
+			return nil, err
+		}
 		return nil, errors.Wrap(err, "failed to synthesize text")
 	}
 	return audioData, nil

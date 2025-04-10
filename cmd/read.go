@@ -5,6 +5,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/cockroachdb/errors"
+	"github.com/mopemope/quicknews/config"
 	"github.com/mopemope/quicknews/ent"
 	"github.com/mopemope/quicknews/tts"
 	"github.com/mopemope/quicknews/tui"
@@ -20,7 +21,7 @@ type ReadCmd struct {
 }
 
 // Run executes the TUI command.
-func (t *ReadCmd) Run(client *ent.Client) error {
+func (t *ReadCmd) Run(client *ent.Client, config *config.Config) error {
 	slog.Debug("Starting TUI mode")
 	tts.SpeachOpt.SpeakingRate = t.SpeakingRate
 	if t.Voicevox {
@@ -34,7 +35,7 @@ func (t *ReadCmd) Run(client *ent.Client) error {
 		}()
 	}
 
-	model := tui.InitialModel(client, t.Confirm)
+	model := tui.InitialModel(client, config, t.Confirm)
 	p := tea.NewProgram(model,
 		tea.WithAltScreen(),
 		tea.WithMouseCellMotion(),

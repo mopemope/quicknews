@@ -4,27 +4,35 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"os"
 
 	texttospeech "cloud.google.com/go/texttospeech/apiv1"
 	"cloud.google.com/go/texttospeech/apiv1/texttospeechpb"
 	"github.com/cockroachdb/errors"
+	"github.com/mopemope/quicknews/config"
 
 	"google.golang.org/api/option"
 )
 
 type GoogleTTS struct {
+	config *config.Config
 }
 
-func NewGoogleTTS(ctx context.Context) TTSEngine {
-	return &GoogleTTS{}
+func NewGoogleTTS(config *config.Config) TTSEngine {
+	return &GoogleTTS{
+		config: config,
+	}
 }
 
 func (g *GoogleTTS) SynthesizeText(ctx context.Context, text string) ([]byte, error) {
-	if os.Getenv("GOOGLE_APPLICATION_CREDENTIALS") == "" {
+	cred := g.config.GoogleApplicationCredentials
+	if cred == "" {
 		return nil, ErrNoCredentials
 	}
-	client, err := NewClient(ctx)
+
+	opts := make([]option.ClientOption, 0)
+	opts = append(opts, option.WithCredentialsFile(cred))
+
+	client, err := NewClient(ctx, opts...)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create Google TTS client")
 	}
