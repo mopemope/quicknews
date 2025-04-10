@@ -54,6 +54,10 @@ func (a *Article) DisplayName() string {
 	return a.name
 }
 
+func (a *Article) URL() string {
+	return a.feedItem.Link
+}
+
 func (a *Article) Process() {
 	ctx := context.Background()
 	article, err := a.articleRepos.GetFromURL(ctx, a.feedItem.Link)

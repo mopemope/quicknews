@@ -12,6 +12,7 @@ import (
 
 type QueueItem interface {
 	DisplayName() string
+	URL() string
 	Process()
 }
 

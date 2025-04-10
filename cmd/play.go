@@ -33,6 +33,10 @@ func (a *playArticle) DisplayName() string {
 	return a.summary.Edges.Article.Title
 }
 
+func (a *playArticle) URL() string {
+	return a.summary.URL
+}
+
 func (a *playArticle) Process() {
 	ctx := context.Background()
 	// Pass config to GetAudioData
