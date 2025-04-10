@@ -9,6 +9,7 @@ import (
 	"github.com/mopemope/quicknews/ent"
 	"github.com/mopemope/quicknews/ent/article"
 	"github.com/mopemope/quicknews/ent/feed"
+	"github.com/mopemope/quicknews/org"
 	"github.com/mopemope/quicknews/pkg/clock"
 	"github.com/mopemope/quicknews/pkg/database"
 	"github.com/mopemope/quicknews/pkg/gemini"
@@ -142,6 +143,9 @@ func (r *RepositoryImpl) AddBookmark(ctx context.Context, url string) error {
 			return errors.Wrap(err, "failed to save summary")
 		}
 
+		if err := org.ExportOrg(r.config, sum); err != nil {
+			return errors.Wrap(err, "failed to export org")
+		}
 		return nil
 	})
 }

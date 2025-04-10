@@ -14,6 +14,7 @@ import (
 	"github.com/mopemope/quicknews/models/article"
 	"github.com/mopemope/quicknews/models/feed"
 	"github.com/mopemope/quicknews/models/summary"
+	"github.com/mopemope/quicknews/org"
 	"github.com/mopemope/quicknews/pkg/gemini"
 	"github.com/mopemope/quicknews/tui/progress"
 
@@ -138,6 +139,9 @@ func (a *Article) processSummary(ctx context.Context, article *ent.Article) erro
 	slog.Debug("Saving summary", "title", sum.Title, "summary", sum.Summary)
 	if err := a.summaryRepos.Save(ctx, sum); err != nil {
 		slog.Error("Error saving summary", "link", article.URL, "error", err)
+		return err
+	}
+	if err := org.ExportOrg(a.config, sum); err != nil {
 		return err
 	}
 	return nil
