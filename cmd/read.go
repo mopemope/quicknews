@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"log/slog"
+	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/cockroachdb/errors"
@@ -35,7 +36,10 @@ func (t *ReadCmd) Run(client *ent.Client, config *config.Config) error {
 
 	if !t.NoFetch {
 		go func() {
-			fetchArticles(client)
+			for {
+				fetchArticles(client)
+				time.Sleep(time.Hour)
+			}
 		}()
 	}
 
