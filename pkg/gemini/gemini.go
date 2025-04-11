@@ -14,7 +14,7 @@ import (
 
 var ModelName = "gemini-2.0-flash"
 
-const summaryPrompt = `
+const defaultSummaryPrompt = `
 あなたはWebサイトのコンテンツを要約するAIです。
 以下のURLのWebサイトにアクセスし、そのページのタイトルと主要な内容を正確に把握し、テキスト形式で出力してください。
 
@@ -47,6 +47,7 @@ type PageSummary struct {
 // Client wraps the genai.Client.
 type Client struct {
 	client *genai.Client
+	config *config.Config
 }
 
 // NewClient creates a new Gemini client.
@@ -67,6 +68,7 @@ func NewClient(ctx context.Context, config *config.Config) (*Client, error) {
 
 	return &Client{
 		client: client,
+		config: config,
 	}, nil
 }
 
@@ -78,6 +80,11 @@ func (c *Client) Close() error {
 // Summarize sends a request to the Gemini API to summarize the given text.
 func (c *Client) Summarize(ctx context.Context, url string) (*PageSummary, error) {
 
+	summaryPrompt := defaultSummaryPrompt
+	if c.config.Prompt != nil && c.config.Prompt.Summary != nil {
+		// custom prompt
+		summaryPrompt = *c.config.Prompt.Summary
+	}
 	prompt := fmt.Sprintf(summaryPrompt, url)
 
 	res, err := c.client.Models.GenerateContent(ctx,

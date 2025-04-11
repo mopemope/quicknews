@@ -14,11 +14,16 @@ type Config struct {
 	SpeakingRate                 float64 `toml:"speaking_rate" env:"SPEAKING_RATE"`
 	RequireConfirm               bool    `toml:"require_confirm" env:"REQUIRE_CONFIRM"`
 	VoiceVox                     *VoiceVox
+	Prompt                       *Prompt
 }
 
 type VoiceVox struct {
 	Speaker int `toml:"speaker" env:"VOICEVOX_SPEAKER"`
 	Style   int `toml:"style" env:"VOICEVOX_STYLE"`
+}
+
+type Prompt struct {
+	Summary *string `toml:"summary" env:"PROMPT_SUMMARY"`
 }
 
 func LoadConfig(path string) (*Config, error) {
