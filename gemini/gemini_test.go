@@ -42,7 +42,6 @@ func TestNewClient_NoApiKey(t *testing.T) {
 		}
 	}()
 
-
 	client, err := NewClient(context.Background(), nil)
 
 	assert.Error(t, err, "NewClient should return an error when API key is missing")

@@ -25,7 +25,7 @@ type feedListModel struct {
 }
 
 type feedItem struct {
-	id         uuid.UUID
+	id          uuid.UUID
 	title       string
 	url         string
 	isBookmark  bool

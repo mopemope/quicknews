@@ -8,11 +8,11 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/google/uuid"
+	"github.com/mopemope/quicknews/clock"
 	"github.com/mopemope/quicknews/config"
+	"github.com/mopemope/quicknews/database"
 	"github.com/mopemope/quicknews/ent"
 	"github.com/mopemope/quicknews/ent/summary"
-	"github.com/mopemope/quicknews/pkg/clock"
-	"github.com/mopemope/quicknews/pkg/database"
 	"github.com/mopemope/quicknews/tts"
 )
 

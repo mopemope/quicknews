@@ -11,11 +11,11 @@ import (
 	"github.com/mmcdole/gofeed"
 	"github.com/mopemope/quicknews/config"
 	"github.com/mopemope/quicknews/ent"
+	"github.com/mopemope/quicknews/gemini"
 	"github.com/mopemope/quicknews/models/article"
 	"github.com/mopemope/quicknews/models/feed"
 	"github.com/mopemope/quicknews/models/summary"
 	"github.com/mopemope/quicknews/org"
-	"github.com/mopemope/quicknews/pkg/gemini"
 	"github.com/mopemope/quicknews/tui/progress"
 
 	_ "github.com/mattn/go-sqlite3" // SQLite driver

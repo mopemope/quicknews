@@ -8,7 +8,7 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/mopemope/quicknews/config"
-	_ "github.com/mopemope/quicknews/pkg/log"
+	_ "github.com/mopemope/quicknews/log"
 	"google.golang.org/genai"
 )
 

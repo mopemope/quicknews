@@ -5,12 +5,12 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/google/uuid"
+	"github.com/mopemope/quicknews/clock"
+	"github.com/mopemope/quicknews/database"
 	"github.com/mopemope/quicknews/ent"
 	"github.com/mopemope/quicknews/ent/article"
 	"github.com/mopemope/quicknews/ent/feed"
 	"github.com/mopemope/quicknews/ent/summary"
-	"github.com/mopemope/quicknews/pkg/clock"
-	"github.com/mopemope/quicknews/pkg/database"
 )
 
 type ArticleRepository interface {

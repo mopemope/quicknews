@@ -9,8 +9,8 @@ import (
 	"github.com/mopemope/quicknews/cmd"
 	"github.com/mopemope/quicknews/config"
 	"github.com/mopemope/quicknews/ent"
+	"github.com/mopemope/quicknews/log" // Import log package
 	"github.com/mopemope/quicknews/models/feed"
-	"github.com/mopemope/quicknews/pkg/log" // Import log package
 )
 
 var version = "0.0.1"

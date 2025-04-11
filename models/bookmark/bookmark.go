@@ -5,15 +5,15 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/mopemope/quicknews/clock"
 	"github.com/mopemope/quicknews/config"
+	"github.com/mopemope/quicknews/database"
 	"github.com/mopemope/quicknews/ent"
 	"github.com/mopemope/quicknews/ent/article"
 	"github.com/mopemope/quicknews/ent/feed"
+	"github.com/mopemope/quicknews/gemini"
 	"github.com/mopemope/quicknews/org"
-	"github.com/mopemope/quicknews/pkg/clock"
-	"github.com/mopemope/quicknews/pkg/database"
-	"github.com/mopemope/quicknews/pkg/gemini"
-	"github.com/mopemope/quicknews/pkg/scraper"
+	"github.com/mopemope/quicknews/scraper"
 	"github.com/pkg/errors"
 )
 
