@@ -137,11 +137,12 @@ func (a *Article) processSummary(ctx context.Context, article *ent.Article) erro
 	sum.Edges.Feed = article.Edges.Feed
 
 	slog.Debug("Saving summary", "title", sum.Title, "summary", sum.Summary)
-	if err := a.summaryRepos.Save(ctx, sum); err != nil {
+	created, err := a.summaryRepos.Save(ctx, sum)
+	if err != nil {
 		slog.Error("Error saving summary", "link", article.URL, "error", err)
 		return err
 	}
-	if err := org.ExportOrg(a.config, sum); err != nil {
+	if err := org.ExportOrg(a.config, created); err != nil {
 		return err
 	}
 	return nil

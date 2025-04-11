@@ -18,7 +18,7 @@ import (
 
 type SummaryRepository interface {
 	GetFromURL(ctx context.Context, url string) (*ent.Summary, error)
-	Save(ctx context.Context, sum *ent.Summary) error
+	Save(ctx context.Context, sum *ent.Summary) (*ent.Summary, error)
 	GetUnlistened(ctx context.Context) ([]*ent.Summary, error)
 	UpdateListened(ctx context.Context, sum *ent.Summary) error
 	UpdateReaded(ctx context.Context, sum *ent.Summary) error
@@ -51,12 +51,12 @@ func (r *SummaryRepositoryImpl) GetFromURL(ctx context.Context, url string) (*en
 
 }
 
-func (r *SummaryRepositoryImpl) Save(ctx context.Context, sum *ent.Summary) error {
+func (r *SummaryRepositoryImpl) Save(ctx context.Context, sum *ent.Summary) (*ent.Summary, error) {
 
 	now := clock.Now()
+	var created *ent.Summary
 
-	return database.WithTx(ctx, r.client, func(tx *ent.Tx) error {
-
+	err := database.WithTx(ctx, r.client, func(tx *ent.Tx) error {
 		slog.Debug("Saving summary",
 			slog.String("articleTitle", sum.Edges.Article.Title),
 			slog.String("articleUrl", sum.Edges.Article.URL),
@@ -64,7 +64,7 @@ func (r *SummaryRepositoryImpl) Save(ctx context.Context, sum *ent.Summary) erro
 			slog.String("summaryUrl", sum.URL),
 		)
 
-		_, err := tx.Summary.
+		saved, err := tx.Summary.
 			Create().
 			SetTitle(sum.Title).
 			SetSummary(sum.Summary).
@@ -76,8 +76,13 @@ func (r *SummaryRepositoryImpl) Save(ctx context.Context, sum *ent.Summary) erro
 		if err != nil {
 			return errors.Wrap(err, "failed to save summary")
 		}
+		saved.Edges.Article = sum.Edges.Article
+		saved.Edges.Feed = sum.Edges.Feed
+		created = saved
 		return nil
 	})
+
+	return created, err
 }
 
 func (r *SummaryRepositoryImpl) GetUnlistened(ctx context.Context) ([]*ent.Summary, error) {

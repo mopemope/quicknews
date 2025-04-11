@@ -170,7 +170,9 @@ func (r *RepositoryImpl) createNewBookmarkArticle(ctx context.Context, tx *ent.T
 	if err != nil {
 		return errors.Wrap(err, "failed to save summary")
 	}
-	sum = createdSummary // Update sum with the created entity including ID
+	sum = createdSummary          // Update sum with the created entity including ID
+	sum.Edges.Article = article   // Set the article edge for the summary
+	sum.Edges.Feed = bookmarkFeed // Set the feed edge for the summary
 
 	if err := org.ExportOrg(r.config, sum); err != nil {
 		// Log the error but don't fail the transaction
