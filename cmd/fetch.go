@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"sync"
 	"time"
 
+	pond "github.com/alitto/pond/v2"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/cockroachdb/errors"
 	"github.com/mmcdole/gofeed"
@@ -161,19 +163,31 @@ func (cmd *FetchCmd) getItems(ctx context.Context) ([]progress.QueueItem, error)
 		slog.Info("No feeds registered. Use 'add' command to add feeds.")
 		return nil, nil
 	}
+	var itemsMutex sync.Mutex
+
+	// Use a worker pool to limit concurrency
+	// Adjust the pool size as needed
+	pool := pond.NewPool(5) // Max 5 concurrent workers, buffer size 1000
 
 	for _, feed := range feeds {
 		if feed.IsBookmark {
 			// skip bookmark feeds
 			continue
 		}
-		res, err := cmd.processFeed(ctx, feed)
-		if err != nil {
-			return nil, err
-		}
-		items = append(items, res...)
+		feedData := feed // capture the current feed
+		pool.Submit(func() {
+			res, err := cmd.processFeed(ctx, feedData)
+			if err != nil {
+				slog.Error("Error processing feed", "feed", feed.Title, "error", err)
+				return
+			}
+			itemsMutex.Lock()
+			items = append(items, res...)
+			itemsMutex.Unlock()
+		})
 	}
 
+	pool.StopAndWait()
 	return items, nil
 }
 
