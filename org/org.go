@@ -40,15 +40,15 @@ func ExportOrg(config *config.Config, sum *ent.Summary) error {
 :FEEDURL:  %s
 :FEED:     %s
 :LINK:     %s
-:TITLE:    %s
+:TITLE:    %s [%s]
 :END:
-#+TITLE:   %s
+#+TITLE:   %s [%s]
 #+TAGS: feed
 #+STARTUP: overview
 #+STARTUP: inlineimages
 #+OPTIONS: ^:nil
 
-# [[%s][%s]]
+# [[%s][%s %s]]
 
 %s
 `
@@ -58,9 +58,12 @@ func ExportOrg(config *config.Config, sum *ent.Summary) error {
 		feed.Title,
 		article.URL,
 		article.Title,
+		article.URL,
 		sum.Title,
 		sum.URL,
+		sum.URL,
 		sum.Title,
+		sum.URL,
 		sum.Summary)
 	return os.WriteFile(dst, []byte(content), os.ModePerm)
 }
