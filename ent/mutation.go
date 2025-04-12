@@ -1867,6 +1867,7 @@ type SummaryMutation struct {
 	summary        *string
 	readed         *bool
 	listend        *bool
+	audio_file     *string
 	created_at     *time.Time
 	clearedFields  map[string]struct{}
 	article        *uuid.UUID
@@ -2188,6 +2189,55 @@ func (m *SummaryMutation) ResetListend() {
 	m.listend = nil
 }
 
+// SetAudioFile sets the "audio_file" field.
+func (m *SummaryMutation) SetAudioFile(s string) {
+	m.audio_file = &s
+}
+
+// AudioFile returns the value of the "audio_file" field in the mutation.
+func (m *SummaryMutation) AudioFile() (r string, exists bool) {
+	v := m.audio_file
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAudioFile returns the old "audio_file" field's value of the Summary entity.
+// If the Summary object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SummaryMutation) OldAudioFile(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAudioFile is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAudioFile requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAudioFile: %w", err)
+	}
+	return oldValue.AudioFile, nil
+}
+
+// ClearAudioFile clears the value of the "audio_file" field.
+func (m *SummaryMutation) ClearAudioFile() {
+	m.audio_file = nil
+	m.clearedFields[summary.FieldAudioFile] = struct{}{}
+}
+
+// AudioFileCleared returns if the "audio_file" field was cleared in this mutation.
+func (m *SummaryMutation) AudioFileCleared() bool {
+	_, ok := m.clearedFields[summary.FieldAudioFile]
+	return ok
+}
+
+// ResetAudioFile resets all changes to the "audio_file" field.
+func (m *SummaryMutation) ResetAudioFile() {
+	m.audio_file = nil
+	delete(m.clearedFields, summary.FieldAudioFile)
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (m *SummaryMutation) SetCreatedAt(t time.Time) {
 	m.created_at = &t
@@ -2336,7 +2386,7 @@ func (m *SummaryMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *SummaryMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 7)
 	if m.url != nil {
 		fields = append(fields, summary.FieldURL)
 	}
@@ -2351,6 +2401,9 @@ func (m *SummaryMutation) Fields() []string {
 	}
 	if m.listend != nil {
 		fields = append(fields, summary.FieldListend)
+	}
+	if m.audio_file != nil {
+		fields = append(fields, summary.FieldAudioFile)
 	}
 	if m.created_at != nil {
 		fields = append(fields, summary.FieldCreatedAt)
@@ -2373,6 +2426,8 @@ func (m *SummaryMutation) Field(name string) (ent.Value, bool) {
 		return m.Readed()
 	case summary.FieldListend:
 		return m.Listend()
+	case summary.FieldAudioFile:
+		return m.AudioFile()
 	case summary.FieldCreatedAt:
 		return m.CreatedAt()
 	}
@@ -2394,6 +2449,8 @@ func (m *SummaryMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldReaded(ctx)
 	case summary.FieldListend:
 		return m.OldListend(ctx)
+	case summary.FieldAudioFile:
+		return m.OldAudioFile(ctx)
 	case summary.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
 	}
@@ -2440,6 +2497,13 @@ func (m *SummaryMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetListend(v)
 		return nil
+	case summary.FieldAudioFile:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAudioFile(v)
+		return nil
 	case summary.FieldCreatedAt:
 		v, ok := value.(time.Time)
 		if !ok {
@@ -2483,6 +2547,9 @@ func (m *SummaryMutation) ClearedFields() []string {
 	if m.FieldCleared(summary.FieldSummary) {
 		fields = append(fields, summary.FieldSummary)
 	}
+	if m.FieldCleared(summary.FieldAudioFile) {
+		fields = append(fields, summary.FieldAudioFile)
+	}
 	return fields
 }
 
@@ -2502,6 +2569,9 @@ func (m *SummaryMutation) ClearField(name string) error {
 		return nil
 	case summary.FieldSummary:
 		m.ClearSummary()
+		return nil
+	case summary.FieldAudioFile:
+		m.ClearAudioFile()
 		return nil
 	}
 	return fmt.Errorf("unknown Summary nullable field %s", name)
@@ -2525,6 +2595,9 @@ func (m *SummaryMutation) ResetField(name string) error {
 		return nil
 	case summary.FieldListend:
 		m.ResetListend()
+		return nil
+	case summary.FieldAudioFile:
+		m.ResetAudioFile()
 		return nil
 	case summary.FieldCreatedAt:
 		m.ResetCreatedAt()

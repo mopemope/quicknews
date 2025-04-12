@@ -85,6 +85,20 @@ func (sc *SummaryCreate) SetNillableListend(b *bool) *SummaryCreate {
 	return sc
 }
 
+// SetAudioFile sets the "audio_file" field.
+func (sc *SummaryCreate) SetAudioFile(s string) *SummaryCreate {
+	sc.mutation.SetAudioFile(s)
+	return sc
+}
+
+// SetNillableAudioFile sets the "audio_file" field if the given value is not nil.
+func (sc *SummaryCreate) SetNillableAudioFile(s *string) *SummaryCreate {
+	if s != nil {
+		sc.SetAudioFile(*s)
+	}
+	return sc
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (sc *SummaryCreate) SetCreatedAt(t time.Time) *SummaryCreate {
 	sc.mutation.SetCreatedAt(t)
@@ -272,6 +286,10 @@ func (sc *SummaryCreate) createSpec() (*Summary, *sqlgraph.CreateSpec) {
 	if value, ok := sc.mutation.Listend(); ok {
 		_spec.SetField(summary.FieldListend, field.TypeBool, value)
 		_node.Listend = value
+	}
+	if value, ok := sc.mutation.AudioFile(); ok {
+		_spec.SetField(summary.FieldAudioFile, field.TypeString, value)
+		_node.AudioFile = value
 	}
 	if value, ok := sc.mutation.CreatedAt(); ok {
 		_spec.SetField(summary.FieldCreatedAt, field.TypeTime, value)

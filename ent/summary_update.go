@@ -112,6 +112,26 @@ func (su *SummaryUpdate) SetNillableListend(b *bool) *SummaryUpdate {
 	return su
 }
 
+// SetAudioFile sets the "audio_file" field.
+func (su *SummaryUpdate) SetAudioFile(s string) *SummaryUpdate {
+	su.mutation.SetAudioFile(s)
+	return su
+}
+
+// SetNillableAudioFile sets the "audio_file" field if the given value is not nil.
+func (su *SummaryUpdate) SetNillableAudioFile(s *string) *SummaryUpdate {
+	if s != nil {
+		su.SetAudioFile(*s)
+	}
+	return su
+}
+
+// ClearAudioFile clears the value of the "audio_file" field.
+func (su *SummaryUpdate) ClearAudioFile() *SummaryUpdate {
+	su.mutation.ClearAudioFile()
+	return su
+}
+
 // SetArticleID sets the "article" edge to the Article entity by ID.
 func (su *SummaryUpdate) SetArticleID(id uuid.UUID) *SummaryUpdate {
 	su.mutation.SetArticleID(id)
@@ -231,6 +251,12 @@ func (su *SummaryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := su.mutation.Listend(); ok {
 		_spec.SetField(summary.FieldListend, field.TypeBool, value)
+	}
+	if value, ok := su.mutation.AudioFile(); ok {
+		_spec.SetField(summary.FieldAudioFile, field.TypeString, value)
+	}
+	if su.mutation.AudioFileCleared() {
+		_spec.ClearField(summary.FieldAudioFile, field.TypeString)
 	}
 	if su.mutation.ArticleCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -392,6 +418,26 @@ func (suo *SummaryUpdateOne) SetNillableListend(b *bool) *SummaryUpdateOne {
 	return suo
 }
 
+// SetAudioFile sets the "audio_file" field.
+func (suo *SummaryUpdateOne) SetAudioFile(s string) *SummaryUpdateOne {
+	suo.mutation.SetAudioFile(s)
+	return suo
+}
+
+// SetNillableAudioFile sets the "audio_file" field if the given value is not nil.
+func (suo *SummaryUpdateOne) SetNillableAudioFile(s *string) *SummaryUpdateOne {
+	if s != nil {
+		suo.SetAudioFile(*s)
+	}
+	return suo
+}
+
+// ClearAudioFile clears the value of the "audio_file" field.
+func (suo *SummaryUpdateOne) ClearAudioFile() *SummaryUpdateOne {
+	suo.mutation.ClearAudioFile()
+	return suo
+}
+
 // SetArticleID sets the "article" edge to the Article entity by ID.
 func (suo *SummaryUpdateOne) SetArticleID(id uuid.UUID) *SummaryUpdateOne {
 	suo.mutation.SetArticleID(id)
@@ -541,6 +587,12 @@ func (suo *SummaryUpdateOne) sqlSave(ctx context.Context) (_node *Summary, err e
 	}
 	if value, ok := suo.mutation.Listend(); ok {
 		_spec.SetField(summary.FieldListend, field.TypeBool, value)
+	}
+	if value, ok := suo.mutation.AudioFile(); ok {
+		_spec.SetField(summary.FieldAudioFile, field.TypeString, value)
+	}
+	if suo.mutation.AudioFileCleared() {
+		_spec.ClearField(summary.FieldAudioFile, field.TypeString)
 	}
 	if suo.mutation.ArticleCleared() {
 		edge := &sqlgraph.EdgeSpec{

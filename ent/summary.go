@@ -31,6 +31,8 @@ type Summary struct {
 	Readed bool `json:"readed,omitempty"`
 	// Listened status
 	Listend bool `json:"listend,omitempty"`
+	// Audio file path
+	AudioFile string `json:"audio_file,omitempty"`
 	// Time the feed was added
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -81,7 +83,7 @@ func (*Summary) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case summary.FieldReaded, summary.FieldListend:
 			values[i] = new(sql.NullBool)
-		case summary.FieldURL, summary.FieldTitle, summary.FieldSummary:
+		case summary.FieldURL, summary.FieldTitle, summary.FieldSummary, summary.FieldAudioFile:
 			values[i] = new(sql.NullString)
 		case summary.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -141,6 +143,12 @@ func (s *Summary) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field listend", values[i])
 			} else if value.Valid {
 				s.Listend = value.Bool
+			}
+		case summary.FieldAudioFile:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field audio_file", values[i])
+			} else if value.Valid {
+				s.AudioFile = value.String
 			}
 		case summary.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -222,6 +230,9 @@ func (s *Summary) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("listend=")
 	builder.WriteString(fmt.Sprintf("%v", s.Listend))
+	builder.WriteString(", ")
+	builder.WriteString("audio_file=")
+	builder.WriteString(s.AudioFile)
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(s.CreatedAt.Format(time.ANSIC))

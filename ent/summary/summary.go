@@ -25,6 +25,8 @@ const (
 	FieldReaded = "readed"
 	// FieldListend holds the string denoting the listend field in the database.
 	FieldListend = "listend"
+	// FieldAudioFile holds the string denoting the audio_file field in the database.
+	FieldAudioFile = "audio_file"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// EdgeArticle holds the string denoting the article edge name in mutations.
@@ -57,6 +59,7 @@ var Columns = []string{
 	FieldSummary,
 	FieldReaded,
 	FieldListend,
+	FieldAudioFile,
 	FieldCreatedAt,
 }
 
@@ -126,6 +129,11 @@ func ByReaded(opts ...sql.OrderTermOption) OrderOption {
 // ByListend orders the results by the listend field.
 func ByListend(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldListend, opts...).ToFunc()
+}
+
+// ByAudioFile orders the results by the audio_file field.
+func ByAudioFile(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAudioFile, opts...).ToFunc()
 }
 
 // ByCreatedAt orders the results by the created_at field.

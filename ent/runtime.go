@@ -81,7 +81,7 @@ func init() {
 	// summary.DefaultListend holds the default value on creation for the listend field.
 	summary.DefaultListend = summaryDescListend.Default.(bool)
 	// summaryDescCreatedAt is the schema descriptor for created_at field.
-	summaryDescCreatedAt := summaryFields[6].Descriptor()
+	summaryDescCreatedAt := summaryFields[7].Descriptor()
 	// summary.DefaultCreatedAt holds the default value on creation for the created_at field.
 	summary.DefaultCreatedAt = summaryDescCreatedAt.Default.(func() time.Time)
 	// summaryDescID is the schema descriptor for id field.

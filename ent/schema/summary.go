@@ -34,10 +34,12 @@ func (Summary) Fields() []ent.Field {
 		field.Bool("listend").
 			Default(false).
 			Comment("Listened status"),
-
+		field.String("audio_file").
+			Optional().
+			Comment("Audio file path"),
 		field.Time("created_at").
-			Default(time.Now). // デフォルトで現在時刻を設定
-			Immutable().       // 作成後は変更不可
+			Default(time.Now).
+			Immutable().
 			Comment("Time the feed was added"),
 	}
 }

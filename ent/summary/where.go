@@ -81,6 +81,11 @@ func Listend(v bool) predicate.Summary {
 	return predicate.Summary(sql.FieldEQ(FieldListend, v))
 }
 
+// AudioFile applies equality check predicate on the "audio_file" field. It's identical to AudioFileEQ.
+func AudioFile(v string) predicate.Summary {
+	return predicate.Summary(sql.FieldEQ(FieldAudioFile, v))
+}
+
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.Summary {
 	return predicate.Summary(sql.FieldEQ(FieldCreatedAt, v))
@@ -319,6 +324,81 @@ func ListendEQ(v bool) predicate.Summary {
 // ListendNEQ applies the NEQ predicate on the "listend" field.
 func ListendNEQ(v bool) predicate.Summary {
 	return predicate.Summary(sql.FieldNEQ(FieldListend, v))
+}
+
+// AudioFileEQ applies the EQ predicate on the "audio_file" field.
+func AudioFileEQ(v string) predicate.Summary {
+	return predicate.Summary(sql.FieldEQ(FieldAudioFile, v))
+}
+
+// AudioFileNEQ applies the NEQ predicate on the "audio_file" field.
+func AudioFileNEQ(v string) predicate.Summary {
+	return predicate.Summary(sql.FieldNEQ(FieldAudioFile, v))
+}
+
+// AudioFileIn applies the In predicate on the "audio_file" field.
+func AudioFileIn(vs ...string) predicate.Summary {
+	return predicate.Summary(sql.FieldIn(FieldAudioFile, vs...))
+}
+
+// AudioFileNotIn applies the NotIn predicate on the "audio_file" field.
+func AudioFileNotIn(vs ...string) predicate.Summary {
+	return predicate.Summary(sql.FieldNotIn(FieldAudioFile, vs...))
+}
+
+// AudioFileGT applies the GT predicate on the "audio_file" field.
+func AudioFileGT(v string) predicate.Summary {
+	return predicate.Summary(sql.FieldGT(FieldAudioFile, v))
+}
+
+// AudioFileGTE applies the GTE predicate on the "audio_file" field.
+func AudioFileGTE(v string) predicate.Summary {
+	return predicate.Summary(sql.FieldGTE(FieldAudioFile, v))
+}
+
+// AudioFileLT applies the LT predicate on the "audio_file" field.
+func AudioFileLT(v string) predicate.Summary {
+	return predicate.Summary(sql.FieldLT(FieldAudioFile, v))
+}
+
+// AudioFileLTE applies the LTE predicate on the "audio_file" field.
+func AudioFileLTE(v string) predicate.Summary {
+	return predicate.Summary(sql.FieldLTE(FieldAudioFile, v))
+}
+
+// AudioFileContains applies the Contains predicate on the "audio_file" field.
+func AudioFileContains(v string) predicate.Summary {
+	return predicate.Summary(sql.FieldContains(FieldAudioFile, v))
+}
+
+// AudioFileHasPrefix applies the HasPrefix predicate on the "audio_file" field.
+func AudioFileHasPrefix(v string) predicate.Summary {
+	return predicate.Summary(sql.FieldHasPrefix(FieldAudioFile, v))
+}
+
+// AudioFileHasSuffix applies the HasSuffix predicate on the "audio_file" field.
+func AudioFileHasSuffix(v string) predicate.Summary {
+	return predicate.Summary(sql.FieldHasSuffix(FieldAudioFile, v))
+}
+
+// AudioFileIsNil applies the IsNil predicate on the "audio_file" field.
+func AudioFileIsNil() predicate.Summary {
+	return predicate.Summary(sql.FieldIsNull(FieldAudioFile))
+}
+
+// AudioFileNotNil applies the NotNil predicate on the "audio_file" field.
+func AudioFileNotNil() predicate.Summary {
+	return predicate.Summary(sql.FieldNotNull(FieldAudioFile))
+}
+
+// AudioFileEqualFold applies the EqualFold predicate on the "audio_file" field.
+func AudioFileEqualFold(v string) predicate.Summary {
+	return predicate.Summary(sql.FieldEqualFold(FieldAudioFile, v))
+}
+
+// AudioFileContainsFold applies the ContainsFold predicate on the "audio_file" field.
+func AudioFileContainsFold(v string) predicate.Summary {
+	return predicate.Summary(sql.FieldContainsFold(FieldAudioFile, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
