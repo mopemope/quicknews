@@ -144,6 +144,16 @@ func (a *Article) processSummary(ctx context.Context, article *ent.Article) erro
 		slog.Error("Error saving summary", "link", article.URL, "error", err)
 		return err
 	}
+
+	filename, err := summary.SaveAudioData(ctx, created, a.config)
+	if err != nil {
+		return err
+	}
+	if filename != nil {
+		if err := a.summaryRepos.UpdateAudioFile(ctx, created.ID, *filename); err != nil {
+			return err
+		}
+	}
 	if err := org.ExportOrg(a.config, created); err != nil {
 		return err
 	}

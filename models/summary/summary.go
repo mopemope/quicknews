@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"os"
+	"path/filepath"
 	"sync"
 
 	"github.com/cockroachdb/errors"
@@ -22,6 +24,7 @@ type SummaryRepository interface {
 	GetUnlistened(ctx context.Context) ([]*ent.Summary, error)
 	UpdateListened(ctx context.Context, sum *ent.Summary) error
 	UpdateReaded(ctx context.Context, sum *ent.Summary) error
+	UpdateAudioFile(ctx context.Context, id uuid.UUID, filename string) error
 	Delete(ctx context.Context, id uuid.UUID) error
 }
 
@@ -126,6 +129,19 @@ func (r *SummaryRepositoryImpl) UpdateReaded(ctx context.Context, sum *ent.Summa
 	})
 }
 
+func (r *SummaryRepositoryImpl) UpdateAudioFile(ctx context.Context, id uuid.UUID, filename string) error {
+	return database.WithTx(ctx, r.client, func(tx *ent.Tx) error {
+		_, err := tx.Summary.
+			UpdateOneID(id).
+			SetAudioFile(filename).
+			Save(ctx)
+		if err != nil {
+			return errors.Wrap(err, "failed to update summary as listened")
+		}
+		return nil
+	})
+}
+
 func (r *SummaryRepositoryImpl) Delete(ctx context.Context, id uuid.UUID) error {
 	return database.WithTx(ctx, r.client, func(tx *ent.Tx) error {
 		if err := tx.Summary.DeleteOneID(id).Exec(ctx); err != nil {
@@ -136,7 +152,15 @@ func (r *SummaryRepositoryImpl) Delete(ctx context.Context, id uuid.UUID) error 
 }
 
 // GetAudioData generates audio data for the given summary using the configured TTS engine.
-func GetAudioData(ctx context.Context, sum *ent.Summary, cfg *config.Config) ([]byte, error) { // Accept config
+func GetAudioData(ctx context.Context, sum *ent.Summary, cfg *config.Config) ([]byte, error) {
+	if sum.AudioFile != "" {
+		file := filepath.Join(*cfg.AudioPath, sum.AudioFile)
+		b, err := os.ReadFile(file)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to read audio file")
+		}
+		return b, nil
+	}
 	if sum.Edges.Feed == nil {
 		return nil, errors.New("summary feed edge is not loaded")
 	}
@@ -160,4 +184,21 @@ func GetAudioData(ctx context.Context, sum *ent.Summary, cfg *config.Config) ([]
 		return nil, errors.Wrap(err, "failed to synthesize text")
 	}
 	return audioData, nil
+}
+
+func SaveAudioData(ctx context.Context, sum *ent.Summary, cfg *config.Config) (*string, error) {
+	dir := cfg.AudioPath
+	if dir == nil {
+		return nil, nil
+	}
+	data, err := GetAudioData(ctx, sum, cfg)
+	if err != nil {
+		return nil, err
+	}
+	filename := fmt.Sprintf("%s.mp3", sum.ID.String()) // TODO check fileformat
+	if err := os.WriteFile(filepath.Join(*dir, filename), data, os.ModePerm); err != nil {
+		return nil, errors.Wrap(err, "failed to save audio data")
+	}
+
+	return &filename, nil
 }

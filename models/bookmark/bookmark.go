@@ -12,6 +12,7 @@ import (
 	"github.com/mopemope/quicknews/ent/article"
 	"github.com/mopemope/quicknews/ent/feed"
 	"github.com/mopemope/quicknews/gemini"
+	"github.com/mopemope/quicknews/models/summary"
 	"github.com/mopemope/quicknews/org"
 	"github.com/mopemope/quicknews/scraper"
 	"github.com/pkg/errors"
@@ -173,6 +174,19 @@ func (r *RepositoryImpl) createNewBookmarkArticle(ctx context.Context, tx *ent.T
 	sum = createdSummary          // Update sum with the created entity including ID
 	sum.Edges.Article = article   // Set the article edge for the summary
 	sum.Edges.Feed = bookmarkFeed // Set the feed edge for the summary
+
+	filename, err := summary.SaveAudioData(ctx, sum, r.config)
+	if err != nil {
+		return err
+	}
+	if filename != nil {
+		if _, err := tx.Summary.
+			UpdateOneID(sum.ID).
+			SetAudioFile(*filename).
+			Save(ctx); err != nil {
+			return errors.Wrap(err, "failed to update summary with audio file")
+		}
+	}
 
 	if err := org.ExportOrg(r.config, sum); err != nil {
 		// Log the error but don't fail the transaction
