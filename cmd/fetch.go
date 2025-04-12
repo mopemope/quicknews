@@ -205,7 +205,7 @@ func (cmd *FetchCmd) Run(client *ent.Client, config *config.Config) error {
 	ctx := context.Background()
 	cmd.feedRepos = feed.NewFeedRepository(client)
 	cmd.articleRepos = article.NewArticleRepository(client)
-	cmd.summaryRepos = summary.NewSummaryRepository(client)
+	cmd.summaryRepos = summary.NewRepository(client)
 	cmd.config = config
 
 	for {

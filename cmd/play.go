@@ -85,7 +85,7 @@ func (a *PlayCmd) Run(client *ent.Client, config *config.Config) error {
 		}()
 	}
 
-	repo := summary.NewSummaryRepository(client)
+	repo := summary.NewRepository(client)
 
 	res, err := repo.GetUnlistened(ctx)
 	if err != nil {

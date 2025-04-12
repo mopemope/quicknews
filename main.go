@@ -17,12 +17,13 @@ var version = "0.0.1"
 
 // CLI represents the command-line interface.
 type CLI struct {
-	Add      cmd.AddCmd      `cmd:"" aliases:"a" help:"Add a new RSS feed."`
-	Fetch    cmd.FetchCmd    `cmd:"" aliases:"f" help:"Fetch articles from RSS feeds."`
-	Read     cmd.ReadCmd     `cmd:"" aliases:"r" help:"Start read feeds."`
-	Play     cmd.PlayCmd     `cmd:"" aliases:"p" help:"Read aloud unlistend feeds."`
-	Import   cmd.ImportCmd   `cmd:"" help:"Import feeds from an OPML file."`
-	Bookmark cmd.BookmarkCmd `cmd:"" aliases:"b" help:"Add a new bookmark."`
+	Add         cmd.AddCmd         `cmd:"" aliases:"a" help:"Add a new RSS feed."`
+	Fetch       cmd.FetchCmd       `cmd:"" aliases:"f" help:"Fetch articles from RSS feeds."`
+	Read        cmd.ReadCmd        `cmd:"" aliases:"r" help:"Start read feeds."`
+	Play        cmd.PlayCmd        `cmd:"" aliases:"p" help:"Read aloud unlistend feeds."`
+	Import      cmd.ImportCmd      `cmd:"" help:"Import feeds from an OPML file."`
+	Bookmark    cmd.BookmarkCmd    `cmd:"" aliases:"b" help:"Add a new bookmark."`
+	ExportAudio cmd.ExportAudioCmd `cmd:""  help:"Export audio files."`
 
 	// Global flags
 	ConfigPath string           `name:"config" type:"path" default:"~/.config/quicknews/config.toml" help:"Path to the config file."`

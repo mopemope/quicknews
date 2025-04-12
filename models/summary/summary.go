@@ -19,6 +19,7 @@ import (
 )
 
 type SummaryRepository interface {
+	GetAll(ctx context.Context) ([]*ent.Summary, error)
 	GetFromURL(ctx context.Context, url string) (*ent.Summary, error)
 	Save(ctx context.Context, sum *ent.Summary) (*ent.Summary, error)
 	GetUnlistened(ctx context.Context) ([]*ent.Summary, error)
@@ -33,11 +34,22 @@ type SummaryRepositoryImpl struct {
 	mutex  *sync.Mutex
 }
 
-func NewSummaryRepository(client *ent.Client) SummaryRepository {
+func NewRepository(client *ent.Client) SummaryRepository {
 	return &SummaryRepositoryImpl{
 		client: client,
 		mutex:  &sync.Mutex{},
 	}
+}
+
+func (r *SummaryRepositoryImpl) GetAll(ctx context.Context) ([]*ent.Summary, error) {
+	sums, err := r.client.Summary.
+		Query().
+		Order(ent.Desc(summary.FieldCreatedAt)).
+		All(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get all summaries")
+	}
+	return sums, nil
 }
 
 func (r *SummaryRepositoryImpl) GetFromURL(ctx context.Context, url string) (*ent.Summary, error) {

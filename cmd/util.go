@@ -15,7 +15,7 @@ func fetchArticles(client *ent.Client) {
 	fetchCmd := FetchCmd{
 		feedRepos:    feed.NewFeedRepository(client),
 		articleRepos: article.NewArticleRepository(client),
-		summaryRepos: summary.NewSummaryRepository(client),
+		summaryRepos: summary.NewRepository(client),
 	}
 	ctx := context.Background()
 	items, err := fetchCmd.getItems(ctx)

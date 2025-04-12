@@ -41,7 +41,7 @@ func newSummaryViewModel(client *ent.Client, config *config.Config) summaryViewM
 	bookmarkRepos, _ := bookmark.NewRepository(context.Background(), client, config)
 	return summaryViewModel{
 		viewport:      vp,
-		summaryRepos:  summary.NewSummaryRepository(client),
+		summaryRepos:  summary.NewRepository(client),
 		articleRepos:  article.NewArticleRepository(client), // Initialize ArticleRepository
 		config:        config,
 		bookmarkRepos: bookmarkRepos,
