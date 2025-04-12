@@ -25,7 +25,6 @@ type CLI struct {
 	Bookmark cmd.BookmarkCmd `cmd:"" aliases:"b" help:"Add a new bookmark."`
 
 	// Global flags
-	DbPath     string           `name:"db" type:"path" default:"~/quicknews.db" help:"Path to the SQLite database file."`
 	ConfigPath string           `name:"config" type:"path" default:"~/.config/quicknews/config.toml" help:"Path to the config file."`
 	LogPath    string           `name:"log" type:"path" default:"~/quicknews.log"  help:"Path to the log file. If not specified, logs to stdout."`
 	Version    kong.VersionFlag `short:"V" help:"Show version information."`
@@ -59,7 +58,7 @@ func main() {
 		return
 	}
 	// Initialize database client
-	client, err := ent.Open("sqlite3", cli.DbPath+"??cache=shared&_fk=1")
+	client, err := ent.Open("sqlite3", cfg.DB+"?cache=shared&_fk=1")
 	if err != nil {
 		slog.Error("failed opening connection to sqlite", "error", err)
 		return

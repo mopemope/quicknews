@@ -1,12 +1,16 @@
 package config
 
 import (
+	"os"
+	"path/filepath"
+
 	"github.com/BurntSushi/toml"
 	"github.com/caarlos0/env/v11"
 	"github.com/pkg/errors"
 )
 
 type Config struct {
+	DB                           string  `toml:"db" env:"DB"`
 	GoogleApplicationCredentials string  `toml:"google_application_credentials" env:"GOOGLE_APPLICATION_CREDENTIALS"`
 	GeminiApiKey                 string  `toml:"gemini_api_key" env:"GEMINI_API_KEY"`
 	ExportOrg                    string  `toml:"export_org" env:"EXPORT_ORG"`
@@ -40,6 +44,13 @@ func LoadConfig(path string) (*Config, error) {
 	}
 	if config.SpeakingRate == 0 {
 		config.SpeakingRate = 1.3
+	}
+	if config.DB == "" {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get user home directory")
+		}
+		config.DB = filepath.Join(home, "quicknews.db")
 	}
 	return &config, nil
 }
