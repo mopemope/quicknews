@@ -44,6 +44,8 @@ func NewRepository(client *ent.Client) SummaryRepository {
 func (r *SummaryRepositoryImpl) GetAll(ctx context.Context) ([]*ent.Summary, error) {
 	sums, err := r.client.Summary.
 		Query().
+		WithFeed().
+		WithArticle().
 		Order(ent.Desc(summary.FieldCreatedAt)).
 		All(ctx)
 	if err != nil {
