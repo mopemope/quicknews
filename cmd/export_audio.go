@@ -20,6 +20,7 @@ func (e *ExportAudioCmd) Run(client *ent.Client, config *config.Config) error {
 	}
 	for _, sum := range sums {
 		// reset audio file name
+		sum.AudioFile = ""
 		f, err := summary.SaveAudioData(ctx, sum, config)
 		if err != nil {
 			return err
