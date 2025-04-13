@@ -20,6 +20,15 @@ type Config struct {
 	RequireConfirm               bool    `toml:"require_confirm" env:"REQUIRE_CONFIRM"`
 	VoiceVox                     *VoiceVox
 	Prompt                       *Prompt
+	CloudflareR2                 *CloudflareR2
+}
+
+type CloudflareR2 struct {
+	AccountID       string `toml:"account_id" env:"CLOUDFLARE_ACCOUNT_ID"`
+	AccessKeyID     string `toml:"access_key_id" env:"CLOUDFLARE_ACCESS_KEY_ID"`
+	SecretAccessKey string `toml:"secret_access_key" env:"CLOUDFLARE_SECRET_ACCESS_KEY"`
+	BucketName      string `toml:"bucket_name" env:"CLOUDFLARE_BUCKET_NAME"`
+	EndpointURL     string `toml:"endpoint_url" env:"CLOUDFLARE_ENDPOINT_URL"` // e.g. https://<ACCOUNT_ID>.r2.cloudflarestorage.com
 }
 
 type VoiceVox struct {
