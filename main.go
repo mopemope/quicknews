@@ -24,6 +24,7 @@ type CLI struct {
 	Import      cmd.ImportCmd      `cmd:"" help:"Import feeds from an OPML file."`
 	Bookmark    cmd.BookmarkCmd    `cmd:"" aliases:"b" help:"Add a new bookmark."`
 	ExportAudio cmd.ExportAudioCmd `cmd:""  help:"Export audio files."`
+	Publish     cmd.PublishCmd     `cmd:"" help:"Publish articles."`
 
 	// Global flags
 	ConfigPath string           `name:"config" type:"path" default:"~/.config/quicknews/config.toml" help:"Path to the config file."`

@@ -2,6 +2,7 @@ package article
 
 import (
 	"context"
+	"time"
 
 	"github.com/cockroachdb/errors"
 	"github.com/google/uuid"
@@ -18,6 +19,7 @@ type ArticleRepository interface {
 	GetByFeed(ctx context.Context, feedID uuid.UUID) (ent.Articles, error)
 	GetByUnreaded(ctx context.Context, feedID uuid.UUID) (ent.Articles, error)
 	GetFromURL(ctx context.Context, url string) (*ent.Article, error)
+	GetByDate(ctx context.Context, date string) (ent.Articles, error)
 	Save(ctx context.Context, article *ent.Article) (*ent.Article, error)
 	SaveAll(ctx context.Context, articles ent.Articles) error
 	Delete(ctx context.Context, id string) error
@@ -27,8 +29,8 @@ type ArticleRepositoryImpl struct {
 	client *ent.Client
 }
 
-// NewArticleRepository creates a new instance of ArticleRepository.
-func NewArticleRepository(client *ent.Client) ArticleRepository {
+// NewRepository creates a new instance of ArticleRepository.
+func NewRepository(client *ent.Client) ArticleRepository {
 	return &ArticleRepositoryImpl{
 		client: client,
 	}
@@ -90,6 +92,29 @@ func (r *ArticleRepositoryImpl) GetFromURL(ctx context.Context, url string) (*en
 	}
 
 	return article, nil
+}
+
+func (r *ArticleRepositoryImpl) GetByDate(ctx context.Context, date string) (ent.Articles, error) {
+	baseDate, err := time.Parse("2006-01-02", date)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to parse date")
+	}
+
+	end := baseDate.UTC()
+	start := end.AddDate(0, 0, -1)
+
+	articles, err := r.client.Article.
+		Query().
+		Where(article.PublishedAtGT(start)).
+		Where(article.PublishedAtLTE(end)).
+		WithFeed().
+		WithSummary().
+		Order(ent.Asc(article.FieldPublishedAt)).
+		All(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get articles by date")
+	}
+	return articles, nil
 }
 
 func (r *ArticleRepositoryImpl) Save(ctx context.Context, article *ent.Article) (*ent.Article, error) {

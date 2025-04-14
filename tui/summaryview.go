@@ -42,7 +42,7 @@ func newSummaryViewModel(client *ent.Client, config *config.Config) summaryViewM
 	return summaryViewModel{
 		viewport:      vp,
 		summaryRepos:  summary.NewRepository(client),
-		articleRepos:  article.NewArticleRepository(client), // Initialize ArticleRepository
+		articleRepos:  article.NewRepository(client), // Initialize ArticleRepository
 		config:        config,
 		bookmarkRepos: bookmarkRepos,
 	}
@@ -132,9 +132,9 @@ func (m summaryViewModel) Update(msg tea.Msg) (summaryViewModel, tea.Cmd) {
 			slog.Debug("Back key pressed in summary view")
 			return m, func() tea.Msg { return backToArticleListMsg{} } // Send message to main model
 		case "j", "down":
-			m.viewport.LineDown(1)
+			m.viewport.ScrollDown(1)
 		case "k", "up":
-			m.viewport.LineUp(1)
+			m.viewport.ScrollUp(1)
 		case "g":
 			m.viewport.GotoTop()
 		case "G":

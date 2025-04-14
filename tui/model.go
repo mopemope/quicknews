@@ -57,7 +57,7 @@ const (
 func InitialModel(client *ent.Client, config *config.Config) model {
 	return model{
 		client:       client,
-		articleRepos: article.NewArticleRepository(client), // Initialize article repository
+		articleRepos: article.NewRepository(client), // Initialize article repository
 		feedList:     newFeedListModel(client),
 		articleList:  newArticleListModel(client, config),
 		summaryView:  newSummaryViewModel(client, config), // Initialize summary view model

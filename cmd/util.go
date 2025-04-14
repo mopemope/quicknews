@@ -14,7 +14,7 @@ import (
 func fetchArticles(client *ent.Client) {
 	fetchCmd := FetchCmd{
 		feedRepos:    feed.NewFeedRepository(client),
-		articleRepos: article.NewArticleRepository(client),
+		articleRepos: article.NewRepository(client),
 		summaryRepos: summary.NewRepository(client),
 	}
 	ctx := context.Background()

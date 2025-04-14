@@ -5,12 +5,19 @@ go 1.24.1
 require (
 	cloud.google.com/go/texttospeech v1.12.0
 	entgo.io/ent v0.14.4
+	github.com/BurntSushi/toml v1.5.0
 	github.com/alecthomas/kong v1.10.0
 	github.com/alitto/pond/v2 v2.3.2
-	github.com/charmbracelet/bubbles v0.20.0
+	github.com/aws/aws-sdk-go-v2 v1.36.3
+	github.com/aws/aws-sdk-go-v2/config v1.29.14
+	github.com/aws/aws-sdk-go-v2/credentials v1.17.67
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.72.3
+	github.com/caarlos0/env/v11 v11.3.1
+	github.com/charmbracelet/bubbles v0.21.0
 	github.com/charmbracelet/bubbletea v1.3.4
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/cockroachdb/errors v1.11.3
+	github.com/dmulholl/mp3lib v1.0.0
 	github.com/gilliek/go-opml v1.0.0
 	github.com/gocolly/colly/v2 v2.2.0
 	github.com/google/uuid v1.6.0
@@ -18,20 +25,11 @@ require (
 	github.com/gopxl/beep/v2 v2.1.1
 	github.com/mattn/go-sqlite3 v1.14.27
 	github.com/mmcdole/gofeed v1.3.0
+	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.10.0
 	github.com/toqueteos/webbrowser v1.2.0
 	google.golang.org/api v0.228.0
-	google.golang.org/genai v0.7.0
-)
-
-require (
-	github.com/BurntSushi/toml v1.2.1
-	github.com/aws/aws-sdk-go-v2 v1.36.3
-	github.com/aws/aws-sdk-go-v2/config v1.29.14
-	github.com/aws/aws-sdk-go-v2/credentials v1.17.67
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.79.2
-	github.com/caarlos0/env/v11 v11.3.1
-	github.com/pkg/errors v0.9.1
+	google.golang.org/genai v1.0.0
 )
 
 require (
@@ -63,7 +61,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sso v1.25.3 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.30.1 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.33.19 // indirect
-	github.com/aws/smithy-go v1.22.3 // indirect
+	github.com/aws/smithy-go v1.22.2 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/bits-and-blooms/bitset v1.22.0 // indirect
 	github.com/bmatcuk/doublestar v1.3.4 // indirect

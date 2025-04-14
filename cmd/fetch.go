@@ -204,7 +204,7 @@ func (cmd *FetchCmd) getItems(ctx context.Context) ([]progress.QueueItem, error)
 func (cmd *FetchCmd) Run(client *ent.Client, config *config.Config) error {
 	ctx := context.Background()
 	cmd.feedRepos = feed.NewFeedRepository(client)
-	cmd.articleRepos = article.NewArticleRepository(client)
+	cmd.articleRepos = article.NewRepository(client)
 	cmd.summaryRepos = summary.NewRepository(client)
 	cmd.config = config
 

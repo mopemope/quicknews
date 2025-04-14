@@ -74,7 +74,7 @@ func newArticleListModel(client *ent.Client, config *config.Config) articleListM
 
 	return articleListModel{
 		feedRepos:         feed.NewFeedRepository(client),
-		repos:             article.NewArticleRepository(client),
+		repos:             article.NewRepository(client),
 		summaryRepos:      summary.NewRepository(client),
 		list:              l,
 		showConfirmDialog: false,

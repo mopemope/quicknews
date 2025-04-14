@@ -20,11 +20,10 @@ type Config struct {
 	RequireConfirm               bool    `toml:"require_confirm" env:"REQUIRE_CONFIRM"`
 	VoiceVox                     *VoiceVox
 	Prompt                       *Prompt
-	CloudflareR2                 *CloudflareR2
+	Cloudflare                   *Cloudflare
 }
 
-type CloudflareR2 struct {
-	AccountID       string `toml:"account_id" env:"CLOUDFLARE_ACCOUNT_ID"`
+type Cloudflare struct {
 	AccessKeyID     string `toml:"access_key_id" env:"CLOUDFLARE_ACCESS_KEY_ID"`
 	SecretAccessKey string `toml:"secret_access_key" env:"CLOUDFLARE_SECRET_ACCESS_KEY"`
 	BucketName      string `toml:"bucket_name" env:"CLOUDFLARE_BUCKET_NAME"`

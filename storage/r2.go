@@ -1,8 +1,9 @@
 package storage
 
 import (
-	"bytes"
 	"context"
+	"fmt"
+	"io"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
@@ -20,33 +21,27 @@ type R2Storage struct {
 
 // NewR2Storage creates a new R2Storage client.
 func NewR2Storage(ctx context.Context, cfg *config.Config) (*R2Storage, error) {
-	if cfg.CloudflareR2 == nil {
+	if cfg.Cloudflare == nil {
 		return nil, errors.New("Cloudflare R2 configuration is missing")
 	}
-	r2Config := cfg.CloudflareR2
-
-	if r2Config.AccountID == "" || r2Config.AccessKeyID == "" || r2Config.SecretAccessKey == "" || r2Config.BucketName == "" || r2Config.EndpointURL == "" {
-		return nil, errors.New("missing required Cloudflare R2 configuration fields (AccountID, AccessKeyID, SecretAccessKey, BucketName, EndpointURL)")
+	r2Config := cfg.Cloudflare
+	if r2Config.AccessKeyID == "" || r2Config.SecretAccessKey == "" || r2Config.BucketName == "" || r2Config.EndpointURL == "" {
+		return nil, errors.New("missing required Cloudflare R2 configuration fields (AccessKeyID, SecretAccessKey, BucketName, EndpointURL)")
 	}
-
-	resolver := aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
-		return aws.Endpoint{
-			URL: r2Config.EndpointURL,
-		}, nil
-	})
 
 	awsCfg, err := awsconfig.LoadDefaultConfig(ctx,
-		awsconfig.WithEndpointResolverWithOptions(resolver),
 		awsconfig.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(r2Config.AccessKeyID, r2Config.SecretAccessKey, "")),
-		// Note: R2 doesn't use regions in the same way AWS S3 does, but the SDK might require one.
-		// Using a placeholder region like "auto" or a specific one if needed. Check R2 documentation.
 		awsconfig.WithRegion("auto"),
+		//		awsconfig.WithRequestChecksumCalculation(0),
+		// awsconfig.WithResponseChecksumValidation(0),
 	)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to load AWS config for R2")
+		return nil, errors.Wrap(err, "failed to load AWS config")
 	}
 
-	s3Client := s3.NewFromConfig(awsCfg)
+	s3Client := s3.NewFromConfig(awsCfg, func(o *s3.Options) {
+		o.BaseEndpoint = aws.String(r2Config.EndpointURL)
+	})
 
 	return &R2Storage{
 		client:     s3Client,
@@ -55,13 +50,14 @@ func NewR2Storage(ctx context.Context, cfg *config.Config) (*R2Storage, error) {
 }
 
 // Upload uploads data to the specified key in the R2 bucket.
-func (r *R2Storage) Upload(ctx context.Context, key string, data []byte) error {
+func (r *R2Storage) Upload(ctx context.Context, key string, reader io.Reader) error {
+	fmt.Println("Uploading to R2 bucket:", r.bucketName, "with key:", key)
+
 	_, err := r.client.PutObject(ctx, &s3.PutObjectInput{
-		Bucket: aws.String(r.bucketName),
-		Key:    aws.String(key),
-		Body:   bytes.NewReader(data),
-		// Consider setting ContentType based on the data if known
-		// ContentType: aws.String("audio/wav"),
+		Bucket:      aws.String(r.bucketName),
+		Key:         aws.String(key),
+		Body:        reader,
+		ContentType: aws.String("audio/mpeg"),
 	})
 	if err != nil {
 		return errors.Wrapf(err, "failed to upload object %q to R2 bucket %q", key, r.bucketName)
