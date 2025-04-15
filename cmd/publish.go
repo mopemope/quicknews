@@ -2,10 +2,10 @@ package cmd
 
 import (
 	"context"
+	"crypto/sha256"
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/cockroachdb/errors"
@@ -115,7 +115,7 @@ func (pb *publisher) processFeed(ctx context.Context, f *ent.Feed, pubDate strin
 		return nil
 	}
 
-	outputFilename := convertPathName(pubDate + "_" + feedName + ".mp3")
+	outputFilename := convertPathName(pubDate+"_"+feedName) + ".mp3"
 	output := filepath.Join(os.TempDir(), outputFilename)
 	defer os.Remove(output)
 
@@ -183,5 +183,8 @@ func (pb *publisher) publishRSS(ctx context.Context) error {
 }
 
 func convertPathName(name string) string {
-	return strings.ReplaceAll(name, " ", "_")
+	h := sha256.New()
+	h.Write([]byte(name))
+	x := h.Sum(nil)
+	return fmt.Sprintf("%x", x)
 }
