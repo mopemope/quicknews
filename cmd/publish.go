@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"time"
@@ -117,7 +118,11 @@ func (pb *publisher) processFeed(ctx context.Context, f *ent.Feed, pubDate strin
 
 	outputFilename := convertPathName(pubDate+"_"+feedName) + ".mp3"
 	output := filepath.Join(os.TempDir(), outputFilename)
-	defer os.Remove(output)
+	defer func() {
+		if err := os.Remove(output); err != nil {
+			slog.Warn("Failed to remove temporary file", "path", output, "error", err)
+		}
+	}()
 
 	if err := tts.MergeMP3(output, infiles); err != nil {
 		return errors.Wrap(err, "failed to merge mp3 files")
@@ -134,7 +139,11 @@ func (pb *publisher) processFeed(ctx context.Context, f *ent.Feed, pubDate strin
 	if err != nil {
 		return errors.Wrap(err, "failed to read output file")
 	}
-	defer fileReader.Close()
+	defer func() {
+		if err := fileReader.Close(); err != nil {
+			slog.Warn("Failed to close file reader", "path", output, "error", err)
+		}
+	}()
 
 	if err := pb.R2Client.Upload(ctx, outputFilename, fileReader, "audio/mpeg"); err != nil {
 		return errors.Wrap(err, "failed to upload audio file")
@@ -162,7 +171,11 @@ func (pb *publisher) processFeed(ctx context.Context, f *ent.Feed, pubDate strin
 
 func (pb *publisher) publishRSS(ctx context.Context) error {
 	rssOutput := filepath.Join(os.TempDir(), "rss.xml")
-	defer os.Remove(rssOutput)
+	defer func() {
+		if err := os.Remove(rssOutput); err != nil {
+			slog.Warn("Failed to remove temporary RSS file", "path", rssOutput, "error", err)
+		}
+	}()
 
 	if err := pb.RSSFeed.WriteToFile(rssOutput); err != nil {
 		return errors.Wrap(err, "failed to write RSS to file")
@@ -172,7 +185,11 @@ func (pb *publisher) publishRSS(ctx context.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to read RSS file")
 	}
-	defer rssFile.Close()
+	defer func() {
+		if err := rssFile.Close(); err != nil {
+			slog.Warn("Failed to close RSS file", "path", rssOutput, "error", err)
+		}
+	}()
 
 	if err := pb.R2Client.Upload(ctx, "rss.xml", rssFile, "application/rss+xml"); err != nil {
 		return errors.Wrap(err, "failed to upload RSS file")
