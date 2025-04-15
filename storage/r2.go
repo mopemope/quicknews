@@ -50,14 +50,14 @@ func NewR2Storage(ctx context.Context, cfg *config.Config) (*R2Storage, error) {
 }
 
 // Upload uploads data to the specified key in the R2 bucket.
-func (r *R2Storage) Upload(ctx context.Context, key string, reader io.Reader) error {
+func (r *R2Storage) Upload(ctx context.Context, key string, reader io.Reader, contentType string) error {
 	fmt.Println("Uploading to R2 bucket:", r.bucketName, "with key:", key)
 
 	_, err := r.client.PutObject(ctx, &s3.PutObjectInput{
 		Bucket:      aws.String(r.bucketName),
 		Key:         aws.String(key),
 		Body:        reader,
-		ContentType: aws.String("audio/mpeg"),
+		ContentType: aws.String(contentType),
 	})
 	if err != nil {
 		return errors.Wrapf(err, "failed to upload object %q to R2 bucket %q", key, r.bucketName)

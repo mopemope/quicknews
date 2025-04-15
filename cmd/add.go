@@ -19,7 +19,7 @@ func (a *AddCmd) Run(client *ent.Client) error {
 
 	ctx := context.Background()
 	fp := gofeed.NewParser()
-	repo := feed.NewFeedRepository(client)
+	repo := feed.NewRepository(client)
 
 	for _, url := range a.URLs {
 		// Check if the feed already exists

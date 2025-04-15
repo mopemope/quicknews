@@ -20,7 +20,7 @@ type ImportCmd struct {
 // Run executes the import command.
 func (cmd *ImportCmd) Run(client *ent.Client) error {
 	ctx := context.Background()
-	cmd.feedRepos = feed.NewFeedRepository(client)
+	cmd.feedRepos = feed.NewRepository(client)
 
 	doc, err := opml.NewOPMLFromFile(cmd.OpmlPath)
 	if err != nil {

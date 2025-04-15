@@ -13,7 +13,7 @@ import (
 
 func fetchArticles(client *ent.Client) {
 	fetchCmd := FetchCmd{
-		feedRepos:    feed.NewFeedRepository(client),
+		feedRepos:    feed.NewRepository(client),
 		articleRepos: article.NewRepository(client),
 		summaryRepos: summary.NewRepository(client),
 	}

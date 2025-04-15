@@ -90,7 +90,7 @@ func main() {
 }
 
 func setup(ctx context.Context, cilent *ent.Client) error {
-	repo := feed.NewFeedRepository(cilent)
+	repo := feed.NewRepository(cilent)
 	exist, err := repo.ExistBookmarkFeed(ctx)
 	if err != nil {
 		return err

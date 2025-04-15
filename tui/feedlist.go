@@ -44,7 +44,7 @@ func newFeedListModel(client *ent.Client) feedListModel {
 	l.Title = "Feeds"
 
 	return feedListModel{
-		repos: feed.NewFeedRepository(client),
+		repos: feed.NewRepository(client),
 		list:  l,
 	}
 }

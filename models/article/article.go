@@ -19,7 +19,7 @@ type ArticleRepository interface {
 	GetByFeed(ctx context.Context, feedID uuid.UUID) (ent.Articles, error)
 	GetByUnreaded(ctx context.Context, feedID uuid.UUID) (ent.Articles, error)
 	GetFromURL(ctx context.Context, url string) (*ent.Article, error)
-	GetByDate(ctx context.Context, date string) (ent.Articles, error)
+	GetByDate(ctx context.Context, feedId uuid.UUID, date string) (ent.Articles, error)
 	Save(ctx context.Context, article *ent.Article) (*ent.Article, error)
 	SaveAll(ctx context.Context, articles ent.Articles) error
 	Delete(ctx context.Context, id string) error
@@ -94,7 +94,7 @@ func (r *ArticleRepositoryImpl) GetFromURL(ctx context.Context, url string) (*en
 	return article, nil
 }
 
-func (r *ArticleRepositoryImpl) GetByDate(ctx context.Context, date string) (ent.Articles, error) {
+func (r *ArticleRepositoryImpl) GetByDate(ctx context.Context, feedId uuid.UUID, date string) (ent.Articles, error) {
 	baseDate, err := time.Parse("2006-01-02", date)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to parse date")
@@ -107,6 +107,7 @@ func (r *ArticleRepositoryImpl) GetByDate(ctx context.Context, date string) (ent
 		Query().
 		Where(article.PublishedAtGT(start)).
 		Where(article.PublishedAtLTE(end)).
+		Where(article.HasFeedWith(feed.ID(feedId))).
 		WithFeed().
 		WithSummary().
 		Order(ent.Asc(article.FieldPublishedAt)).

@@ -73,7 +73,7 @@ func newArticleListModel(client *ent.Client, config *config.Config) articleListM
 	l.Title = "Articles"
 
 	return articleListModel{
-		feedRepos:         feed.NewFeedRepository(client),
+		feedRepos:         feed.NewRepository(client),
 		repos:             article.NewRepository(client),
 		summaryRepos:      summary.NewRepository(client),
 		list:              l,

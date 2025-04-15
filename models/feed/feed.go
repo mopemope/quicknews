@@ -39,7 +39,7 @@ type FeedRepositoryImpl struct {
 	client *ent.Client
 }
 
-func NewFeedRepository(client *ent.Client) FeedRepository {
+func NewRepository(client *ent.Client) FeedRepository {
 	return &FeedRepositoryImpl{
 		client: client,
 	}

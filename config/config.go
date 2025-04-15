@@ -21,6 +21,15 @@ type Config struct {
 	VoiceVox                     *VoiceVox
 	Prompt                       *Prompt
 	Cloudflare                   *Cloudflare
+	Podcast                      *Podcast
+}
+
+type Podcast struct {
+	ChannelTitle string `toml:"channel_title" env:"PODCAST_CHANNEL_TITLE"`
+	ChannelLink  string `toml:"channel_link" env:"PODCAST_CHANNEL_LINK"`
+	ChannelDesc  string `toml:"channel_desc" env:"PODCAST_CHANNEL_DESC"`
+	Author       string `toml:"author" env:"PODCAST_AUTHOR"`
+	PublishURL   string `toml:"publish_url" env:"PODCAST_PUBLISH_URL"`
 }
 
 type Cloudflare struct {
