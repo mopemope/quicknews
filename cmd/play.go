@@ -17,11 +17,8 @@ import (
 )
 
 type PlayCmd struct {
-	NoFetch      bool     `help:"Do not fetch articles background."`
-	SpeakingRate *float64 `short:"s" help:"Set the speaking rate."`
-	Voicevox     bool     `help:"Use the voicevox engine." `
-	Speaker      int      `help:"Set the voicevox speaker." default:"10"`
-	Date         *string  "help:\"Set the date to play articles in YYYY-MM-DD format\""
+	NoFetch bool    `help:"Do not fetch articles background."`
+	Date    *string "help:\"Set the date to play articles in YYYY-MM-DD format\""
 }
 
 type playArticle struct {
@@ -67,10 +64,7 @@ func newArticle(summary *ent.Summary, repo summary.SummaryRepository, config *co
 }
 
 func (a *PlayCmd) Run(client *ent.Client, config *config.Config) error {
-	if a.SpeakingRate == nil {
-		a.SpeakingRate = &config.SpeakingRate
-	}
-	tts.SpeachOpt.SpeakingRate = *a.SpeakingRate
+	tts.SpeachOpt.SpeakingRate = config.SpeakingRate
 	if config.VoiceVox != nil {
 		tts.SpeachOpt.Engine = "voicevox"
 		tts.SpeachOpt.Speaker = config.VoiceVox.Speaker
