@@ -2,11 +2,11 @@ package cmd
 
 import (
 	"context"
-	"crypto/sha256"
 	"fmt"
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/cockroachdb/errors"
@@ -14,6 +14,7 @@ import (
 	"github.com/mopemope/quicknews/ent"
 	"github.com/mopemope/quicknews/models/article"
 	"github.com/mopemope/quicknews/models/feed"
+	"github.com/mopemope/quicknews/org"
 	"github.com/mopemope/quicknews/rss"
 	"github.com/mopemope/quicknews/storage"
 	"github.com/mopemope/quicknews/tts"
@@ -116,7 +117,7 @@ func (pb *publisher) processFeed(ctx context.Context, f *ent.Feed, pubDate strin
 		return nil
 	}
 
-	outputFilename := convertPathName(pubDate+"_"+feedName) + ".mp3"
+	outputFilename := org.ConvertPathName(pubDate+"_"+feedName) + ".mp3"
 	output := filepath.Join(os.TempDir(), outputFilename)
 	defer func() {
 		if err := os.Remove(output); err != nil {
@@ -197,11 +198,4 @@ func (pb *publisher) publishRSS(ctx context.Context) error {
 
 	fmt.Println("Successfully published RSS feed.")
 	return nil
-}
-
-func convertPathName(name string) string {
-	h := sha256.New()
-	h.Write([]byte(name))
-	x := h.Sum(nil)
-	return fmt.Sprintf("%x", x)
 }

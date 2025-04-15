@@ -26,13 +26,13 @@ func ExportOrg(config *config.Config, sum *ent.Summary) error {
 	feed := sum.Edges.Feed
 	article := sum.Edges.Article
 
-	dst = path.Join(dst, convertPathName(feed.Title))
+	dst = path.Join(dst, ConvertPathName(feed.Title))
 	if err := os.MkdirAll(dst, os.ModePerm); err != nil {
 		return errors.Wrap(err, "failed to create directory")
 	}
 
 	timestamp := sum.CreatedAt.Format("20060102150405")
-	orgFile := timestamp + "-" + convertPathName(sum.Title) + ".org"
+	orgFile := timestamp + "-" + ConvertPathName(sum.Title) + ".org"
 	dst = path.Join(dst, orgFile)
 
 	contentTemplate := `:PROPERTIES:
@@ -68,6 +68,12 @@ func ExportOrg(config *config.Config, sum *ent.Summary) error {
 	return os.WriteFile(dst, []byte(content), os.ModePerm)
 }
 
-func convertPathName(name string) string {
-	return strings.ReplaceAll(name, " ", "_")
+// ConvertPathName converts a string to a safe path name component
+// by replacing spaces and other problematic characters with underscores.
+func ConvertPathName(name string) string {
+	s := strings.ReplaceAll(name, " ", "_")
+	s = strings.ReplaceAll(s, "/", "_")
+	s = strings.ReplaceAll(s, ":", "_")
+	s = strings.ReplaceAll(s, "?", "_")
+	return s
 }
