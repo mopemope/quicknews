@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+	"time"
 
 	"github.com/cockroachdb/errors"
 	"github.com/google/uuid"
@@ -14,6 +15,7 @@ import (
 	"github.com/mopemope/quicknews/config"
 	"github.com/mopemope/quicknews/database"
 	"github.com/mopemope/quicknews/ent"
+	"github.com/mopemope/quicknews/ent/article"
 	"github.com/mopemope/quicknews/ent/summary"
 	"github.com/mopemope/quicknews/tts"
 )
@@ -22,7 +24,7 @@ type SummaryRepository interface {
 	GetAll(ctx context.Context) ([]*ent.Summary, error)
 	GetFromURL(ctx context.Context, url string) (*ent.Summary, error)
 	Save(ctx context.Context, sum *ent.Summary) (*ent.Summary, error)
-	GetUnlistened(ctx context.Context) ([]*ent.Summary, error)
+	GetUnlistened(ctx context.Context, date *string) ([]*ent.Summary, error)
 	UpdateListened(ctx context.Context, sum *ent.Summary) error
 	UpdateReaded(ctx context.Context, sum *ent.Summary) error
 	UpdateAudioFile(ctx context.Context, id uuid.UUID, filename string) error
@@ -102,14 +104,26 @@ func (r *SummaryRepositoryImpl) Save(ctx context.Context, sum *ent.Summary) (*en
 	return created, err
 }
 
-func (r *SummaryRepositoryImpl) GetUnlistened(ctx context.Context) ([]*ent.Summary, error) {
-	sums, err := r.client.Summary.
+func (r *SummaryRepositoryImpl) GetUnlistened(ctx context.Context, date *string) ([]*ent.Summary, error) {
+	q := r.client.Summary.
 		Query().
 		Where(summary.Listend(false)).
 		WithFeed().
-		WithArticle().
-		Order(ent.Asc(summary.FieldCreatedAt)).
-		All(ctx)
+		WithArticle()
+
+	if date != nil {
+		baseDate, err := time.Parse("2006-01-02", *date)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to parse date")
+		}
+
+		end := baseDate.UTC()
+		start := end.AddDate(0, 0, -1)
+		q = q.Where(summary.HasArticleWith(article.PublishedAtGT(start))).
+			Where(summary.HasArticleWith(article.PublishedAtLTE(end)))
+	}
+
+	sums, err := q.All(ctx)
 
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get unlistened summaries")

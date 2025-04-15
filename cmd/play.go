@@ -21,6 +21,7 @@ type PlayCmd struct {
 	SpeakingRate *float64 `short:"s" help:"Set the speaking rate."`
 	Voicevox     bool     `help:"Use the voicevox engine." `
 	Speaker      int      `help:"Set the voicevox speaker." default:"10"`
+	Date         *string  "help:\"Set the date to play articles in YYYY-MM-DD format\""
 }
 
 type playArticle struct {
@@ -87,7 +88,7 @@ func (a *PlayCmd) Run(client *ent.Client, config *config.Config) error {
 
 	repo := summary.NewRepository(client)
 
-	res, err := repo.GetUnlistened(ctx)
+	res, err := repo.GetUnlistened(ctx, a.Date)
 	if err != nil {
 		return errors.Wrap(err, "failed to get unlistened summaries")
 	}
