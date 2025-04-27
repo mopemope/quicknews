@@ -35,16 +35,22 @@ After building, you can run the program with the following command:
 
 - `add <URL>`: Adds a new RSS feed.
 - `fetch`: Fetches and updates registered feeds.
+  - `-i`, `--interval <duration>`: Fetch feeds repeatedly at the specified interval (e.g., `1h`, `30m`). If 0 or not specified, fetches only once.
 - `read`: Launches the TUI to browse feeds and articles.
-  - `--speaking-rate` / `-s`: Sets the speaking rate (default: 1.2).
-  - `--voicevox`: Uses the VoiceVox engine for TTS.
-  - `--speaker`: Sets the VoiceVox speaker ID (default: 10).
-- `play`: Read aloud unlistened feeds.
-  - `--speaking-rate` / `-s`: Sets the speaking rate (default: 1.2).
-  - `--voicevox`: Uses the VoiceVox engine for TTS.
-    - `--speaker`: Sets the VoiceVox speaker ID (default: 10).
-- `import`: Import feeds from an OPML file.
-- `bookmark <URL>`: Adds a new bookmark.
+  - `--no-fetch`: Disables background fetching of articles while the TUI is running.
+  - `-s`, `--speaking-rate <rate>`: Sets the speaking rate for TTS (default: 1.3, or value from config).
+  - `--voicevox`: Uses the VoiceVox engine for TTS (requires VoiceVox configuration).
+  - `--speaker <id>`: Sets the VoiceVox speaker ID (default: 10, or value from config).
+- `play`: Read aloud unlistened summaries.
+  - `--no-fetch`: Disables background fetching of articles while playing audio.
+  - `--date <YYYY-MM-DD>`: Plays summaries published on the specified date.
+  - `-s`, `--speaking-rate <rate>`: Sets the speaking rate for TTS (default: 1.3, or value from config).
+  - `--voicevox`: Uses the VoiceVox engine for TTS (requires VoiceVox configuration).
+  - `--speaker <id>`: Sets the VoiceVox speaker ID (default: 10, or value from config).
+- `import <opmlfile>`: Import feeds from an OPML file.
+- `bookmark <URL>`: Adds a new bookmark (web page) to a special feed.
+- `publish [YYYY-MM-DD]`: Processes articles for the specified date (defaults to today) and the preceding two days. For each day and each feed, it merges the audio files of the summaries published on that day into a single MP3 file (named `YYYY-MM-DD_FeedTitle.mp3`). These merged MP3 files, along with an updated podcast RSS feed (`rss.xml`), are then uploaded to Cloudflare R2. This command requires the `AudioPath` and `Podcast` sections to be configured in the `config.toml` file.
+- `export-audio`: Regenerates and saves audio files for all existing summaries based on current TTS settings. This is useful if you change TTS engines or settings and want to update previously generated audio.
 
 ### Global Options
 
