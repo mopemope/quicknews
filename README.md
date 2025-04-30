@@ -82,6 +82,9 @@ speaking_rate = 1.3
 # Require confirmation before performing certain actions (e.g., deleting)
 require_confirm = true
 
+# Databse File settings
+db = "/path/to/your/quicknews.db"
+
 # Google Text-to-Speech settings
 # Path to your Google Cloud service account key file.
 # Required if using Google TTS and not using environment variables (when override is enabled).
@@ -101,6 +104,22 @@ export_org = "/path/to/your/org/files"
 # Default speaker ID for VoiceVox.
 # Can be overridden by the --speaker flag or VOICEVOX_SPEAKER env var.
 speaker = 10
+
+# Podcast settings (Optional)
+# If you want to distribute your feed as a podcast,
+# please configure cloudflare to host the files and set up the podcast feed information.
+[cloudflare]
+access_key_id="your cloudflare access_key_id"
+secret_access_key="your cloudflare secret_access_key"
+bucket_name="r2 bucket name"
+endpoint_url="r2 endpoint url"
+
+[podcast]
+channel_title = "podcast channel title"
+channel_link = "podcast channel link"
+channel_desc = "podcast channel desc"
+author = "podcast author"
+publish_url = "podcast publish url"
 
 ```
 
