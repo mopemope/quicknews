@@ -122,7 +122,7 @@ func (r *SummaryRepositoryImpl) GetUnlistened(ctx context.Context, date *string)
 		q = q.Where(summary.HasArticleWith(article.PublishedAtGT(start))).
 			Where(summary.HasArticleWith(article.PublishedAtLTE(end)))
 	}
-
+	q = q.Order(ent.Desc(summary.FieldCreatedAt))
 	sums, err := q.All(ctx)
 
 	if err != nil {
