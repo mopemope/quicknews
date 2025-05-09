@@ -7,9 +7,9 @@ import (
 	"path"
 	"strings"
 
+	"github.com/cockroachdb/errors"
 	"github.com/mopemope/quicknews/config"
 	"github.com/mopemope/quicknews/ent"
-	"github.com/pkg/errors"
 )
 
 // ExportOrg exports the summary to an Org file.

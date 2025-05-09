@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/cockroachdb/errors"
 	"github.com/mopemope/quicknews/clock"
 	"github.com/mopemope/quicknews/config"
 	"github.com/mopemope/quicknews/database"
@@ -15,7 +16,6 @@ import (
 	"github.com/mopemope/quicknews/models/summary"
 	"github.com/mopemope/quicknews/org"
 	"github.com/mopemope/quicknews/scraper"
-	"github.com/pkg/errors"
 )
 
 type Repository interface {

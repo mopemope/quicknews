@@ -6,7 +6,7 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/caarlos0/env/v11"
-	"github.com/pkg/errors"
+	"github.com/cockroachdb/errors"
 )
 
 type Config struct {
