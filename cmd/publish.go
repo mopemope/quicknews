@@ -20,7 +20,7 @@ import (
 )
 
 type PublishCmd struct {
-	Date string `arg:"" help:"Date to publish the articles in YYYY-MM-DD format."`
+	Date string `arg:"" optional:"" name:"date" help:"Date to publish the articles in YYYY-MM-DD format. Defaults to today."`
 	// Output string `short:"o" help:"Output file path for the joined audio."`
 }
 
