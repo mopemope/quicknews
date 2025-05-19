@@ -145,7 +145,7 @@ func (a *Article) processSummary(ctx context.Context, article *ent.Article) erro
 		return err
 	}
 
-	// Save audio data if configured
+	//
 	if a.config.SaveAudioData {
 		filename, err := summary.SaveAudioData(ctx, created, a.config)
 		if err != nil {

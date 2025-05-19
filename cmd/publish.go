@@ -13,6 +13,7 @@ import (
 	"github.com/mopemope/quicknews/ent"
 	"github.com/mopemope/quicknews/models/article"
 	"github.com/mopemope/quicknews/models/feed"
+	"github.com/mopemope/quicknews/models/summary"
 	"github.com/mopemope/quicknews/org"
 	"github.com/mopemope/quicknews/rss"
 	"github.com/mopemope/quicknews/storage"
@@ -27,6 +28,7 @@ type PublishCmd struct {
 type publisher struct {
 	FeedRepository    feed.FeedRepository
 	ArticleRepository article.ArticleRepository
+	SummaryRepository summary.SummaryRepository
 	RSSFeed           *rss.RSS
 	R2Client          *storage.R2Storage
 	Config            *config.Config
@@ -36,6 +38,7 @@ func NewPublisher(ctx context.Context, client *ent.Client, config *config.Config
 
 	feedRepos := feed.NewRepository(client)
 	articleRepos := article.NewRepository(client)
+	summaryRepos := summary.NewRepository(client)
 	rssFeed := rss.NewRSS(config.Podcast)
 	r2client, err := storage.NewR2Storage(ctx, config)
 	if err != nil {
@@ -45,6 +48,7 @@ func NewPublisher(ctx context.Context, client *ent.Client, config *config.Config
 	return &publisher{
 		FeedRepository:    feedRepos,
 		ArticleRepository: articleRepos,
+		SummaryRepository: summaryRepos,
 		RSSFeed:           rssFeed,
 		R2Client:          r2client,
 		Config:            config,
@@ -105,8 +109,22 @@ func (pb *publisher) processFeed(ctx context.Context, f *ent.Feed, pubDate strin
 
 	infiles := make([]string, 0)
 	for _, article := range articles {
-		if article.Edges.Summary != nil && article.Edges.Summary.AudioFile != "" {
-			infile := filepath.Join(*pb.Config.AudioPath, article.Edges.Summary.AudioFile)
+		sum := article.Edges.Summary
+		if sum != nil {
+			audioFile := sum.AudioFile
+			if audioFile == "" {
+				filename, err := summary.SaveAudioData(ctx, article.Edges.Summary, pb.Config)
+				if err != nil {
+					return err
+				}
+				if filename != nil {
+					if err := pb.SummaryRepository.UpdateAudioFile(ctx, sum.ID, *filename); err != nil {
+						return err
+					}
+					audioFile = *filename
+				}
+			}
+			infile := filepath.Join(*pb.Config.AudioPath, audioFile)
 			infiles = append(infiles, infile)
 		}
 	}
