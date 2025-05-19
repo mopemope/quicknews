@@ -110,6 +110,7 @@ func (pb *publisher) processFeed(ctx context.Context, f *ent.Feed, pubDate strin
 	infiles := make([]string, 0)
 	for _, article := range articles {
 		sum := article.Edges.Summary
+		sum.Edges.Feed = f
 		if sum != nil {
 			audioFile := sum.AudioFile
 			if audioFile == "" {
