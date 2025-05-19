@@ -175,16 +175,18 @@ func (r *RepositoryImpl) createNewBookmarkArticle(ctx context.Context, tx *ent.T
 	sum.Edges.Article = article   // Set the article edge for the summary
 	sum.Edges.Feed = bookmarkFeed // Set the feed edge for the summary
 
-	filename, err := summary.SaveAudioData(ctx, sum, r.config)
-	if err != nil {
-		return err
-	}
-	if filename != nil {
-		if _, err := tx.Summary.
-			UpdateOneID(sum.ID).
-			SetAudioFile(*filename).
-			Save(ctx); err != nil {
-			return errors.Wrap(err, "failed to update summary with audio file")
+	if r.config.SaveAudioData {
+		filename, err := summary.SaveAudioData(ctx, sum, r.config)
+		if err != nil {
+			return err
+		}
+		if filename != nil {
+			if _, err := tx.Summary.
+				UpdateOneID(sum.ID).
+				SetAudioFile(*filename).
+				Save(ctx); err != nil {
+				return errors.Wrap(err, "failed to update summary with audio file")
+			}
 		}
 	}
 

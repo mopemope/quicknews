@@ -18,6 +18,7 @@ type Config struct {
 	EnableEnvOverride            bool    `toml:"enable_env_override" env:"ENABLE_ENV_OVERRIDE"`
 	SpeakingRate                 float64 `toml:"speaking_rate" env:"SPEAKING_RATE"`
 	RequireConfirm               bool    `toml:"require_confirm" env:"REQUIRE_CONFIRM"`
+	SaveAudioData                bool    `toml:"save_audio_data" env:"SAVE_AUDIO_DATA"`
 	VoiceVox                     *VoiceVox
 	Prompt                       *Prompt
 	Cloudflare                   *Cloudflare

@@ -145,13 +145,16 @@ func (a *Article) processSummary(ctx context.Context, article *ent.Article) erro
 		return err
 	}
 
-	filename, err := summary.SaveAudioData(ctx, created, a.config)
-	if err != nil {
-		return err
-	}
-	if filename != nil {
-		if err := a.summaryRepos.UpdateAudioFile(ctx, created.ID, *filename); err != nil {
+	// Save audio data if configured
+	if a.config.SaveAudioData {
+		filename, err := summary.SaveAudioData(ctx, created, a.config)
+		if err != nil {
 			return err
+		}
+		if filename != nil {
+			if err := a.summaryRepos.UpdateAudioFile(ctx, created.ID, *filename); err != nil {
+				return err
+			}
 		}
 	}
 	if err := org.ExportOrg(a.config, created); err != nil {
