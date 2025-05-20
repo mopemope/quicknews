@@ -117,7 +117,7 @@ func (pb *publisher) processFeed(ctx context.Context, f *ent.Feed, pubDate strin
 		sum.Edges.Feed = f
 		audioFile := sum.AudioFile
 		if audioFile == "" {
-			if len(article.Edges.Summary.Summary) > 4500 {
+			if len(sum.Summary)+len(sum.Title) > 4500 {
 				// skip
 				slog.Warn("Skip summary because it is too long", slog.Any("title", article.Edges.Summary.Title))
 				continue

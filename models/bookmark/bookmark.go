@@ -176,7 +176,7 @@ func (r *RepositoryImpl) createNewBookmarkArticle(ctx context.Context, tx *ent.T
 	sum.Edges.Feed = bookmarkFeed // Set the feed edge for the summary
 
 	if r.config.SaveAudioData {
-		if len(article.Edges.Summary.Summary) > 4500 {
+		if len(sum.Summary)+len(sum.Title) > 4500 {
 			// skip
 			slog.Warn("Skip summary because it is too long", slog.Any("title", article.Edges.Summary.Title))
 		} else {

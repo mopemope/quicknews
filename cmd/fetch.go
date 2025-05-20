@@ -147,7 +147,7 @@ func (a *Article) processSummary(ctx context.Context, article *ent.Article) erro
 
 	//
 	if a.config.SaveAudioData {
-		if len(article.Edges.Summary.Summary) > 4500 {
+		if len(created.Summary)+len(created.Title) > 4500 {
 			// skip
 			slog.Warn("Skip summary because it is too long", slog.Any("title", article.Edges.Summary.Title))
 		} else {
