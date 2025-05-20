@@ -110,24 +110,32 @@ func (pb *publisher) processFeed(ctx context.Context, f *ent.Feed, pubDate strin
 	infiles := make([]string, 0)
 	for _, article := range articles {
 		sum := article.Edges.Summary
+		if sum == nil {
+			// skip
+			continue
+		}
 		sum.Edges.Feed = f
-		if sum != nil {
-			audioFile := sum.AudioFile
-			if audioFile == "" {
-				filename, err := summary.SaveAudioData(ctx, article.Edges.Summary, pb.Config)
-				if err != nil {
+		audioFile := sum.AudioFile
+		if audioFile == "" {
+			if len(article.Edges.Summary.Summary) > 4500 {
+				// skip
+				slog.Warn("Skip summary because it is too long", slog.Any("title", article.Edges.Summary.Title))
+				continue
+			}
+			filename, err := summary.SaveAudioData(ctx, article.Edges.Summary, pb.Config)
+			if err != nil {
+				return err
+			}
+			if filename != nil {
+				if err := pb.SummaryRepository.UpdateAudioFile(ctx, sum.ID, *filename); err != nil {
 					return err
 				}
-				if filename != nil {
-					if err := pb.SummaryRepository.UpdateAudioFile(ctx, sum.ID, *filename); err != nil {
-						return err
-					}
-					audioFile = *filename
-				}
+				audioFile = *filename
 			}
-			infile := filepath.Join(*pb.Config.AudioPath, audioFile)
-			infiles = append(infiles, infile)
 		}
+		infile := filepath.Join(*pb.Config.AudioPath, audioFile)
+		infiles = append(infiles, infile)
+
 	}
 
 	if len(infiles) == 0 {

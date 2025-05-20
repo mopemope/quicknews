@@ -209,7 +209,7 @@ func GetAudioData(ctx context.Context, sum *ent.Summary, cfg *config.Config) ([]
 			// Return the specific error if it's about credentials
 			return nil, err
 		}
-		return nil, errors.Wrap(err, "failed to synthesize text")
+		return nil, errors.Wrapf(err, "failed to synthesize text: %s", sum.Title)
 	}
 	return audioData, nil
 }

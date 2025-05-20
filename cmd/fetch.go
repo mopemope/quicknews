@@ -147,13 +147,18 @@ func (a *Article) processSummary(ctx context.Context, article *ent.Article) erro
 
 	//
 	if a.config.SaveAudioData {
-		filename, err := summary.SaveAudioData(ctx, created, a.config)
-		if err != nil {
-			return err
-		}
-		if filename != nil {
-			if err := a.summaryRepos.UpdateAudioFile(ctx, created.ID, *filename); err != nil {
+		if len(article.Edges.Summary.Summary) > 4500 {
+			// skip
+			slog.Warn("Skip summary because it is too long", slog.Any("title", article.Edges.Summary.Title))
+		} else {
+			filename, err := summary.SaveAudioData(ctx, created, a.config)
+			if err != nil {
 				return err
+			}
+			if filename != nil {
+				if err := a.summaryRepos.UpdateAudioFile(ctx, created.ID, *filename); err != nil {
+					return err
+				}
 			}
 		}
 	}

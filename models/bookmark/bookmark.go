@@ -176,16 +176,21 @@ func (r *RepositoryImpl) createNewBookmarkArticle(ctx context.Context, tx *ent.T
 	sum.Edges.Feed = bookmarkFeed // Set the feed edge for the summary
 
 	if r.config.SaveAudioData {
-		filename, err := summary.SaveAudioData(ctx, sum, r.config)
-		if err != nil {
-			return err
-		}
-		if filename != nil {
-			if _, err := tx.Summary.
-				UpdateOneID(sum.ID).
-				SetAudioFile(*filename).
-				Save(ctx); err != nil {
-				return errors.Wrap(err, "failed to update summary with audio file")
+		if len(article.Edges.Summary.Summary) > 4500 {
+			// skip
+			slog.Warn("Skip summary because it is too long", slog.Any("title", article.Edges.Summary.Title))
+		} else {
+			filename, err := summary.SaveAudioData(ctx, sum, r.config)
+			if err != nil {
+				return err
+			}
+			if filename != nil {
+				if _, err := tx.Summary.
+					UpdateOneID(sum.ID).
+					SetAudioFile(*filename).
+					Save(ctx); err != nil {
+					return errors.Wrap(err, "failed to update summary with audio file")
+				}
 			}
 		}
 	}
