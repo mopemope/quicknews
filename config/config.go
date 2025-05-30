@@ -15,6 +15,7 @@ type Config struct {
 	GeminiApiKey                 string  `toml:"gemini_api_key" env:"GEMINI_API_KEY"`
 	ExportOrg                    string  `toml:"export_org" env:"EXPORT_ORG"`
 	AudioPath                    *string `toml:"audio" env:"AUDIO"`
+	UseGeminiTTS                 bool    `toml:"use_gemini_tts" env:"USE_GEMINI_TTS"`
 	EnableEnvOverride            bool    `toml:"enable_env_override" env:"ENABLE_ENV_OVERRIDE"`
 	SpeakingRate                 float64 `toml:"speaking_rate" env:"SPEAKING_RATE"`
 	RequireConfirm               bool    `toml:"require_confirm" env:"REQUIRE_CONFIRM"`

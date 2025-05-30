@@ -27,7 +27,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	github.com/toqueteos/webbrowser v1.2.0
 	google.golang.org/api v0.232.0
-	google.golang.org/genai v1.4.0
+	google.golang.org/genai v1.7.0
 )
 
 require (

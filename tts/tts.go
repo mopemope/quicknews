@@ -58,7 +58,14 @@ func (s *SpeechOptions) DownSpeakingRate() {
 }
 
 func NewTTSEngine(config *config.Config) TTSEngine {
+	if config.UseGeminiTTS {
+		// override the engine to Gemini if UseGeminiTTS is true
+		SpeachOpt.Engine = "gemini"
+	}
+
 	switch SpeachOpt.Engine {
+	case "gemini":
+		return NewGeminiTTS(config)
 	case "google":
 		return NewGoogleTTS(config)
 	case "voicevox":
@@ -120,7 +127,7 @@ func PlayWavAudio(audioData []byte) error {
 	reader := bytes.NewReader(audioData)
 	streamer, format, err := wav.Decode(io.NopCloser(reader))
 	if err != nil {
-		return errors.Wrap(err, "failed to decode mp3 data")
+		return errors.Wrap(err, "failed to decode wave data")
 	}
 	defer func() {
 		_ = streamer.Close()
