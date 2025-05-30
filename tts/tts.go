@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"io"
+	"log/slog"
 	"sync"
 	"time"
 
@@ -61,6 +62,7 @@ func NewTTSEngine(config *config.Config) TTSEngine {
 	if config.UseGeminiTTS {
 		// override the engine to Gemini if UseGeminiTTS is true
 		SpeachOpt.Engine = "gemini"
+		slog.Debug("Using Gemini TTS engine")
 	}
 
 	switch SpeachOpt.Engine {
