@@ -21,7 +21,8 @@ import (
 )
 
 type PublishCmd struct {
-	Date string `arg:"" optional:"" name:"date" help:"Date to publish the articles in YYYY-MM-DD format. Defaults to today."`
+	Date      string `arg:"" optional:"" name:"date" help:"Date to publish the articles in YYYY-MM-DD format. Defaults to today."`
+	DateRange int    `arg:"" optional:"" name:"range" help:"Range of days to publish articles. Defaults to 3 days before the specified date."`
 	// Output string `short:"o" help:"Output file path for the joined audio."`
 }
 
@@ -60,7 +61,12 @@ func (c *PublishCmd) Run(client *ent.Client, config *config.Config) error {
 		return errors.New("Not support publish. Please set AudioPath and Podcast in config")
 	}
 
-	dateRange := 3
+	dateRange := c.DateRange
+	if dateRange == 0 {
+		// default to 3 days if not specified
+		dateRange = 3
+	}
+
 	targetDate := c.Date
 	if targetDate == "" {
 		targetDate = time.Now().Format("2006-01-02")
@@ -131,7 +137,10 @@ func (pb *publisher) processFeed(ctx context.Context, f *ent.Feed, pubDate strin
 					return err
 				}
 				audioFile = *filename
+				slog.Info("Saved audio file for summary", slog.String("file", audioFile), slog.String("title", sum.Title))
 			}
+		} else {
+			slog.Info("Get audio file for summary", slog.String("file", audioFile), slog.String("title", sum.Title))
 		}
 		infile := filepath.Join(*pb.Config.AudioPath, audioFile)
 		infiles = append(infiles, infile)
