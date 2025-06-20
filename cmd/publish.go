@@ -21,8 +21,8 @@ import (
 )
 
 type PublishCmd struct {
-	Date      string `arg:"" optional:"" name:"date" help:"Date to publish the articles in YYYY-MM-DD format. Defaults to today."`
-	DateRange int    `arg:"" optional:"" name:"range" help:"Range of days to publish articles. Defaults to 3 days before the specified date."`
+	Date  string `arg:"" optional:"" name:"date" help:"Date to publish the articles in YYYY-MM-DD format. Defaults to today."`
+	Range int    `short:"r" long:"range" help:"Range of days to publish articles. Defaults to 1 day." default:"1"`
 	// Output string `short:"o" help:"Output file path for the joined audio."`
 }
 
@@ -61,11 +61,7 @@ func (c *PublishCmd) Run(client *ent.Client, config *config.Config) error {
 		return errors.New("Not support publish. Please set AudioPath and Podcast in config")
 	}
 
-	dateRange := c.DateRange
-	if dateRange == 0 {
-		// default to 3 days if not specified
-		dateRange = 3
-	}
+	dateRange := c.Range
 
 	targetDate := c.Date
 	if targetDate == "" {
