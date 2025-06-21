@@ -5,6 +5,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/mopemope/quicknews/config"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -47,6 +48,109 @@ func TestNewClient_NoApiKey(t *testing.T) {
 	assert.Error(t, err, "NewClient should return an error when API key is missing")
 	assert.Nil(t, client, "NewClient should return a nil client when API key is missing")
 	assert.Contains(t, err.Error(), "GEMINI_API_KEY environment variable not set", "Error message should indicate missing API key")
+}
+
+// TestNewClient_NilContext tests client creation with nil context.
+func TestNewClient_NilContext(t *testing.T) {
+	config := &config.Config{
+		GeminiApiKey: "test-api-key",
+	}
+
+	// This test is to verify that the client can be created with a valid context and config
+	// The actual API key validation happens during API calls, not during client creation
+	client, err := NewClient(context.TODO(), config)
+
+	assert.NoError(t, err, "NewClient should not return an error with valid context and config")
+	assert.NotNil(t, client, "NewClient should return a non-nil client with valid context and config")
+	
+	if client != nil {
+		closeErr := client.Close()
+		assert.NoError(t, closeErr, "Close should not return an error")
+	}
+}
+
+// TestNewClient_ActualNilContext tests client creation with actual nil context.
+func TestNewClient_ActualNilContext(t *testing.T) {
+	config := &config.Config{
+		GeminiApiKey: "test-api-key",
+	}
+
+	// Use a helper function to avoid the staticcheck warning
+	testNilContext := func() context.Context {
+		return nil
+	}
+
+	client, err := NewClient(testNilContext(), config)
+
+	assert.Error(t, err, "NewClient should return an error when context is nil")
+	assert.Nil(t, client, "NewClient should return a nil client when context is nil")
+	assert.Contains(t, err.Error(), "context cannot be nil", "Error message should indicate nil context")
+}
+
+// TestSummarize_NilClient tests Summarize method with nil client.
+func TestSummarize_NilClient(t *testing.T) {
+	var client *Client = nil
+
+	result, err := client.Summarize(context.Background(), "https://example.com")
+
+	assert.Error(t, err, "Summarize should return an error when client is nil")
+	assert.Nil(t, result, "Summarize should return nil result when client is nil")
+	assert.Contains(t, err.Error(), "client is nil", "Error message should indicate nil client")
+}
+
+// TestSummarize_EmptyURL tests Summarize method with empty URL.
+func TestSummarize_EmptyURL(t *testing.T) {
+	config := &config.Config{
+		GeminiApiKey: "test-api-key",
+	}
+
+	// This will fail to create a real client, but we're testing the URL validation
+	client := &Client{
+		client: nil, // This would normally be a real genai.Client
+		config: config,
+	}
+
+	result, err := client.Summarize(context.Background(), "")
+
+	assert.Error(t, err, "Summarize should return an error when URL is empty")
+	assert.Nil(t, result, "Summarize should return nil result when URL is empty")
+	assert.Contains(t, err.Error(), "url cannot be empty", "Error message should indicate empty URL")
+}
+
+// TestParseResponse_EmptyText tests parseResponse with empty text.
+func TestParseResponse_EmptyText(t *testing.T) {
+	result, err := parseResponse("")
+
+	assert.Error(t, err, "parseResponse should return an error when text is empty")
+	assert.Nil(t, result, "parseResponse should return nil result when text is empty")
+	assert.Contains(t, err.Error(), "response text cannot be empty", "Error message should indicate empty text")
+}
+
+// TestParseResponse_InvalidFormat tests parseResponse with invalid format.
+func TestParseResponse_InvalidFormat(t *testing.T) {
+	result, err := parseResponse("Invalid format without separator")
+
+	assert.Error(t, err, "parseResponse should return an error when format is invalid")
+	assert.Nil(t, result, "parseResponse should return nil result when format is invalid")
+	assert.Contains(t, err.Error(), "response format is incorrect", "Error message should indicate incorrect format")
+}
+
+// TestParseResponse_EmptyTitle tests parseResponse with empty title.
+func TestParseResponse_EmptyTitle(t *testing.T) {
+	result, err := parseResponse("-----\nSome summary content")
+
+	assert.Error(t, err, "parseResponse should return an error when title is empty")
+	assert.Nil(t, result, "parseResponse should return nil result when title is empty")
+	assert.Contains(t, err.Error(), "parsed title is empty", "Error message should indicate empty title")
+}
+
+// TestParseResponse_EmptySummary tests parseResponse with empty summary.
+func TestParseResponse_EmptySummary(t *testing.T) {
+	result, err := parseResponse("Some Title\n-----")
+
+	assert.Error(t, err, "parseResponse should return an error when summary is empty")
+	assert.Nil(t, result, "parseResponse should return nil result when summary is empty")
+	assert.Contains(t, err.Error(), "parsed summary is empty", "Error message should indicate empty summary")
 }
 
 // TestSummarizeText tests the Summarize method of the Gemini client.

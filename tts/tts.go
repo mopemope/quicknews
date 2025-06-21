@@ -59,40 +59,62 @@ func (s *SpeechOptions) DownSpeakingRate() {
 }
 
 func NewTTSEngine(config *config.Config) TTSEngine {
+	if config == nil {
+		slog.Error("Config is nil, using default Google TTS")
+		return NewGoogleTTS(nil)
+	}
+
 	if config.UseGeminiTTS {
 		// override the engine to Gemini if UseGeminiTTS is true
 		SpeachOpt.Engine = "gemini"
 		slog.Debug("Using Gemini TTS engine")
 	}
 
+	var engine TTSEngine
 	switch SpeachOpt.Engine {
 	case "gemini":
-		return NewGeminiTTS(config)
+		engine = NewGeminiTTS(config)
 	case "google":
-		return NewGoogleTTS(config)
+		engine = NewGoogleTTS(config)
 	case "voicevox":
-		return NewVoiceVox(config)
+		engine = NewVoiceVox(config)
 	default:
+		engine = NewGoogleTTS(config)
+	}
+
+	if engine == nil {
+		slog.Error("Failed to create TTS engine, falling back to Google TTS")
 		return NewGoogleTTS(config)
 	}
+
+	return engine
 }
 
 func PlayMP3Audio(audioData []byte) error {
-	mutex.Lock()
-	defer mutex.Unlock()
-
 	if len(audioData) == 0 {
 		return ErrEmptyAudioData
 	}
 
+	mutex.Lock()
+	defer mutex.Unlock()
+
 	reader := bytes.NewReader(audioData)
+	if reader == nil {
+		return errors.New("failed to create bytes reader")
+	}
+
 	// Wrap the reader with io.NopCloser to satisfy the io.ReadCloser interface
 	streamer, format, err := mp3.Decode(io.NopCloser(reader))
 	if err != nil {
 		return errors.Wrap(err, "failed to decode mp3 data")
 	}
+	if streamer == nil {
+		return errors.New("mp3 decoder returned nil streamer")
+	}
 	defer func() {
-		_ = streamer.Close()
+		if closeErr := streamer.Close(); closeErr != nil {
+			slog.Warn("Failed to close mp3 streamer", "error", closeErr)
+		}
 	}()
 
 	if !speakerInitialized {

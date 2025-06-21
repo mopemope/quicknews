@@ -71,11 +71,33 @@ func (r *SummaryRepositoryImpl) GetFromURL(ctx context.Context, url string) (*en
 }
 
 func (r *SummaryRepositoryImpl) Save(ctx context.Context, sum *ent.Summary) (*ent.Summary, error) {
+	if r == nil {
+		return nil, errors.New("repository is nil")
+	}
+	if ctx == nil {
+		return nil, errors.New("context cannot be nil")
+	}
+	if sum == nil {
+		return nil, errors.New("summary cannot be nil")
+	}
+	if sum.Edges.Article == nil {
+		return nil, errors.New("summary must have an associated article")
+	}
+	if sum.Title == "" {
+		return nil, errors.New("summary title cannot be empty")
+	}
+	if sum.Summary == "" {
+		return nil, errors.New("summary content cannot be empty")
+	}
 
 	now := clock.Now()
 	var created *ent.Summary
 
 	err := database.WithTx(ctx, r.client, func(tx *ent.Tx) error {
+		if tx == nil {
+			return errors.New("transaction is nil")
+		}
+
 		slog.Debug("Saving summary",
 			slog.String("articleTitle", sum.Edges.Article.Title),
 			slog.String("articleUrl", sum.Edges.Article.URL),
@@ -215,17 +237,40 @@ func GetAudioData(ctx context.Context, sum *ent.Summary, cfg *config.Config) ([]
 }
 
 func SaveAudioData(ctx context.Context, sum *ent.Summary, cfg *config.Config) (*string, error) {
+	if ctx == nil {
+		return nil, errors.New("context cannot be nil")
+	}
+	if sum == nil {
+		return nil, errors.New("summary cannot be nil")
+	}
+	if cfg == nil {
+		return nil, errors.New("config cannot be nil")
+	}
+	if sum.Edges.Feed == nil {
+		return nil, errors.New("summary must have an associated feed")
+	}
+
 	dir := cfg.AudioPath
 	if dir == nil {
-		return nil, nil
+		return nil, errors.New("audio path is not configured")
 	}
+	if *dir == "" {
+		return nil, errors.New("audio path cannot be empty")
+	}
+
 	data, err := GetAudioData(ctx, sum, cfg)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to get audio data")
 	}
+	if len(data) == 0 {
+		return nil, errors.New("audio data is empty")
+	}
+
 	filename := fmt.Sprintf("%s.mp3", sum.ID.String()) // TODO check fileformat
-	if err := os.WriteFile(filepath.Join(*dir, filename), data, os.ModePerm); err != nil {
-		return nil, errors.Wrap(err, "failed to save audio data")
+	fullPath := filepath.Join(*dir, filename)
+	
+	if err := os.WriteFile(fullPath, data, os.ModePerm); err != nil {
+		return nil, errors.Wrapf(err, "failed to save audio data to %s", fullPath)
 	}
 
 	return &filename, nil

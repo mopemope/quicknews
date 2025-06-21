@@ -24,6 +24,7 @@ type Config struct {
 	Prompt                       *Prompt
 	Cloudflare                   *Cloudflare
 	Podcast                      *Podcast
+	Daemon                       *DaemonConfig
 }
 
 type Podcast struct {
@@ -48,6 +49,26 @@ type VoiceVox struct {
 
 type Prompt struct {
 	Summary *string `toml:"summary" env:"PROMPT_SUMMARY"`
+}
+
+// DaemonConfig holds daemon-specific configuration
+type DaemonConfig struct {
+	PublishEnabled         bool              `toml:"publish_enabled" env:"DAEMON_PUBLISH_ENABLED"`
+	PublishSchedule        string            `toml:"publish_schedule" env:"DAEMON_PUBLISH_SCHEDULE"`         // "daily", "weekly", "manual"
+	PublishTime            string            `toml:"publish_time" env:"DAEMON_PUBLISH_TIME"`                 // "HH:MM" format
+	PublishWeekday         string            `toml:"publish_weekday" env:"DAEMON_PUBLISH_WEEKDAY"`           // "monday", "tuesday", etc.
+	PublishRangeDays       int               `toml:"publish_range_days" env:"DAEMON_PUBLISH_RANGE_DAYS"`     // Number of days to process
+	Publish                *DaemonPublishConfig `toml:"publish"`
+}
+
+// DaemonPublishConfig holds detailed publish configuration
+type DaemonPublishConfig struct {
+	AutoGenerateMissingAudio bool   `toml:"auto_generate_missing_audio" env:"DAEMON_PUBLISH_AUTO_GENERATE_AUDIO"`
+	CleanupTempFiles         bool   `toml:"cleanup_temp_files" env:"DAEMON_PUBLISH_CLEANUP_TEMP"`
+	MaxFileSizeMB            int    `toml:"max_file_size_mb" env:"DAEMON_PUBLISH_MAX_FILE_SIZE_MB"`
+	ParallelUploads          int    `toml:"parallel_uploads" env:"DAEMON_PUBLISH_PARALLEL_UPLOADS"`
+	RetryAttempts            int    `toml:"retry_attempts" env:"DAEMON_PUBLISH_RETRY_ATTEMPTS"`
+	RetryDelay               string `toml:"retry_delay" env:"DAEMON_PUBLISH_RETRY_DELAY"`
 }
 
 func LoadConfig(path string) (*Config, error) {

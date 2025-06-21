@@ -53,7 +53,14 @@ type Client struct {
 // NewClient creates a new Gemini client.
 // It expects the Google API Key to be set in the GEMINI_API_KEY environment variable.
 func NewClient(ctx context.Context, config *config.Config) (*Client, error) {
-	apiKey := config.GeminiApiKey
+	if ctx == nil {
+		return nil, errors.New("context cannot be nil")
+	}
+
+	var apiKey string
+	if config != nil {
+		apiKey = config.GeminiApiKey
+	}
 	if apiKey == "" {
 		return nil, errors.New("GEMINI_API_KEY environment variable not set")
 	}
@@ -66,6 +73,10 @@ func NewClient(ctx context.Context, config *config.Config) (*Client, error) {
 		return nil, errors.Wrap(err, "failed to create genai client")
 	}
 
+	if client == nil {
+		return nil, errors.New("genai client creation returned nil")
+	}
+
 	return &Client{
 		client: client,
 		config: config,
@@ -74,18 +85,38 @@ func NewClient(ctx context.Context, config *config.Config) (*Client, error) {
 
 // Close closes the underlying genai.Client.
 func (c *Client) Close() error {
+	if c == nil {
+		return errors.New("client is nil")
+	}
+	if c.client == nil {
+		return errors.New("underlying genai client is nil")
+	}
 	return nil
 }
 
 // Summarize sends a request to the Gemini API to summarize the given text.
 func (c *Client) Summarize(ctx context.Context, url string) (*PageSummary, error) {
+	if c == nil {
+		return nil, errors.New("client is nil")
+	}
+	if ctx == nil {
+		return nil, errors.New("context cannot be nil")
+	}
+	if url == "" {
+		return nil, errors.New("url cannot be empty")
+	}
+	if c.client == nil {
+		return nil, errors.New("underlying genai client is nil")
+	}
 
 	summaryPrompt := defaultSummaryPrompt
-	if c.config.Prompt != nil && c.config.Prompt.Summary != nil {
+	if c.config != nil && c.config.Prompt != nil && c.config.Prompt.Summary != nil {
 		// custom prompt
 		summaryPrompt = *c.config.Prompt.Summary
 	}
 	prompt := fmt.Sprintf(summaryPrompt, url)
+
+	slog.Debug("Sending request to Gemini API", slog.String("model", ModelName), slog.String("url", url))
 
 	res, err := c.client.Models.GenerateContent(ctx,
 		ModelName,
@@ -98,43 +129,55 @@ func (c *Client) Summarize(ctx context.Context, url string) (*PageSummary, error
 			},
 		})
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to generate content")
+		return nil, errors.Wrapf(err, "failed to generate content for URL: %s", url)
 	}
-	slog.Debug("Sending request to Gemini API", slog.String("model", ModelName), slog.String("url", url))
+
+	if res == nil {
+		return nil, errors.New("gemini API returned nil response")
+	}
 
 	// Aggregate text parts from the response
 	var summary string
-	if len(res.Candidates) > 0 && len(res.Candidates[0].Content.Parts) > 0 {
+	if len(res.Candidates) > 0 && res.Candidates[0] != nil && len(res.Candidates[0].Content.Parts) > 0 {
 		for _, part := range res.Candidates[0].Content.Parts {
-			summary += part.Text
+			if part != nil {
+				summary += part.Text
+			}
 		}
 	} else {
-		slog.Warn("Gemini API returned no content or candidates")
+		slog.Warn("Gemini API returned no content or candidates", slog.String("url", url))
 		return nil, errors.New("gemini API returned no content")
 	}
 
 	summary = strings.TrimSpace(summary)
+	if summary == "" {
+		return nil, errors.New("gemini API returned empty content")
+	}
 
 	// Parse JSON if the response is wrapped in code blocks
 	result, err := parseResponse(summary)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to parse llm response")
+		return nil, errors.Wrapf(err, "failed to parse llm response for URL: %s", url)
 	}
 	if result == nil {
 		return nil, errors.New("parsed result is nil")
 	}
 
 	result.URL = url
-	slog.Debug("Successfully received summary from Gemini API")
+	slog.Debug("Successfully received summary from Gemini API", slog.String("url", url))
 	return result, nil
 }
 
 // parseResponse parses JSON from text that may be wrapped in code blocks
 func parseResponse(text string) (*PageSummary, error) {
+	if text == "" {
+		return nil, errors.New("response text cannot be empty")
+	}
+
 	text = strings.TrimSpace(text)
 	result := strings.Split(text, "-----")
 	if len(result) != 2 {
-		return nil, errors.New("response format is incorrect")
+		return nil, errors.Errorf("response format is incorrect: expected 2 parts separated by '-----', got %d parts", len(result))
 	}
 
 	// clean up the title
@@ -144,12 +187,23 @@ func parseResponse(text string) (*PageSummary, error) {
 	title = strings.ReplaceAll(title, "了解いたしました。", "")
 	title = strings.ReplaceAll(title, "*", "")
 	title = strings.ReplaceAll(title, "\n", "")
+	title = strings.TrimSpace(title)
+
+	if title == "" {
+		return nil, errors.New("parsed title is empty")
+	}
 
 	sum := strings.ReplaceAll(result[1], "\n\n", "\n")
+	sum = strings.TrimSpace(sum)
+
+	if sum == "" {
+		return nil, errors.New("parsed summary is empty")
+	}
+
 	summaryResponse := PageSummary{
 		URL:     "",
-		Title:   strings.TrimSpace(title),
-		Summary: strings.TrimSpace(sum),
+		Title:   title,
+		Summary: sum,
 	}
 	return &summaryResponse, nil
 }
