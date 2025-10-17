@@ -12,7 +12,7 @@ import (
 	"google.golang.org/genai"
 )
 
-var ModelName = "gemini-2.5-flash-preview-04-17"
+const defaultModelName = "gemini-2.5-flash"
 
 const defaultSummaryPrompt = `
 あなたはWebサイトのコンテンツを詳しく解説するアシスタントです。
@@ -87,8 +87,9 @@ func (c *Client) Summarize(ctx context.Context, url string) (*PageSummary, error
 	}
 	prompt := fmt.Sprintf(summaryPrompt, url)
 
+	modelName := c.modelName()
 	res, err := c.client.Models.GenerateContent(ctx,
-		ModelName,
+		modelName,
 		genai.Text(prompt),
 		&genai.GenerateContentConfig{
 			Tools: []*genai.Tool{
@@ -100,7 +101,7 @@ func (c *Client) Summarize(ctx context.Context, url string) (*PageSummary, error
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to generate content")
 	}
-	slog.Debug("Sending request to Gemini API", slog.String("model", ModelName), slog.String("url", url))
+	slog.Debug("Sending request to Gemini API", slog.String("model", modelName), slog.String("url", url))
 
 	// Aggregate text parts from the response
 	var summary string
@@ -127,6 +128,13 @@ func (c *Client) Summarize(ctx context.Context, url string) (*PageSummary, error
 	result.URL = url
 	slog.Debug("Successfully received summary from Gemini API")
 	return result, nil
+}
+
+func (c *Client) modelName() string {
+	if c.config != nil && c.config.GeminiModel != "" {
+		return c.config.GeminiModel
+	}
+	return defaultModelName
 }
 
 // parseResponse parses JSON from text that may be wrapped in code blocks

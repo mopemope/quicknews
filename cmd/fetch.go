@@ -147,9 +147,13 @@ func (a *Article) processSummary(ctx context.Context, article *ent.Article) erro
 
 	//
 	if a.config.SaveAudioData {
-		if len(created.Summary)+len(created.Title) > 4500 {
+		totalLen := len(created.Summary) + len(created.Title)
+		if totalLen > 5000 {
 			// skip
-			slog.Warn("Skip summary because it is too long", slog.Any("title", article.Edges.Summary.Title))
+			slog.Warn("Skip summary because it is too long",
+				slog.Any("total length", totalLen),
+				slog.Any("title", pageSummary.Title),
+			)
 		} else {
 			filename, err := summary.SaveAudioData(ctx, created, a.config)
 			if err != nil {

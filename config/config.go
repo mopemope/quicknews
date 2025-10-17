@@ -13,6 +13,7 @@ type Config struct {
 	DB                           string  `toml:"db" env:"DB"`
 	GoogleApplicationCredentials string  `toml:"google_application_credentials" env:"GOOGLE_APPLICATION_CREDENTIALS"`
 	GeminiApiKey                 string  `toml:"gemini_api_key" env:"GEMINI_API_KEY"`
+	GeminiModel                  string  `toml:"gemini_model" env:"GEMINI_MODEL"`
 	ExportOrg                    string  `toml:"export_org" env:"EXPORT_ORG"`
 	AudioPath                    *string `toml:"audio" env:"AUDIO"`
 	UseGeminiTTS                 bool    `toml:"use_gemini_tts" env:"USE_GEMINI_TTS"`
