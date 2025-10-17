@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"os"
 	"strings"
 
 	"github.com/cockroachdb/errors"
@@ -51,9 +52,15 @@ type Client struct {
 }
 
 // NewClient creates a new Gemini client.
-// It expects the Google API Key to be set in the GEMINI_API_KEY environment variable.
-func NewClient(ctx context.Context, config *config.Config) (*Client, error) {
-	apiKey := config.GeminiApiKey
+// It expects the Google API Key to be set in the GEMINI_API_KEY environment variable if not provided via config.
+func NewClient(ctx context.Context, cfg *config.Config) (*Client, error) {
+	var apiKey string
+	if cfg != nil {
+		apiKey = cfg.GeminiApiKey
+	}
+	if apiKey == "" {
+		apiKey = os.Getenv("GEMINI_API_KEY")
+	}
 	if apiKey == "" {
 		return nil, errors.New("GEMINI_API_KEY environment variable not set")
 	}
@@ -66,9 +73,13 @@ func NewClient(ctx context.Context, config *config.Config) (*Client, error) {
 		return nil, errors.Wrap(err, "failed to create genai client")
 	}
 
+	if cfg == nil {
+		cfg = &config.Config{}
+	}
+
 	return &Client{
 		client: client,
-		config: config,
+		config: cfg,
 	}, nil
 }
 
