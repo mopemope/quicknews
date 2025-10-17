@@ -24,6 +24,7 @@ type Config struct {
 	Prompt                       *Prompt
 	Cloudflare                   *Cloudflare
 	Podcast                      *Podcast
+	SourcePath                   string `toml:"-" env:"-"`
 }
 
 type Podcast struct {
@@ -72,5 +73,6 @@ func LoadConfig(path string) (*Config, error) {
 		}
 		config.DB = filepath.Join(home, "quicknews.db")
 	}
+	config.SourcePath = path
 	return &config, nil
 }
