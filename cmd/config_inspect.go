@@ -101,9 +101,9 @@ func sanitizeConfigEntries(cfg *config.Config, showSecrets bool) []configEntry {
 
 func printConfigTable(entries []configEntry) {
 	tw := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-	fmt.Fprintln(tw, "KEY\tVALUE")
+	_, _ = fmt.Fprintln(tw, "KEY\tVALUE")
 	for _, entry := range entries {
-		fmt.Fprintf(tw, "%s\t%s\n", entry.key, formatValue(entry.value))
+		_, _ = fmt.Fprintf(tw, "%s\t%s\n", entry.key, formatValue(entry.value))
 	}
 	_ = tw.Flush()
 }
@@ -133,7 +133,7 @@ func maskIfNeeded(field string, value string, showSecrets bool) any {
 		return value
 	}
 	lower := strings.ToLower(field)
-	if !(strings.Contains(lower, "key") || strings.Contains(lower, "secret") || strings.Contains(lower, "credential")) {
+	if !strings.Contains(lower, "key") && !strings.Contains(lower, "secret") && !strings.Contains(lower, "credential") {
 		return value
 	}
 	if len(value) <= 4 {

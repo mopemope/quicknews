@@ -20,6 +20,7 @@ import (
 
 type Repository interface {
 	AddBookmark(ctx context.Context, url string) error
+	GetBookmarkFeed(ctx context.Context) (*ent.Feed, error)
 }
 
 type RepositoryImpl struct {

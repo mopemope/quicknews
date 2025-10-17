@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go/texttospeech v1.13.0
 	entgo.io/ent v0.14.4
 	github.com/BurntSushi/toml v1.5.0
+	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/alecthomas/kong v1.10.0
 	github.com/alitto/pond/v2 v2.3.4
 	github.com/aws/aws-sdk-go-v2 v1.36.3
