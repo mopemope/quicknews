@@ -23,4 +23,4 @@ ExecStart=%h/go/bin/quicknews publish
 # EnvironmentFile=%h/.config/quicknews/env
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
