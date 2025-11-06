@@ -1,0 +1,26 @@
+[Unit]
+Description=Quicknews fetch and publish job
+After=network.target
+
+[Service]
+Type=oneshot
+
+# --- EDIT THESE VALUES ---
+# Set the user and group to run the command as.
+#User=
+#Group=
+# Set the working directory to your project root.
+#WorkingDirectory=%h
+# Set the full path to the quicknews executable.
+ExecStart=%h/go/bin/quicknews fetch
+ExecStart=%h/go/bin/quicknews publish
+
+# If you need to set environment variables (e.g., API keys),
+# you can create a file and load it using EnvironmentFile.
+# For example, create a file at %h/.config/quicknews/env with:
+# GEMINI_API_KEY=YOUR_API_KEY
+# Then uncomment the following line:
+# EnvironmentFile=%h/.config/quicknews/env
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,11 @@
+[Unit]
+Description=Run quicknews fetch and publish daily
+
+[Timer]
+# Executes daily at midnight. 
+# You can change this to a specific time, e.g., OnCalendar=*-*-* 08:00:00
+OnCalendar=*-*-* 06:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
