@@ -41,6 +41,7 @@ After building, you can run the program with the following command:
   - `-s`, `--speaking-rate <rate>`: Sets the speaking rate for TTS (default: 1.3, or value from config).
   - `--voicevox`: Uses the VoiceVox engine for TTS (requires VoiceVox configuration).
   - `--speaker <id>`: Sets the VoiceVox speaker ID (default: 10, or value from config).
+  - `--non-interactive`: Run in non-interactive mode without TUI (useful for systemd services).
 - `play`: Read aloud unlistened summaries.
   - `--no-fetch`: Disables background fetching of articles while playing audio.
   - `--date <YYYY-MM-DD>`: Plays summaries published on the specified date.
@@ -63,6 +64,90 @@ These options can be used with any subcommand:
 - `-d`, `--debug`: Enable debug logging.
 
 For detailed options for each subcommand, refer to `./quicknews <subcommand> --help`.
+
+## Running as a Service
+
+The following commands can run in non-TTY environments such as systemd services:
+
+- `read` - Requires `--non-interactive` flag when running without TTY
+- `play` - Automatically detects TTY absence and runs in non-interactive mode
+- `fetch` - Automatically detects TTY absence and runs in non-interactive mode  
+- `publish` - Console output only, works without TTY
+- `add`, `import`, `bookmark`, `export-audio` - All work without TTY
+
+### Examples for systemd services:
+
+For continuous feed fetching with UI (requires real TTY):
+```
+[Unit]
+Description=Quicknews TUI Service
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+ExecStart=/path/to/quicknews read --interval=1h
+Restart=always
+RestartSec=10
+Environment=HOME=%h
+TTYPath=/dev/tty1
+TTYReset=yes
+
+[Install]
+WantedBy=graphical-session.target
+```
+
+For background feed fetching (no TTY needed):
+```
+[Unit]
+Description=Quicknews Background Fetch Service
+After=network.target
+Wants=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/path/to/quicknews fetch
+RemainAfterExit=yes
+Environment=HOME=%h
+
+[Install]
+WantedBy=timers.target
+```
+
+For systemd timer-based fetching (recommended for periodic background fetching):
+1. Create `~/.config/systemd/user/quicknews-fetch.service`:
+```
+[Unit]
+Description=Quicknews Fetch Articles
+Wants=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/path/to/quicknews fetch
+Environment=HOME=%h
+```
+
+2. Create `~/.config/systemd/user/quicknews-fetch.timer`:
+```
+[Unit]
+Description=Run quicknews fetch every hour
+Requires=quicknews-fetch.service
+
+[Timer]
+OnBootSec=10min
+OnUnitActiveSec=1h
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+```
+
+3. Enable and start the timer:
+```bash
+systemctl --user daemon-reload
+systemctl --user enable quicknews-fetch.timer
+systemctl --user start quicknews-fetch.timer
+```
 
 ## Configuration
 

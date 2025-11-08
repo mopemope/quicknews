@@ -228,22 +228,31 @@ func (cmd *FetchCmd) Run(client *ent.Client, config *config.Config) error {
 
 		itemCount := len(items)
 		if itemCount > 0 {
-			if itemCount > 50 {
-				if _, err := tea.NewProgram(progress.NewParallelProgressModel(items, "Fetching", 5)).Run(); err != nil {
-					return errors.Wrap(err, "error running progress")
+			if IsTTY() {
+				if itemCount > 50 {
+					if _, err := tea.NewProgram(progress.NewParallelProgressModel(items, "Fetching", 5)).Run(); err != nil {
+						return errors.Wrap(err, "error running progress")
+					}
+				} else {
+					if _, err := tea.NewProgram(progress.NewSingleProgressModel(ctx,
+						&progress.Config{
+							Client:        client,
+							Config:        config,
+							Items:         items,
+							ProgressLabel: "Fetching",
+						})).Run(); err != nil {
+						return errors.Wrap(err, "error running progress")
+					}
 				}
 			} else {
-				if _, err := tea.NewProgram(progress.NewSingleProgressModel(ctx,
-					&progress.Config{
-						Client:        client,
-						Config:        config,
-						Items:         items,
-						ProgressLabel: "Fetching",
-					})).Run(); err != nil {
-					return errors.Wrap(err, "error running progress")
+				// Non-TTY mode: Process items sequentially without UI
+				slog.Info("Processing items in non-TTY mode", "count", itemCount)
+				for i, item := range items {
+					slog.Info("Processing item", "progress", fmt.Sprintf("%d/%d", i+1, itemCount), "title", item.DisplayName())
+					item.Process()
 				}
+				slog.Info("Finished processing items", "count", itemCount)
 			}
-
 		} else {
 			fmt.Println("No new items to process.")
 		}

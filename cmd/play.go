@@ -93,14 +93,24 @@ func (a *PlayCmd) Run(client *ent.Client, config *config.Config) error {
 	}
 
 	if len(items) > 0 {
-		if _, err := tea.NewProgram(progress.NewSingleProgressModel(ctx,
-			&progress.Config{
-				Client:        client,
-				Config:        config,
-				Items:         items,
-				ProgressLabel: "Playing",
-			})).Run(); err != nil {
-			return errors.Wrap(err, "error running progress")
+		if IsTTY() {
+			if _, err := tea.NewProgram(progress.NewSingleProgressModel(ctx,
+				&progress.Config{
+					Client:        client,
+					Config:        config,
+					Items:         items,
+					ProgressLabel: "Playing",
+				})).Run(); err != nil {
+				return errors.Wrap(err, "error running progress")
+			}
+		} else {
+			// Non-TTY mode: Process items sequentially without UI
+			slog.Info("Playing items in non-TTY mode", "count", len(items))
+			for i, item := range items {
+				slog.Info("Playing item", "progress", fmt.Sprintf("%d/%d", i+1, len(items)), "title", item.DisplayName())
+				item.Process()
+			}
+			slog.Info("Finished playing items", "count", len(items))
 		}
 	} else {
 		fmt.Println("No new items to process.")
