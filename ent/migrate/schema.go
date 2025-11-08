@@ -59,7 +59,7 @@ var (
 		{Name: "title", Type: field.TypeString, Nullable: true},
 		{Name: "summary", Type: field.TypeString, Nullable: true},
 		{Name: "readed", Type: field.TypeBool, Default: false},
-		{Name: "listend", Type: field.TypeBool, Default: false},
+		{Name: "listened", Type: field.TypeBool, Default: false},
 		{Name: "audio_file", Type: field.TypeString, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "article_summary", Type: field.TypeUUID, Unique: true, Nullable: true},

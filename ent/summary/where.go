@@ -76,9 +76,9 @@ func Readed(v bool) predicate.Summary {
 	return predicate.Summary(sql.FieldEQ(FieldReaded, v))
 }
 
-// Listend applies equality check predicate on the "listend" field. It's identical to ListendEQ.
-func Listend(v bool) predicate.Summary {
-	return predicate.Summary(sql.FieldEQ(FieldListend, v))
+// Listened applies equality check predicate on the "listened" field. It's identical to ListenedEQ.
+func Listened(v bool) predicate.Summary {
+	return predicate.Summary(sql.FieldEQ(FieldListened, v))
 }
 
 // AudioFile applies equality check predicate on the "audio_file" field. It's identical to AudioFileEQ.
@@ -316,14 +316,14 @@ func ReadedNEQ(v bool) predicate.Summary {
 	return predicate.Summary(sql.FieldNEQ(FieldReaded, v))
 }
 
-// ListendEQ applies the EQ predicate on the "listend" field.
-func ListendEQ(v bool) predicate.Summary {
-	return predicate.Summary(sql.FieldEQ(FieldListend, v))
+// ListenedEQ applies the EQ predicate on the "listened" field.
+func ListenedEQ(v bool) predicate.Summary {
+	return predicate.Summary(sql.FieldEQ(FieldListened, v))
 }
 
-// ListendNEQ applies the NEQ predicate on the "listend" field.
-func ListendNEQ(v bool) predicate.Summary {
-	return predicate.Summary(sql.FieldNEQ(FieldListend, v))
+// ListenedNEQ applies the NEQ predicate on the "listened" field.
+func ListenedNEQ(v bool) predicate.Summary {
+	return predicate.Summary(sql.FieldNEQ(FieldListened, v))
 }
 
 // AudioFileEQ applies the EQ predicate on the "audio_file" field.

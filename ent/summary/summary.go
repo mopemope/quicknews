@@ -23,8 +23,8 @@ const (
 	FieldSummary = "summary"
 	// FieldReaded holds the string denoting the readed field in the database.
 	FieldReaded = "readed"
-	// FieldListend holds the string denoting the listend field in the database.
-	FieldListend = "listend"
+	// FieldListened holds the string denoting the listened field in the database.
+	FieldListened = "listened"
 	// FieldAudioFile holds the string denoting the audio_file field in the database.
 	FieldAudioFile = "audio_file"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
@@ -58,7 +58,7 @@ var Columns = []string{
 	FieldTitle,
 	FieldSummary,
 	FieldReaded,
-	FieldListend,
+	FieldListened,
 	FieldAudioFile,
 	FieldCreatedAt,
 }
@@ -90,8 +90,8 @@ var (
 	URLValidator func(string) error
 	// DefaultReaded holds the default value on creation for the "readed" field.
 	DefaultReaded bool
-	// DefaultListend holds the default value on creation for the "listend" field.
-	DefaultListend bool
+	// DefaultListened holds the default value on creation for the "listened" field.
+	DefaultListened bool
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
 	// DefaultID holds the default value on creation for the "id" field.
@@ -126,9 +126,9 @@ func ByReaded(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldReaded, opts...).ToFunc()
 }
 
-// ByListend orders the results by the listend field.
-func ByListend(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldListend, opts...).ToFunc()
+// ByListened orders the results by the listened field.
+func ByListened(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldListened, opts...).ToFunc()
 }
 
 // ByAudioFile orders the results by the audio_file field.

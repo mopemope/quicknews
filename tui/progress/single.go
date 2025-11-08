@@ -140,12 +140,14 @@ func (m singleProgressModel) View() string {
 
 	spin := m.spinner.View() + " "
 	prog := m.progress.View()
-	cellsAvail := max(0, m.width-lipgloss.Width(spin+prog+itemCount))
+	widthAvailable := m.width - lipgloss.Width(spin+prog+itemCount)
+	cellsAvail := max(widthAvailable, 0)
 
 	itemName := currentPkgNameStyle.Render(m.items[m.index].DisplayName())
 	info := lipgloss.NewStyle().MaxWidth(cellsAvail).Render(m.progressLabel + " " + itemName)
 
-	cellsRemaining := max(0, m.width-lipgloss.Width(spin+info+prog+itemCount))
+	widthRemaining := m.width - lipgloss.Width(spin+info+prog+itemCount)
+	cellsRemaining := max(widthRemaining, 0)
 	gap := strings.Repeat(" ", cellsRemaining)
 
 	return spin + info + gap + prog + itemCount

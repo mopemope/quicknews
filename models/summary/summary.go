@@ -107,7 +107,7 @@ func (r *SummaryRepositoryImpl) Save(ctx context.Context, sum *ent.Summary) (*en
 func (r *SummaryRepositoryImpl) GetUnlistened(ctx context.Context, date *string) ([]*ent.Summary, error) {
 	q := r.client.Summary.
 		Query().
-		Where(summary.Listend(false)).
+		Where(summary.Listened(false)).
 		WithFeed().
 		WithArticle()
 
@@ -135,7 +135,7 @@ func (r *SummaryRepositoryImpl) UpdateListened(ctx context.Context, sum *ent.Sum
 	return database.WithTx(ctx, r.client, func(tx *ent.Tx) error {
 		_, err := tx.Summary.
 			UpdateOneID(sum.ID).
-			SetListend(true).
+			SetListened(true).
 			Save(ctx)
 		if err != nil {
 			return errors.Wrap(err, "failed to update summary as listened")

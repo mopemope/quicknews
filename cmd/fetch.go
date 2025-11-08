@@ -129,11 +129,11 @@ func (a *Article) processSummary(ctx context.Context, article *ent.Article) erro
 	}
 
 	sum := &ent.Summary{
-		URL:     url,
-		Title:   pageSummary.Title,
-		Summary: pageSummary.Summary,
-		Readed:  false,
-		Listend: false,
+		URL:      url,
+		Title:    pageSummary.Title,
+		Summary:  pageSummary.Summary,
+		Readed:   false,
+		Listened: false,
 	}
 	sum.Edges.Article = article
 	sum.Edges.Feed = article.Edges.Feed

@@ -147,11 +147,11 @@ func (r *RepositoryImpl) createNewBookmarkArticle(ctx context.Context, tx *ent.T
 	}
 
 	sum := &ent.Summary{
-		URL:     article.URL,
-		Title:   pageSummary.Title,
-		Summary: pageSummary.Summary,
-		Readed:  false,
-		Listend: false,
+		URL:      article.URL,
+		Title:    pageSummary.Title,
+		Summary:  pageSummary.Summary,
+		Readed:   false,
+		Listened: false,
 		Edges: ent.SummaryEdges{ // Set edges directly
 			Article: article,
 			Feed:    bookmarkFeed,

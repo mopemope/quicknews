@@ -30,7 +30,7 @@ type Summary struct {
 	// Read status
 	Readed bool `json:"readed,omitempty"`
 	// Listened status
-	Listend bool `json:"listend,omitempty"`
+	Listened bool `json:"listened,omitempty"`
 	// Audio file path
 	AudioFile string `json:"audio_file,omitempty"`
 	// Time the feed was added
@@ -81,7 +81,7 @@ func (*Summary) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case summary.FieldReaded, summary.FieldListend:
+		case summary.FieldReaded, summary.FieldListened:
 			values[i] = new(sql.NullBool)
 		case summary.FieldURL, summary.FieldTitle, summary.FieldSummary, summary.FieldAudioFile:
 			values[i] = new(sql.NullString)
@@ -138,11 +138,11 @@ func (s *Summary) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				s.Readed = value.Bool
 			}
-		case summary.FieldListend:
+		case summary.FieldListened:
 			if value, ok := values[i].(*sql.NullBool); !ok {
-				return fmt.Errorf("unexpected type %T for field listend", values[i])
+				return fmt.Errorf("unexpected type %T for field listened", values[i])
 			} else if value.Valid {
-				s.Listend = value.Bool
+				s.Listened = value.Bool
 			}
 		case summary.FieldAudioFile:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -228,8 +228,8 @@ func (s *Summary) String() string {
 	builder.WriteString("readed=")
 	builder.WriteString(fmt.Sprintf("%v", s.Readed))
 	builder.WriteString(", ")
-	builder.WriteString("listend=")
-	builder.WriteString(fmt.Sprintf("%v", s.Listend))
+	builder.WriteString("listened=")
+	builder.WriteString(fmt.Sprintf("%v", s.Listened))
 	builder.WriteString(", ")
 	builder.WriteString("audio_file=")
 	builder.WriteString(s.AudioFile)

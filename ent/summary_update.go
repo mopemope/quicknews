@@ -98,16 +98,16 @@ func (su *SummaryUpdate) SetNillableReaded(b *bool) *SummaryUpdate {
 	return su
 }
 
-// SetListend sets the "listend" field.
-func (su *SummaryUpdate) SetListend(b bool) *SummaryUpdate {
-	su.mutation.SetListend(b)
+// SetListened sets the "listened" field.
+func (su *SummaryUpdate) SetListened(b bool) *SummaryUpdate {
+	su.mutation.SetListened(b)
 	return su
 }
 
-// SetNillableListend sets the "listend" field if the given value is not nil.
-func (su *SummaryUpdate) SetNillableListend(b *bool) *SummaryUpdate {
+// SetNillableListened sets the "listened" field if the given value is not nil.
+func (su *SummaryUpdate) SetNillableListened(b *bool) *SummaryUpdate {
 	if b != nil {
-		su.SetListend(*b)
+		su.SetListened(*b)
 	}
 	return su
 }
@@ -249,8 +249,8 @@ func (su *SummaryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := su.mutation.Readed(); ok {
 		_spec.SetField(summary.FieldReaded, field.TypeBool, value)
 	}
-	if value, ok := su.mutation.Listend(); ok {
-		_spec.SetField(summary.FieldListend, field.TypeBool, value)
+	if value, ok := su.mutation.Listened(); ok {
+		_spec.SetField(summary.FieldListened, field.TypeBool, value)
 	}
 	if value, ok := su.mutation.AudioFile(); ok {
 		_spec.SetField(summary.FieldAudioFile, field.TypeString, value)
@@ -404,16 +404,16 @@ func (suo *SummaryUpdateOne) SetNillableReaded(b *bool) *SummaryUpdateOne {
 	return suo
 }
 
-// SetListend sets the "listend" field.
-func (suo *SummaryUpdateOne) SetListend(b bool) *SummaryUpdateOne {
-	suo.mutation.SetListend(b)
+// SetListened sets the "listened" field.
+func (suo *SummaryUpdateOne) SetListened(b bool) *SummaryUpdateOne {
+	suo.mutation.SetListened(b)
 	return suo
 }
 
-// SetNillableListend sets the "listend" field if the given value is not nil.
-func (suo *SummaryUpdateOne) SetNillableListend(b *bool) *SummaryUpdateOne {
+// SetNillableListened sets the "listened" field if the given value is not nil.
+func (suo *SummaryUpdateOne) SetNillableListened(b *bool) *SummaryUpdateOne {
 	if b != nil {
-		suo.SetListend(*b)
+		suo.SetListened(*b)
 	}
 	return suo
 }
@@ -585,8 +585,8 @@ func (suo *SummaryUpdateOne) sqlSave(ctx context.Context) (_node *Summary, err e
 	if value, ok := suo.mutation.Readed(); ok {
 		_spec.SetField(summary.FieldReaded, field.TypeBool, value)
 	}
-	if value, ok := suo.mutation.Listend(); ok {
-		_spec.SetField(summary.FieldListend, field.TypeBool, value)
+	if value, ok := suo.mutation.Listened(); ok {
+		_spec.SetField(summary.FieldListened, field.TypeBool, value)
 	}
 	if value, ok := suo.mutation.AudioFile(); ok {
 		_spec.SetField(summary.FieldAudioFile, field.TypeString, value)

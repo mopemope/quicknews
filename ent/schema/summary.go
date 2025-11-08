@@ -31,7 +31,7 @@ func (Summary) Fields() []ent.Field {
 		field.Bool("readed").
 			Default(false).
 			Comment("Read status"),
-		field.Bool("listend").
+		field.Bool("listened").
 			Default(false).
 			Comment("Listened status"),
 		field.String("audio_file").

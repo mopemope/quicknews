@@ -46,11 +46,11 @@ func TestSummaryRepository(t *testing.T) {
 
 	// Test Save
 	summary := &ent.Summary{
-		URL:     "https://example.com/article",
-		Title:   "Test Summary",
-		Summary: "This is a test summary",
-		Readed:  false,
-		Listend: false,
+		URL:      "https://example.com/article",
+		Title:    "Test Summary",
+		Summary:  "This is a test summary",
+		Readed:   false,
+		Listened: false,
 	}
 	summary.Edges.Article = article
 	summary.Edges.Feed = feed
@@ -86,7 +86,7 @@ func TestSummaryRepository(t *testing.T) {
 	// Verify the summary was updated
 	updatedSummary2, err := repo.GetFromURL(ctx, "https://example.com/article")
 	require.NoError(t, err)
-	assert.True(t, updatedSummary2.Listend)
+	assert.True(t, updatedSummary2.Listened)
 
 	// Test GetUnlistened
 	unlistenedSummaries, err := repo.GetUnlistened(ctx, nil)
@@ -156,11 +156,11 @@ func TestSummaryRepository_GetUnlistened_WithDate(t *testing.T) {
 
 	// Create a summary that is not listened
 	summary := &ent.Summary{
-		URL:     "https://example.com/article",
-		Title:   "Test Summary",
-		Summary: "This is a test summary",
-		Readed:  false,
-		Listend: false,
+		URL:      "https://example.com/article",
+		Title:    "Test Summary",
+		Summary:  "This is a test summary",
+		Readed:   false,
+		Listened: false,
 	}
 	summary.Edges.Article = article
 	summary.Edges.Feed = feed

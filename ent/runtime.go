@@ -76,10 +76,10 @@ func init() {
 	summaryDescReaded := summaryFields[4].Descriptor()
 	// summary.DefaultReaded holds the default value on creation for the readed field.
 	summary.DefaultReaded = summaryDescReaded.Default.(bool)
-	// summaryDescListend is the schema descriptor for listend field.
-	summaryDescListend := summaryFields[5].Descriptor()
-	// summary.DefaultListend holds the default value on creation for the listend field.
-	summary.DefaultListend = summaryDescListend.Default.(bool)
+	// summaryDescListened is the schema descriptor for listened field.
+	summaryDescListened := summaryFields[5].Descriptor()
+	// summary.DefaultListened holds the default value on creation for the listened field.
+	summary.DefaultListened = summaryDescListened.Default.(bool)
 	// summaryDescCreatedAt is the schema descriptor for created_at field.
 	summaryDescCreatedAt := summaryFields[7].Descriptor()
 	// summary.DefaultCreatedAt holds the default value on creation for the created_at field.

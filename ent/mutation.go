@@ -1866,7 +1866,7 @@ type SummaryMutation struct {
 	title          *string
 	summary        *string
 	readed         *bool
-	listend        *bool
+	listened       *bool
 	audio_file     *string
 	created_at     *time.Time
 	clearedFields  map[string]struct{}
@@ -2153,40 +2153,40 @@ func (m *SummaryMutation) ResetReaded() {
 	m.readed = nil
 }
 
-// SetListend sets the "listend" field.
-func (m *SummaryMutation) SetListend(b bool) {
-	m.listend = &b
+// SetListened sets the "listened" field.
+func (m *SummaryMutation) SetListened(b bool) {
+	m.listened = &b
 }
 
-// Listend returns the value of the "listend" field in the mutation.
-func (m *SummaryMutation) Listend() (r bool, exists bool) {
-	v := m.listend
+// Listened returns the value of the "listened" field in the mutation.
+func (m *SummaryMutation) Listened() (r bool, exists bool) {
+	v := m.listened
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldListend returns the old "listend" field's value of the Summary entity.
+// OldListened returns the old "listened" field's value of the Summary entity.
 // If the Summary object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *SummaryMutation) OldListend(ctx context.Context) (v bool, err error) {
+func (m *SummaryMutation) OldListened(ctx context.Context) (v bool, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldListend is only allowed on UpdateOne operations")
+		return v, errors.New("OldListened is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldListend requires an ID field in the mutation")
+		return v, errors.New("OldListened requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldListend: %w", err)
+		return v, fmt.Errorf("querying old value for OldListened: %w", err)
 	}
-	return oldValue.Listend, nil
+	return oldValue.Listened, nil
 }
 
-// ResetListend resets all changes to the "listend" field.
-func (m *SummaryMutation) ResetListend() {
-	m.listend = nil
+// ResetListened resets all changes to the "listened" field.
+func (m *SummaryMutation) ResetListened() {
+	m.listened = nil
 }
 
 // SetAudioFile sets the "audio_file" field.
@@ -2399,8 +2399,8 @@ func (m *SummaryMutation) Fields() []string {
 	if m.readed != nil {
 		fields = append(fields, summary.FieldReaded)
 	}
-	if m.listend != nil {
-		fields = append(fields, summary.FieldListend)
+	if m.listened != nil {
+		fields = append(fields, summary.FieldListened)
 	}
 	if m.audio_file != nil {
 		fields = append(fields, summary.FieldAudioFile)
@@ -2424,8 +2424,8 @@ func (m *SummaryMutation) Field(name string) (ent.Value, bool) {
 		return m.Summary()
 	case summary.FieldReaded:
 		return m.Readed()
-	case summary.FieldListend:
-		return m.Listend()
+	case summary.FieldListened:
+		return m.Listened()
 	case summary.FieldAudioFile:
 		return m.AudioFile()
 	case summary.FieldCreatedAt:
@@ -2447,8 +2447,8 @@ func (m *SummaryMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldSummary(ctx)
 	case summary.FieldReaded:
 		return m.OldReaded(ctx)
-	case summary.FieldListend:
-		return m.OldListend(ctx)
+	case summary.FieldListened:
+		return m.OldListened(ctx)
 	case summary.FieldAudioFile:
 		return m.OldAudioFile(ctx)
 	case summary.FieldCreatedAt:
@@ -2490,12 +2490,12 @@ func (m *SummaryMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetReaded(v)
 		return nil
-	case summary.FieldListend:
+	case summary.FieldListened:
 		v, ok := value.(bool)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetListend(v)
+		m.SetListened(v)
 		return nil
 	case summary.FieldAudioFile:
 		v, ok := value.(string)
@@ -2593,8 +2593,8 @@ func (m *SummaryMutation) ResetField(name string) error {
 	case summary.FieldReaded:
 		m.ResetReaded()
 		return nil
-	case summary.FieldListend:
-		m.ResetListend()
+	case summary.FieldListened:
+		m.ResetListened()
 		return nil
 	case summary.FieldAudioFile:
 		m.ResetAudioFile()

@@ -71,16 +71,16 @@ func (sc *SummaryCreate) SetNillableReaded(b *bool) *SummaryCreate {
 	return sc
 }
 
-// SetListend sets the "listend" field.
-func (sc *SummaryCreate) SetListend(b bool) *SummaryCreate {
-	sc.mutation.SetListend(b)
+// SetListened sets the "listened" field.
+func (sc *SummaryCreate) SetListened(b bool) *SummaryCreate {
+	sc.mutation.SetListened(b)
 	return sc
 }
 
-// SetNillableListend sets the "listend" field if the given value is not nil.
-func (sc *SummaryCreate) SetNillableListend(b *bool) *SummaryCreate {
+// SetNillableListened sets the "listened" field if the given value is not nil.
+func (sc *SummaryCreate) SetNillableListened(b *bool) *SummaryCreate {
 	if b != nil {
-		sc.SetListend(*b)
+		sc.SetListened(*b)
 	}
 	return sc
 }
@@ -196,9 +196,9 @@ func (sc *SummaryCreate) defaults() {
 		v := summary.DefaultReaded
 		sc.mutation.SetReaded(v)
 	}
-	if _, ok := sc.mutation.Listend(); !ok {
-		v := summary.DefaultListend
-		sc.mutation.SetListend(v)
+	if _, ok := sc.mutation.Listened(); !ok {
+		v := summary.DefaultListened
+		sc.mutation.SetListened(v)
 	}
 	if _, ok := sc.mutation.CreatedAt(); !ok {
 		v := summary.DefaultCreatedAt()
@@ -223,8 +223,8 @@ func (sc *SummaryCreate) check() error {
 	if _, ok := sc.mutation.Readed(); !ok {
 		return &ValidationError{Name: "readed", err: errors.New(`ent: missing required field "Summary.readed"`)}
 	}
-	if _, ok := sc.mutation.Listend(); !ok {
-		return &ValidationError{Name: "listend", err: errors.New(`ent: missing required field "Summary.listend"`)}
+	if _, ok := sc.mutation.Listened(); !ok {
+		return &ValidationError{Name: "listened", err: errors.New(`ent: missing required field "Summary.listened"`)}
 	}
 	if _, ok := sc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Summary.created_at"`)}
@@ -283,9 +283,9 @@ func (sc *SummaryCreate) createSpec() (*Summary, *sqlgraph.CreateSpec) {
 		_spec.SetField(summary.FieldReaded, field.TypeBool, value)
 		_node.Readed = value
 	}
-	if value, ok := sc.mutation.Listend(); ok {
-		_spec.SetField(summary.FieldListend, field.TypeBool, value)
-		_node.Listend = value
+	if value, ok := sc.mutation.Listened(); ok {
+		_spec.SetField(summary.FieldListened, field.TypeBool, value)
+		_node.Listened = value
 	}
 	if value, ok := sc.mutation.AudioFile(); ok {
 		_spec.SetField(summary.FieldAudioFile, field.TypeString, value)
