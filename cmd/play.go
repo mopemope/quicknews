@@ -74,7 +74,7 @@ func (a *PlayCmd) Run(client *ent.Client, config *config.Config) error {
 	if !a.NoFetch {
 		go func() {
 			for {
-				fetchArticles(client)
+				fetchArticles(client, config)
 				time.Sleep(time.Hour)
 			}
 		}()

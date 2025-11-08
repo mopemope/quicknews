@@ -15,23 +15,21 @@ import (
 	"github.com/mopemope/quicknews/models/bookmark"
 	"github.com/mopemope/quicknews/models/summary"
 	"github.com/mopemope/quicknews/tts"
+	"github.com/mopemope/quicknews/tui/components"
 )
 
 // Message to indicate going back to the article list
 type backToArticleListMsg struct{}
 
 type summaryViewModel struct {
-	viewport          viewport.Model
-	article           *ent.Article
-	ready             bool // Indicates if the viewport is ready
-	summaryRepos      summary.SummaryRepository
-	articleRepos      article.ArticleRepository // Add ArticleRepository
-	bookmarkRepos     bookmark.Repository
-	showConfirmDialog bool
-	confirmDialogMsg  string
-	onConfirmYes      func() tea.Cmd
-	onConfirmNo       func() tea.Cmd
-	config            *config.Config
+	viewport      viewport.Model
+	article       *ent.Article
+	ready         bool // Indicates if the viewport is ready
+	summaryRepos  summary.SummaryRepository
+	articleRepos  article.ArticleRepository // Add ArticleRepository
+	bookmarkRepos bookmark.Repository
+	confirmDialog *components.ConfirmationDialog
+	config        *config.Config
 }
 
 func newSummaryViewModel(client *ent.Client, config *config.Config) summaryViewModel {
@@ -43,6 +41,7 @@ func newSummaryViewModel(client *ent.Client, config *config.Config) summaryViewM
 		viewport:      vp,
 		summaryRepos:  summary.NewRepository(client),
 		articleRepos:  article.NewRepository(client), // Initialize ArticleRepository
+		confirmDialog: components.NewConfirmationDialog(),
 		config:        config,
 		bookmarkRepos: bookmarkRepos,
 	}
@@ -80,47 +79,13 @@ func (m summaryViewModel) Init() tea.Cmd {
 	return nil // Content is set via SetContent
 }
 
-func (m *summaryViewModel) ShowConfirmationDialog(message string, onYes, onNo func() tea.Cmd) {
-	m.showConfirmDialog = true
-	m.confirmDialogMsg = message
-	m.onConfirmYes = onYes
-	m.onConfirmNo = onNo
-}
-
-// HideConfirmationDialog hides the confirmation dialog
-func (m *summaryViewModel) HideConfirmationDialog() {
-	m.showConfirmDialog = false
-	m.confirmDialogMsg = ""
-	m.onConfirmYes = nil
-	m.onConfirmNo = nil
-}
-
 func (m summaryViewModel) Update(msg tea.Msg) (summaryViewModel, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
-	if m.showConfirmDialog {
-		switch msg := msg.(type) {
-		case tea.KeyMsg:
-			switch msg.String() {
-			case "y", "Y":
-				m.showConfirmDialog = false
-				if m.onConfirmYes != nil {
-					cmd = m.onConfirmYes()
-					cmds = append(cmds, cmd)
-				}
-				return m, tea.Batch(cmds...)
-			case "n", "N", "esc":
-				m.showConfirmDialog = false
-				if m.onConfirmNo != nil {
-					cmd = m.onConfirmNo()
-					cmds = append(cmds, cmd)
-				}
-				return m, tea.Batch(cmds...)
-			default:
-				// Ignore other keypresses when dialog is shown
-				return m, nil
-			}
-		}
+
+	// Handle confirmation dialog if active
+	if handled, dialogCmd := m.confirmDialog.Update(msg); handled {
+		return m, dialogCmd
 	}
 
 	slog.Debug("SummaryView model Update called", "msg", msg)
@@ -158,7 +123,7 @@ func (m summaryViewModel) Update(msg tea.Msg) (summaryViewModel, tea.Cmd) {
 				m.article.Edges.Summary != nil {
 
 				if m.config.RequireConfirm {
-					m.ShowConfirmationDialog(
+					m.confirmDialog.Show(
 						"記事を既読にしますか？ (y/N)",
 						func() tea.Cmd {
 							ctx := context.Background()
@@ -202,7 +167,7 @@ func (m summaryViewModel) Update(msg tea.Msg) (summaryViewModel, tea.Cmd) {
 			}
 		case "d": // Add delete key binding
 			if m.article != nil {
-				m.ShowConfirmationDialog(
+				m.confirmDialog.Show(
 					"この記事と要約を削除しますか？ (y/N)",
 					func() tea.Cmd {
 						ctx := context.Background()
@@ -251,25 +216,8 @@ func (m summaryViewModel) View() string {
 		return "Loading article..."
 	}
 	content := fmt.Sprintf("%s\n%s\n%s", m.headerView(), m.viewport.View(), m.footerView())
-	if m.showConfirmDialog {
-		dialogStyle := lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("63")).
-			Padding(1, 2).
-			Width(40)
-
-		dialogBox := dialogStyle.Render(m.confirmDialogMsg)
-
-		return lipgloss.Place(
-			m.viewport.Width,
-			m.viewport.Height,
-			lipgloss.Center,
-			lipgloss.Center,
-			dialogBox,
-			lipgloss.WithWhitespaceChars(" "),
-			lipgloss.WithWhitespaceForeground(lipgloss.Color("0")),
-		)
-
+	if m.confirmDialog.IsActive() {
+		return m.confirmDialog.View(m.viewport.Width, m.viewport.Height)
 	}
 	return content
 }

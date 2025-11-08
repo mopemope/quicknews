@@ -45,7 +45,7 @@ func (t *ReadCmd) Run(client *ent.Client, config *config.Config) error {
 	if !t.NoFetch {
 		go func() {
 			for {
-				fetchArticles(client)
+				fetchArticles(client, config)
 				time.Sleep(time.Hour)
 			}
 		}()

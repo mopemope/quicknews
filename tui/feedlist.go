@@ -12,16 +12,14 @@ import (
 	"github.com/google/uuid"
 	"github.com/mopemope/quicknews/ent"
 	"github.com/mopemope/quicknews/models/feed"
+	"github.com/mopemope/quicknews/tui/components"
 )
 
 type feedListModel struct {
-	repos             feed.FeedRepository
-	list              list.Model
-	err               error
-	showConfirmDialog bool
-	confirmDialogMsg  string
-	onConfirmYes      func() tea.Cmd
-	onConfirmNo       func() tea.Cmd
+	repos         feed.FeedRepository
+	list          list.Model
+	err           error
+	confirmDialog *components.ConfirmationDialog
 }
 
 type feedItem struct {
@@ -44,8 +42,9 @@ func newFeedListModel(client *ent.Client) feedListModel {
 	l.Title = "Feeds"
 
 	return feedListModel{
-		repos: feed.NewRepository(client),
-		list:  l,
+		repos:         feed.NewRepository(client),
+		list:          l,
+		confirmDialog: components.NewConfirmationDialog(),
 	}
 }
 
@@ -88,29 +87,9 @@ func (m feedListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
-	if m.showConfirmDialog {
-		switch msg := msg.(type) {
-		case tea.KeyMsg:
-			switch msg.String() {
-			case "y", "Y":
-				m.showConfirmDialog = false
-				if m.onConfirmYes != nil {
-					cmd = m.onConfirmYes()
-					cmds = append(cmds, cmd)
-				}
-				return m, tea.Batch(cmds...)
-			case "n", "N", "esc":
-				m.showConfirmDialog = false
-				if m.onConfirmNo != nil {
-					cmd = m.onConfirmNo()
-					cmds = append(cmds, cmd)
-				}
-				return m, tea.Batch(cmds...)
-			default:
-				// Ignore other keypresses when dialog is shown
-				return m, nil
-			}
-		}
+	// Handle confirmation dialog if active
+	if handled, dialogCmd := m.confirmDialog.Update(msg); handled {
+		return m, dialogCmd
 	}
 
 	switch msg := msg.(type) {
@@ -145,7 +124,7 @@ func (m feedListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "d":
 			selectedItem, ok := m.list.SelectedItem().(feedItem)
 			if ok && !selectedItem.isBookmark {
-				m.ShowConfirmationDialog(
+				m.confirmDialog.Show(
 					"このフィード削除しますか？ (y/N)",
 					func() tea.Cmd {
 						ctx := context.Background()
@@ -173,21 +152,6 @@ func (m feedListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func (m *feedListModel) ShowConfirmationDialog(message string, onYes, onNo func() tea.Cmd) {
-	m.showConfirmDialog = true
-	m.confirmDialogMsg = message
-	m.onConfirmYes = onYes
-	m.onConfirmNo = onNo
-}
-
-// HideConfirmationDialog hides the confirmation dialog
-func (m *feedListModel) HideConfirmationDialog() {
-	m.showConfirmDialog = false
-	m.confirmDialogMsg = ""
-	m.onConfirmYes = nil
-	m.onConfirmNo = nil
-}
-
 func (m feedListModel) View() string {
 	slog.Debug("FeedList model View called")
 	if m.err != nil {
@@ -199,24 +163,8 @@ func (m feedListModel) View() string {
 	footer := m.footerView() // Get footer content
 	content := docStyle.Render(lipgloss.JoinVertical(lipgloss.Left, listContent, footer))
 
-	if m.showConfirmDialog {
-		dialogStyle := lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("63")).
-			Padding(1, 2).
-			Width(40)
-
-		dialogBox := dialogStyle.Render(m.confirmDialogMsg)
-
-		return lipgloss.Place(
-			m.list.Width(),
-			m.list.Height(),
-			lipgloss.Center,
-			lipgloss.Center,
-			dialogBox,
-			lipgloss.WithWhitespaceChars(" "),
-			lipgloss.WithWhitespaceForeground(lipgloss.Color("0")),
-		)
+	if m.confirmDialog.IsActive() {
+		return m.confirmDialog.View(m.list.Width(), m.list.Height())
 	}
 	return content
 }

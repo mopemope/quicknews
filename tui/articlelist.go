@@ -8,7 +8,6 @@ import (
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/cockroachdb/errors"
 	"github.com/google/uuid"
 	"github.com/mopemope/quicknews/config"
@@ -16,24 +15,22 @@ import (
 	"github.com/mopemope/quicknews/models/article"
 	"github.com/mopemope/quicknews/models/feed"
 	"github.com/mopemope/quicknews/models/summary"
+	"github.com/mopemope/quicknews/tui/components"
 )
 
 // Message to indicate going back to the feed list
 type backToFeedListMsg struct{}
 
 type articleListModel struct {
-	feedRepos         feed.FeedRepository
-	repos             article.ArticleRepository
-	summaryRepos      summary.SummaryRepository
-	list              list.Model
-	feed              feedItem
-	listWidth         int
-	err               error
-	showConfirmDialog bool
-	confirmDialogMsg  string
-	onConfirmYes      func() tea.Cmd
-	onConfirmNo       func() tea.Cmd
-	config            *config.Config
+	feedRepos     feed.FeedRepository
+	repos         article.ArticleRepository
+	summaryRepos  summary.SummaryRepository
+	list          list.Model
+	feed          feedItem
+	listWidth     int
+	err           error
+	confirmDialog *components.ConfirmationDialog
+	config        *config.Config
 }
 
 type articleItem struct {
@@ -73,12 +70,12 @@ func newArticleListModel(client *ent.Client, config *config.Config) articleListM
 	l.Title = "Articles"
 
 	return articleListModel{
-		feedRepos:         feed.NewRepository(client),
-		repos:             article.NewRepository(client),
-		summaryRepos:      summary.NewRepository(client),
-		list:              l,
-		showConfirmDialog: false,
-		config:            config,
+		feedRepos:     feed.NewRepository(client),
+		repos:         article.NewRepository(client),
+		summaryRepos:  summary.NewRepository(client),
+		list:          l,
+		confirmDialog: components.NewConfirmationDialog(),
+		config:        config,
 	}
 }
 
@@ -143,51 +140,13 @@ func (m articleListModel) Init() tea.Cmd {
 	return nil
 }
 
-// ShowConfirmationDialog shows a confirmation dialog with the provided message
-// and executes the provided callbacks when Yes or No is selected
-func (m *articleListModel) ShowConfirmationDialog(message string, onYes, onNo func() tea.Cmd) {
-	m.showConfirmDialog = true
-	m.confirmDialogMsg = message
-	m.onConfirmYes = onYes
-	m.onConfirmNo = onNo
-}
-
-// HideConfirmationDialog hides the confirmation dialog
-func (m *articleListModel) HideConfirmationDialog() {
-	m.showConfirmDialog = false
-	m.confirmDialogMsg = ""
-	m.onConfirmYes = nil
-	m.onConfirmNo = nil
-}
-
 func (m articleListModel) Update(msg tea.Msg) (articleListModel, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
-	// Handle confirmation dialog first if it's active
-	if m.showConfirmDialog {
-		switch msg := msg.(type) {
-		case tea.KeyMsg:
-			switch msg.String() {
-			case "y", "Y":
-				m.showConfirmDialog = false
-				if m.onConfirmYes != nil {
-					cmd = m.onConfirmYes()
-					cmds = append(cmds, cmd)
-				}
-				return m, tea.Batch(cmds...)
-			case "n", "N", "esc":
-				m.showConfirmDialog = false
-				if m.onConfirmNo != nil {
-					cmd = m.onConfirmNo()
-					cmds = append(cmds, cmd)
-				}
-				return m, tea.Batch(cmds...)
-			default:
-				// Ignore other keypresses when dialog is shown
-				return m, nil
-			}
-		}
+	// Handle confirmation dialog if active
+	if handled, dialogCmd := m.confirmDialog.Update(msg); handled {
+		return m, dialogCmd
 	}
 
 	switch msg := msg.(type) {
@@ -235,7 +194,7 @@ func (m articleListModel) Update(msg tea.Msg) (articleListModel, tea.Cmd) {
 				}
 
 				if m.config.RequireConfirm {
-					m.ShowConfirmationDialog(
+					m.confirmDialog.Show(
 						"記事を既読にしますか？ (y/N)",
 						func() tea.Cmd {
 							ctx := context.Background()
@@ -282,24 +241,8 @@ func (m articleListModel) View() string {
 
 	content := docStyle.Render(m.list.View())
 
-	if m.showConfirmDialog {
-		dialogStyle := lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("63")).
-			Padding(1, 2).
-			Width(40)
-
-		dialogBox := dialogStyle.Render(m.confirmDialogMsg)
-
-		return lipgloss.Place(
-			m.list.Width(),
-			m.list.Height(),
-			lipgloss.Center,
-			lipgloss.Center,
-			dialogBox,
-			lipgloss.WithWhitespaceChars(" "),
-			lipgloss.WithWhitespaceForeground(lipgloss.Color("0")),
-		)
+	if m.confirmDialog.IsActive() {
+		return m.confirmDialog.View(m.list.Width(), m.list.Height())
 	}
 
 	// 通常表示
