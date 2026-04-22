@@ -34,6 +34,7 @@ type publisher struct {
 	R2Client          storage.ObjectStorage
 	Config            *config.Config
 	mergeAudio        func(string, []string) error
+	saveAudioData     func(context.Context, *ent.Summary, *config.Config) (*string, error)
 }
 
 func NewPublisher(ctx context.Context, client *ent.Client, config *config.Config) (*publisher, error) {
@@ -55,6 +56,7 @@ func NewPublisher(ctx context.Context, client *ent.Client, config *config.Config
 		R2Client:          r2client,
 		Config:            config,
 		mergeAudio:        tts.MergeMP3,
+		saveAudioData:     summary.SaveAudioData,
 	}, nil
 }
 
@@ -91,7 +93,7 @@ func (c *PublishCmd) Run(client *ent.Client, config *config.Config) error {
 	ctx := context.Background()
 	pb, err := NewPublisher(ctx, client, config)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to initialize publisher")
 	}
 
 	feedList, err := pb.FeedRepository.All(ctx)
@@ -102,13 +104,13 @@ func (c *PublishCmd) Run(client *ent.Client, config *config.Config) error {
 	for _, pubDate := range targetDates {
 		for _, f := range feedList {
 			if err := pb.processFeed(ctx, f, pubDate); err != nil {
-				return err
+				return errors.Wrapf(err, "failed to process feed %q on %s", f.Title, pubDate)
 			}
 		}
 	}
 
 	if err := pb.publishRSS(ctx); err != nil {
-		return err
+		return errors.Wrap(err, "failed to publish RSS")
 	}
 
 	return nil
@@ -138,13 +140,13 @@ func (pb *publisher) processFeed(ctx context.Context, f *ent.Feed, pubDate strin
 				slog.Warn("Skip summary because it is too long", slog.Any("title", article.Edges.Summary.Title))
 				continue
 			}
-			filename, err := summary.SaveAudioData(ctx, article.Edges.Summary, pb.Config)
+			filename, err := pb.saveAudioData(ctx, article.Edges.Summary, pb.Config)
 			if err != nil {
-				return err
+				return errors.Wrapf(err, "failed to save audio data for summary %q (%s) in feed %q on %s", sum.Title, sum.ID, feedName, pubDate)
 			}
 			if filename != nil {
 				if err := pb.SummaryRepository.UpdateAudioFile(ctx, sum.ID, *filename); err != nil {
-					return err
+					return errors.Wrapf(err, "failed to update audio file for summary %q (%s) in feed %q on %s", sum.Title, sum.ID, feedName, pubDate)
 				}
 				audioFile = *filename
 				slog.Info("Saved audio file for summary", slog.String("file", audioFile), slog.String("title", sum.Title))

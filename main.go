@@ -37,6 +37,15 @@ type CLI struct {
 	config *config.Config
 }
 
+func logCommandError(kctx *kong.Context, err error) error {
+	if err == nil {
+		return nil
+	}
+
+	slog.Error("command failed", "command", kctx.Command(), "error", err)
+	return err
+}
+
 func main() {
 	var cli CLI
 	kctx := kong.Parse(&cli,
@@ -86,7 +95,7 @@ func main() {
 	kctx.Bind(client, cli.config)
 
 	// Call the Run() method of the selected parsed command.
-	err = kctx.Run()
+	err = logCommandError(kctx, kctx.Run())
 	kctx.FatalIfErrorf(err)
 }
 

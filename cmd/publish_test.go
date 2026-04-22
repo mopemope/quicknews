@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"errors"
 	"io"
 	"os"
 	"path/filepath"
@@ -55,6 +56,7 @@ func (r *fakePublishArticleRepository) Delete(context.Context, string) error {
 
 type fakePublishSummaryRepository struct {
 	updatedAudio []string
+	updateErr    error
 }
 
 func (r *fakePublishSummaryRepository) GetAll(context.Context) ([]*ent.Summary, error) {
@@ -82,6 +84,9 @@ func (r *fakePublishSummaryRepository) UpdateReaded(context.Context, *ent.Summar
 }
 
 func (r *fakePublishSummaryRepository) UpdateAudioFile(_ context.Context, _ uuid.UUID, filename string) error {
+	if r.updateErr != nil {
+		return r.updateErr
+	}
 	r.updatedAudio = append(r.updatedAudio, filename)
 	return nil
 }
@@ -152,6 +157,7 @@ func TestProcessFeed_SkipsWhenNoAudioFiles(t *testing.T) {
 		mergeAudio: func(string, []string) error {
 			return nil
 		},
+		saveAudioData: summary.SaveAudioData,
 	}
 
 	err := pb.processFeed(context.Background(), &ent.Feed{ID: uuid.New(), Title: "Tech"}, "2026-04-22")
@@ -194,6 +200,7 @@ func TestProcessFeed_UploadsMergedAudioAndAddsRSSItem(t *testing.T) {
 			require.Len(t, in, 1)
 			return os.WriteFile(out, []byte("merged-mp3"), 0o644)
 		},
+		saveAudioData: summary.SaveAudioData,
 	}
 
 	err := pb.processFeed(context.Background(), &ent.Feed{ID: uuid.New(), Title: "Tech"}, "2026-04-22")
@@ -202,6 +209,85 @@ func TestProcessFeed_UploadsMergedAudioAndAddsRSSItem(t *testing.T) {
 	require.Equal(t, []string{"2026-04-22_Tech.mp3"}, storage.uploads)
 	require.Len(t, pb.RSSFeed.Channel.Items, 1)
 	require.Equal(t, "2026-04-22 Tech Podcast", pb.RSSFeed.Channel.Items[0].Title)
+}
+
+func TestProcessFeed_SaveAudioErrorIncludesContext(t *testing.T) {
+	audioDir := t.TempDir()
+	cfg := testPublishConfig(audioDir)
+	sum := &ent.Summary{
+		ID:      uuid.New(),
+		Title:   "Summary title",
+		Summary: "Summary body",
+	}
+	articleItem := &ent.Article{
+		Edges: ent.ArticleEdges{
+			Summary: sum,
+		},
+	}
+
+	pb := &publisher{
+		ArticleRepository: &fakePublishArticleRepository{
+			articles: ent.Articles{articleItem},
+		},
+		SummaryRepository: &fakePublishSummaryRepository{},
+		RSSFeed:           rss.NewRSS(cfg.Podcast),
+		R2Client:          &fakeObjectStorage{},
+		Config:            cfg,
+		mergeAudio: func(string, []string) error {
+			return nil
+		},
+		saveAudioData: func(context.Context, *ent.Summary, *config.Config) (*string, error) {
+			return nil, errors.New("tts unavailable")
+		},
+	}
+
+	err := pb.processFeed(context.Background(), &ent.Feed{ID: uuid.New(), Title: "Tech"}, "2026-04-22")
+	require.Error(t, err)
+	require.ErrorContains(t, err, "failed to save audio data for summary")
+	require.ErrorContains(t, err, "Summary title")
+	require.ErrorContains(t, err, "Tech")
+	require.ErrorContains(t, err, "2026-04-22")
+}
+
+func TestProcessFeed_UpdateAudioErrorIncludesContext(t *testing.T) {
+	audioDir := t.TempDir()
+	cfg := testPublishConfig(audioDir)
+	sum := &ent.Summary{
+		ID:      uuid.New(),
+		Title:   "Summary title",
+		Summary: "Summary body",
+	}
+	articleItem := &ent.Article{
+		Edges: ent.ArticleEdges{
+			Summary: sum,
+		},
+	}
+
+	pb := &publisher{
+		ArticleRepository: &fakePublishArticleRepository{
+			articles: ent.Articles{articleItem},
+		},
+		SummaryRepository: &fakePublishSummaryRepository{
+			updateErr: errors.New("db write failed"),
+		},
+		RSSFeed:  rss.NewRSS(cfg.Podcast),
+		R2Client: &fakeObjectStorage{},
+		Config:   cfg,
+		mergeAudio: func(string, []string) error {
+			return nil
+		},
+		saveAudioData: func(context.Context, *ent.Summary, *config.Config) (*string, error) {
+			filename := "generated.mp3"
+			return &filename, nil
+		},
+	}
+
+	err := pb.processFeed(context.Background(), &ent.Feed{ID: uuid.New(), Title: "Tech"}, "2026-04-22")
+	require.Error(t, err)
+	require.ErrorContains(t, err, "failed to update audio file for summary")
+	require.ErrorContains(t, err, "Summary title")
+	require.ErrorContains(t, err, "Tech")
+	require.ErrorContains(t, err, "2026-04-22")
 }
 
 func testPublishConfig(audioDir string) *config.Config {
