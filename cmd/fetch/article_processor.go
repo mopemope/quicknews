@@ -17,22 +17,34 @@ import (
 
 // ArticleProcessor handles the processing of individual articles
 type ArticleProcessor struct {
-	feed         *ent.Feed
-	feedItem     *gofeed.Item
-	articleRepos article.ArticleRepository
-	summaryRepos summary.SummaryRepository
-	config       *config.Config
+	feed          *ent.Feed
+	feedItem      *gofeed.Item
+	articleRepos  article.ArticleRepository
+	summaryRepos  summary.SummaryRepository
+	config        *config.Config
+	newSummarizer func(context.Context, *config.Config) (gemini.Summarizer, error)
 }
 
 // NewArticleProcessor creates a new ArticleProcessor
-func NewArticleProcessor(feed *ent.Feed, item *gofeed.Item, articleRepos article.ArticleRepository, summaryRepos summary.SummaryRepository, config *config.Config) *ArticleProcessor {
+func NewArticleProcessor(feed *ent.Feed, item *gofeed.Item, articleRepos article.ArticleRepository, summaryRepos summary.SummaryRepository, cfg *config.Config) *ArticleProcessor {
 	return &ArticleProcessor{
 		feed:         feed,
 		feedItem:     item,
 		articleRepos: articleRepos,
 		summaryRepos: summaryRepos,
-		config:       config,
+		config:       cfg,
+		newSummarizer: func(ctx context.Context, cfg *config.Config) (gemini.Summarizer, error) {
+			return gemini.NewClient(ctx, cfg)
+		},
 	}
+}
+
+func NewArticleProcessorWithSummarizer(feed *ent.Feed, item *gofeed.Item, articleRepos article.ArticleRepository, summaryRepos summary.SummaryRepository, cfg *config.Config, newSummarizer func(context.Context, *config.Config) (gemini.Summarizer, error)) *ArticleProcessor {
+	processor := NewArticleProcessor(feed, item, articleRepos, summaryRepos, cfg)
+	if newSummarizer != nil {
+		processor.newSummarizer = newSummarizer
+	}
+	return processor
 }
 
 // Process handles the processing of an article
@@ -78,10 +90,15 @@ func (ap *ArticleProcessor) Process(ctx context.Context) error {
 
 // processSummary handles the summarization of an article
 func (ap *ArticleProcessor) processSummary(ctx context.Context, article *ent.Article) error {
-	geminiClient, err := gemini.NewClient(ctx, ap.config)
+	geminiClient, err := ap.newSummarizer(ctx, ap.config)
 	if err != nil {
 		return errors.Wrap(err, "error creating gemini client")
 	}
+	defer func() {
+		if err := geminiClient.Close(); err != nil {
+			slog.Warn("failed to close summarizer", "error", err)
+		}
+	}()
 
 	url := article.URL
 	var pageSummary *gemini.PageSummary

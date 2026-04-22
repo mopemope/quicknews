@@ -23,6 +23,15 @@ Requires Go 1.24 or later.
 go build -o quicknews .
 ```
 
+For common verification flows, you can also use:
+
+```bash
+make test-fast
+make test-all
+make test-integration
+make smoke-config
+```
+
 ## How to Run
 
 After building, you can run the program with the following command:
@@ -154,6 +163,8 @@ systemctl --user start quicknews-fetch.timer
 quicknews uses a configuration file located at `$HOME/.config/quicknews/config.toml`. Create this file if it doesn't exist.
 
 Here's an example `config.toml` with available options:
+
+For a shareable sample without secrets, see [`config.example.toml`](config.example.toml).
 
 ```toml
 # Enable overriding settings with environment variables (default: false)

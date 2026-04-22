@@ -19,6 +19,10 @@ type R2Storage struct {
 	bucketName string
 }
 
+type ObjectStorage interface {
+	Upload(ctx context.Context, key string, reader io.Reader, contentType string) error
+}
+
 // NewR2Storage creates a new R2Storage client.
 func NewR2Storage(ctx context.Context, cfg *config.Config) (*R2Storage, error) {
 	if cfg.Cloudflare == nil {

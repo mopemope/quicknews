@@ -21,14 +21,25 @@ type ReadCmd struct {
 	NonInteractive bool     `help:"Run in non-interactive mode without TUI (useful for systemd services)."`
 }
 
+func validateReadMode(nonInteractive bool, isTTY bool) error {
+	if nonInteractive {
+		return nil
+	}
+	if !isTTY {
+		return errors.New("read command requires TTY for TUI mode. Use --non-interactive flag for non-TTY environments")
+	}
+	return nil
+}
+
 // Run executes the TUI command.
 func (t *ReadCmd) Run(client *ent.Client, config *config.Config) error {
+	if err := validateReadMode(t.NonInteractive, IsTTY()); err != nil {
+		return err
+	}
+
 	if t.NonInteractive {
 		slog.Info("Running in non-interactive mode - only background fetching")
 	} else {
-		if !IsTTY() {
-			return errors.New("read command requires TTY for TUI mode. Use --non-interactive flag for non-TTY environments")
-		}
 		slog.Debug("Starting TUI mode")
 	}
 

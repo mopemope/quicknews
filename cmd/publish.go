@@ -31,8 +31,9 @@ type publisher struct {
 	ArticleRepository article.ArticleRepository
 	SummaryRepository summary.SummaryRepository
 	RSSFeed           *rss.RSS
-	R2Client          *storage.R2Storage
+	R2Client          storage.ObjectStorage
 	Config            *config.Config
+	mergeAudio        func(string, []string) error
 }
 
 func NewPublisher(ctx context.Context, client *ent.Client, config *config.Config) (*publisher, error) {
@@ -53,7 +54,29 @@ func NewPublisher(ctx context.Context, client *ent.Client, config *config.Config
 		RSSFeed:           rssFeed,
 		R2Client:          r2client,
 		Config:            config,
+		mergeAudio:        tts.MergeMP3,
 	}, nil
+}
+
+func resolvePublishDates(targetDate string, dayRange int, now time.Time) ([]string, error) {
+	if dayRange <= 0 {
+		return nil, errors.New("range must be greater than 0")
+	}
+
+	if targetDate == "" {
+		targetDate = now.Format("2006-01-02")
+	}
+
+	base, err := time.Parse("2006-01-02", targetDate)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to parse target date")
+	}
+
+	dates := make([]string, 0, dayRange)
+	for i := range dayRange {
+		dates = append(dates, base.AddDate(0, 0, -i).Format("2006-01-02"))
+	}
+	return dates, nil
 }
 
 func (c *PublishCmd) Run(client *ent.Client, config *config.Config) error {
@@ -61,15 +84,9 @@ func (c *PublishCmd) Run(client *ent.Client, config *config.Config) error {
 		return errors.New("Not support publish. Please set AudioPath and Podcast in config")
 	}
 
-	dateRange := c.Range
-
-	targetDate := c.Date
-	if targetDate == "" {
-		targetDate = time.Now().Format("2006-01-02")
-	}
-	targetDateTime, err := time.Parse("2006-01-02", targetDate)
+	targetDates, err := resolvePublishDates(c.Date, c.Range, time.Now())
 	if err != nil {
-		return errors.Wrap(err, "failed to parse target date")
+		return err
 	}
 	ctx := context.Background()
 	pb, err := NewPublisher(ctx, client, config)
@@ -82,10 +99,7 @@ func (c *PublishCmd) Run(client *ent.Client, config *config.Config) error {
 		return errors.Wrap(err, "failed to get feeds")
 	}
 
-	for i := range dateRange {
-
-		tmpDate := targetDateTime.AddDate(0, 0, -i)
-		pubDate := tmpDate.Format("2006-01-02")
+	for _, pubDate := range targetDates {
 		for _, f := range feedList {
 			if err := pb.processFeed(ctx, f, pubDate); err != nil {
 				return err
@@ -156,7 +170,7 @@ func (pb *publisher) processFeed(ctx context.Context, f *ent.Feed, pubDate strin
 		}
 	}()
 
-	if err := tts.MergeMP3(output, infiles); err != nil {
+	if err := pb.mergeAudio(output, infiles); err != nil {
 		return errors.Wrap(err, "failed to merge mp3 files")
 	}
 
