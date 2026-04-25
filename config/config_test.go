@@ -78,7 +78,67 @@ func TestLoadConfig_WithDefaults(t *testing.T) {
 	assert.Equal(t, configPath, loadedConfig.SourcePath)
 }
 
+func TestLoadConfig_CreatesOutputDirectories(t *testing.T) {
+	tempDir := t.TempDir()
+	configPath := filepath.Join(tempDir, "config.toml")
+	audioPath := filepath.Join(tempDir, "missing", "audio")
+	exportOrgPath := filepath.Join(tempDir, "missing", "org")
+	dbPath := filepath.Join(tempDir, "missing", "db", "quicknews.db")
+
+	config := Config{
+		DB:        dbPath,
+		AudioPath: &audioPath,
+		ExportOrg: exportOrgPath,
+	}
+
+	file, err := os.Create(configPath)
+	require.NoError(t, err)
+	defer func() { _ = file.Close() }()
+
+	encoder := toml.NewEncoder(file)
+	err = encoder.Encode(config)
+	require.NoError(t, err)
+
+	_, err = LoadConfig(configPath)
+	require.NoError(t, err)
+
+	assertDirExists(t, filepath.Dir(dbPath))
+	assertDirExists(t, audioPath)
+	assertDirExists(t, exportOrgPath)
+}
+
+func TestLoadConfig_WithEmptyOptionalOutputDirectories(t *testing.T) {
+	tempDir := t.TempDir()
+	configPath := filepath.Join(tempDir, "config.toml")
+	audioPath := ""
+
+	config := Config{
+		DB:        "quicknews.db",
+		AudioPath: &audioPath,
+		ExportOrg: "",
+	}
+
+	file, err := os.Create(configPath)
+	require.NoError(t, err)
+	defer func() { _ = file.Close() }()
+
+	encoder := toml.NewEncoder(file)
+	err = encoder.Encode(config)
+	require.NoError(t, err)
+
+	_, err = LoadConfig(configPath)
+	require.NoError(t, err)
+}
+
 func TestLoadConfig_WithInvalidPath(t *testing.T) {
 	_, err := LoadConfig("/non/existent/path.toml")
 	assert.Error(t, err)
+}
+
+func assertDirExists(t *testing.T, path string) {
+	t.Helper()
+
+	info, err := os.Stat(path)
+	require.NoError(t, err)
+	require.True(t, info.IsDir(), "%s should be a directory", path)
 }

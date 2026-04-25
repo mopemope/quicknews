@@ -74,6 +74,37 @@ func LoadConfig(path string) (*Config, error) {
 		}
 		config.DB = filepath.Join(home, "quicknews.db")
 	}
+	if err := ensureOutputDirectories(&config); err != nil {
+		return nil, err
+	}
 	config.SourcePath = path
 	return &config, nil
+}
+
+func ensureOutputDirectories(config *Config) error {
+	if err := ensureParentDirectory("db", config.DB); err != nil {
+		return err
+	}
+	if config.AudioPath != nil && *config.AudioPath != "" {
+		if err := os.MkdirAll(*config.AudioPath, 0o755); err != nil {
+			return errors.Wrapf(err, "failed to create audio directory %q", *config.AudioPath)
+		}
+	}
+	if config.ExportOrg != "" {
+		if err := os.MkdirAll(config.ExportOrg, 0o755); err != nil {
+			return errors.Wrapf(err, "failed to create export_org directory %q", config.ExportOrg)
+		}
+	}
+	return nil
+}
+
+func ensureParentDirectory(name, path string) error {
+	dir := filepath.Dir(path)
+	if dir == "." || dir == "" {
+		return nil
+	}
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return errors.Wrapf(err, "failed to create %s directory %q", name, dir)
+	}
+	return nil
 }

@@ -21,11 +21,31 @@ func TestInitializeLogger_WithFile(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func TestInitializeLogger_CreatesParentDirectory(t *testing.T) {
+	tempDir := t.TempDir()
+	logPath := filepath.Join(tempDir, "missing", "logs", "quicknews.log")
+
+	err := InitializeLogger(logPath, false)
+	require.NoError(t, err)
+
+	_, err = os.Stat(logPath)
+	assert.NoError(t, err)
+}
+
 func TestInitializeLogger_WithInvalidPath(t *testing.T) {
 	// Try to initialize logger with a path that's not writable
 	invalidPath := "/invalid/path/log.txt"
 
 	err := InitializeLogger(invalidPath, false)
+	assert.Error(t, err)
+}
+
+func TestInitializeLogger_WithFileAsParent(t *testing.T) {
+	tempDir := t.TempDir()
+	parentPath := filepath.Join(tempDir, "not-dir")
+	require.NoError(t, os.WriteFile(parentPath, []byte("file"), 0o644))
+
+	err := InitializeLogger(filepath.Join(parentPath, "quicknews.log"), false)
 	assert.Error(t, err)
 }
 

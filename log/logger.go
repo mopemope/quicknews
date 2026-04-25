@@ -4,6 +4,7 @@ import (
 	"io"
 	"log/slog"
 	"os"
+	"path/filepath"
 )
 
 // InitializeLogger initializes the global slog logger.
@@ -15,6 +16,13 @@ func InitializeLogger(logPath string, debug bool) error {
 	var err error
 
 	if logPath != "" {
+		dir := filepath.Dir(logPath)
+		if dir != "." && dir != "" {
+			if err := os.MkdirAll(dir, 0o755); err != nil {
+				slog.Error("failed to create log directory", "path", dir, "error", err)
+				return err
+			}
+		}
 		output, err = os.OpenFile(logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			// Fallback to stdout if file opening fails
