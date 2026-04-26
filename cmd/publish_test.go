@@ -42,6 +42,10 @@ func (r *fakePublishArticleRepository) GetByDate(context.Context, uuid.UUID, str
 	return r.articles, nil
 }
 
+func (r *fakePublishArticleRepository) Search(context.Context, article.SearchOptions) (ent.Articles, error) {
+	return nil, nil
+}
+
 func (r *fakePublishArticleRepository) Save(context.Context, *ent.Article) (*ent.Article, error) {
 	return nil, nil
 }

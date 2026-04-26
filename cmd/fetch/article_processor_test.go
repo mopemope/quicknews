@@ -40,6 +40,10 @@ func (r *fakeArticleRepository) GetByDate(context.Context, uuid.UUID, string) (e
 	return nil, nil
 }
 
+func (r *fakeArticleRepository) Search(context.Context, article.SearchOptions) (ent.Articles, error) {
+	return nil, nil
+}
+
 func (r *fakeArticleRepository) Save(_ context.Context, article *ent.Article) (*ent.Article, error) {
 	r.saveCalls++
 	article.ID = uuid.New()

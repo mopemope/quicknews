@@ -163,3 +163,80 @@ func TestArticleRepository_SaveAll(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "Article 2", article2.Title)
 }
+
+func TestArticleRepository_Search(t *testing.T) {
+	client := enttest.Open(t, dialect.SQLite, "file:ent?mode=memory&cache=shared&_fk=1")
+	defer func() { _ = client.Close() }()
+
+	repo := NewRepository(client)
+	ctx := context.Background()
+
+	feed, err := client.Feed.Create().
+		SetURL("https://example.com/feed").
+		SetTitle("Tech Feed").
+		SetDescription("Technology").
+		SetLink("https://example.com").
+		SetUpdatedAt(time.Now()).
+		SetIsBookmark(false).
+		Save(ctx)
+	require.NoError(t, err)
+
+	first, err := client.Article.Create().
+		SetTitle("Go MCP Integration").
+		SetURL("https://example.com/go-mcp").
+		SetDescription("Local AI tools").
+		SetContent("A practical guide for model context protocol servers.").
+		SetPublishedAt(time.Date(2026, 4, 22, 10, 0, 0, 0, time.UTC)).
+		SetFeed(feed).
+		Save(ctx)
+	require.NoError(t, err)
+
+	second, err := client.Article.Create().
+		SetTitle("SQLite Notes").
+		SetURL("https://example.com/sqlite").
+		SetDescription("Database article").
+		SetContent("Indexing and query planning.").
+		SetPublishedAt(time.Date(2026, 4, 21, 10, 0, 0, 0, time.UTC)).
+		SetFeed(feed).
+		Save(ctx)
+	require.NoError(t, err)
+
+	_, err = client.Summary.Create().
+		SetURL(first.URL).
+		SetTitle("MCP server summary").
+		SetSummary("Connect quicknews articles to other AI tools.").
+		SetArticle(first).
+		SetFeed(feed).
+		Save(ctx)
+	require.NoError(t, err)
+
+	_, err = client.Summary.Create().
+		SetURL(second.URL).
+		SetTitle("Storage summary").
+		SetSummary("SQLite is used for local persistence.").
+		SetArticle(second).
+		SetFeed(feed).
+		Save(ctx)
+	require.NoError(t, err)
+
+	results, err := repo.Search(ctx, SearchOptions{Query: "mcp ai", Limit: 10})
+	require.NoError(t, err)
+	require.Len(t, results, 1)
+	require.Equal(t, "Go MCP Integration", results[0].Title)
+	require.NotNil(t, results[0].Edges.Feed)
+	require.NotNil(t, results[0].Edges.Summary)
+
+	results, err = repo.Search(ctx, SearchOptions{Query: "LOCAL persistence", Limit: 10})
+	require.NoError(t, err)
+	require.Len(t, results, 1)
+	require.Equal(t, "SQLite Notes", results[0].Title)
+
+	results, err = repo.Search(ctx, SearchOptions{Query: "article", Limit: 1, Offset: 1})
+	require.NoError(t, err)
+	require.Len(t, results, 1)
+	require.Equal(t, "SQLite Notes", results[0].Title)
+
+	results, err = repo.Search(ctx, SearchOptions{Query: "   ", Limit: 10})
+	require.NoError(t, err)
+	require.Empty(t, results)
+}

@@ -14,6 +14,7 @@ This tool is a personal project. Its primary purpose is for my own use.
 - Convert summaries to audio using Google Text-to-Speech.
 - Play unlistened summaries aloud (`play`).
 - Export summaries to Org mode files (optional, requires `EXPORT_ORG` environment variable).
+- Search saved articles from other AI tools through an MCP server (`mcp`).
 
 ## How to Compile
 
@@ -61,6 +62,34 @@ After building, you can run the program with the following command:
 - `bookmark <URL>`: Adds a new bookmark (web page) to a special feed.
 - `publish [YYYY-MM-DD]`: Processes articles for the specified date (defaults to today) and the preceding two days. For each day and each feed, it merges the audio files of the summaries published on that day into a single MP3 file (named `YYYY-MM-DD_FeedTitle.mp3`). These merged MP3 files, along with an updated podcast RSS feed (`rss.xml`), are then uploaded to Cloudflare R2. This command requires the `AudioPath` and `Podcast` sections to be configured in the `config.toml` file.
 - `export-audio`: Regenerates and saves audio files for all existing summaries based on current TTS settings. This is useful if you change TTS engines or settings and want to update previously generated audio.
+- `mcp`: Starts a stdio MCP server for AI tools. It exposes `search_articles`, which searches article title, description, content, summary title, and summary text by keyword.
+
+### MCP Server
+
+The MCP server communicates over stdio, so standard output must be reserved for the MCP protocol. Keep `--log` pointed at a file when using this command.
+
+Example client configuration:
+
+```json
+{
+  "mcpServers": {
+    "quicknews": {
+      "command": "/path/to/quicknews",
+      "args": [
+        "--config",
+        "/path/to/config.toml",
+        "--log",
+        "/tmp/quicknews-mcp.log",
+        "mcp"
+      ]
+    }
+  }
+}
+```
+
+Available tool:
+
+- `search_articles`: accepts `query`, optional `limit` (default `10`, max `50`), and optional `offset`. It returns matching article metadata, feed title, published time, read/listened status, matched fields, and a short snippet.
 
 ### Global Options
 

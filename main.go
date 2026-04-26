@@ -26,6 +26,7 @@ type CLI struct {
 	ExportAudio cmd.ExportAudioCmd `cmd:""  help:"Export audio files."`
 	Publish     cmd.PublishCmd     `cmd:"" help:"Publish articles."`
 	Config      cmd.ConfigCmd      `cmd:"" aliases:"cfg" help:"Show the current configuration."`
+	MCP         cmd.MCPCmd         `cmd:"" name:"mcp" help:"Start the MCP server over stdio."`
 
 	// Global flags
 	ConfigPath string           `name:"config" type:"path" default:"~/.config/quicknews/config.toml" help:"Path to the config file."`

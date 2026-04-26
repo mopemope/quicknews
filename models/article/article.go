@@ -2,6 +2,7 @@ package article
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/cockroachdb/errors"
@@ -20,9 +21,21 @@ type ArticleRepository interface {
 	GetByUnreaded(ctx context.Context, feedID uuid.UUID) (ent.Articles, error)
 	GetFromURL(ctx context.Context, url string) (*ent.Article, error)
 	GetByDate(ctx context.Context, feedId uuid.UUID, date string) (ent.Articles, error)
+	Search(ctx context.Context, options SearchOptions) (ent.Articles, error)
 	Save(ctx context.Context, article *ent.Article) (*ent.Article, error)
 	SaveAll(ctx context.Context, articles ent.Articles) error
 	Delete(ctx context.Context, id string) error
+}
+
+const (
+	DefaultSearchLimit = 10
+	MaxSearchLimit     = 50
+)
+
+type SearchOptions struct {
+	Query  string
+	Limit  int
+	Offset int
 }
 
 type ArticleRepositoryImpl struct {
@@ -114,6 +127,54 @@ func (r *ArticleRepositoryImpl) GetByDate(ctx context.Context, feedId uuid.UUID,
 		All(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get articles by date")
+	}
+	return articles, nil
+}
+
+func (r *ArticleRepositoryImpl) Search(ctx context.Context, options SearchOptions) (ent.Articles, error) {
+	terms := strings.Fields(strings.TrimSpace(options.Query))
+	if len(terms) == 0 {
+		return ent.Articles{}, nil
+	}
+
+	limit := options.Limit
+	if limit <= 0 {
+		limit = DefaultSearchLimit
+	}
+	if limit > MaxSearchLimit {
+		limit = MaxSearchLimit
+	}
+
+	offset := options.Offset
+	if offset < 0 {
+		offset = 0
+	}
+
+	q := r.client.Article.
+		Query().
+		WithFeed().
+		WithSummary().
+		Order(ent.Desc(article.FieldPublishedAt), ent.Desc(article.FieldCreatedAt)).
+		Limit(limit).
+		Offset(offset)
+
+	for _, term := range terms {
+		q = q.Where(article.Or(
+			article.TitleContainsFold(term),
+			article.DescriptionContainsFold(term),
+			article.ContentContainsFold(term),
+			article.HasSummaryWith(
+				summary.Or(
+					summary.TitleContainsFold(term),
+					summary.SummaryContainsFold(term),
+				),
+			),
+		))
+	}
+
+	articles, err := q.All(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to search articles")
 	}
 	return articles, nil
 }
