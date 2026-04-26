@@ -82,7 +82,7 @@ func resolvePublishDates(targetDate string, dayRange int, now time.Time) ([]stri
 }
 
 func (c *PublishCmd) Run(client *ent.Client, config *config.Config) error {
-	if config.AudioPath == nil || config.Podcast == nil {
+	if config.AudioPath == nil || *config.AudioPath == "" || config.Podcast == nil {
 		return errors.New("Not support publish. Please set AudioPath and Podcast in config")
 	}
 
@@ -90,7 +90,7 @@ func (c *PublishCmd) Run(client *ent.Client, config *config.Config) error {
 	if err != nil {
 		return err
 	}
-	ctx := context.Background()
+	ctx := RunContext()
 	pb, err := NewPublisher(ctx, client, config)
 	if err != nil {
 		return errors.Wrap(err, "failed to initialize publisher")
@@ -153,6 +153,10 @@ func (pb *publisher) processFeed(ctx context.Context, f *ent.Feed, pubDate strin
 			}
 		} else {
 			slog.Info("Get audio file for summary", slog.String("file", audioFile), slog.String("title", sum.Title))
+		}
+		if audioFile == "" {
+			slog.Warn("No audio file available for summary", slog.String("title", sum.Title), slog.String("summary_id", sum.ID.String()))
+			continue
 		}
 		infile := filepath.Join(*pb.Config.AudioPath, audioFile)
 		infiles = append(infiles, infile)

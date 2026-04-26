@@ -25,6 +25,7 @@ type articleListModel struct {
 	feedRepos     feed.FeedRepository
 	repos         article.ArticleRepository
 	summaryRepos  summary.SummaryRepository
+	ctx           context.Context
 	list          list.Model
 	feed          feedItem
 	listWidth     int
@@ -63,7 +64,11 @@ func (i articleItem) Description() string { return i.link }
 
 func (i articleItem) FilterValue() string { return i.title }
 
-func newArticleListModel(client *ent.Client, config *config.Config) articleListModel {
+func newArticleListModel(ctx context.Context, client *ent.Client, config *config.Config) articleListModel {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
 	defaultDelegate := list.NewDefaultDelegate()
 
 	l := list.New([]list.Item{}, defaultDelegate, 0, 0)
@@ -73,6 +78,7 @@ func newArticleListModel(client *ent.Client, config *config.Config) articleListM
 		feedRepos:     feed.NewRepository(client),
 		repos:         article.NewRepository(client),
 		summaryRepos:  summary.NewRepository(client),
+		ctx:           ctx,
 		list:          l,
 		confirmDialog: components.NewConfirmationDialog(),
 		config:        config,
@@ -96,9 +102,8 @@ func (m *articleListModel) SetFeed(feed feedItem, width, height int) tea.Cmd {
 // fetchArticlesCmd fetches articles for the current feedID from the database.
 func (m *articleListModel) fetchArticlesCmd() tea.Cmd {
 
-	ctx := context.Background()
 	return func() tea.Msg {
-		articles, err := m.repos.GetByUnreaded(ctx, m.feed.id)
+		articles, err := m.repos.GetByUnreaded(m.ctx, m.feed.id)
 		if err != nil {
 			slog.Error("Failed to fetch articles", "error", err, "feedID", m.feed.id)
 			return errors.Wrapf(err, "failed to fetch articles for feed %s: %w", m.feed.id)
@@ -186,8 +191,7 @@ func (m articleListModel) Update(msg tea.Msg) (articleListModel, tea.Cmd) {
 			// bookmark is not allowed to be readed
 			if ok && !selectedItem.isBookmark {
 				id := selectedItem.id
-				ctx := context.Background()
-				article, err := m.repos.GetById(ctx, id)
+				article, err := m.repos.GetById(m.ctx, id)
 				if err != nil {
 					slog.Error("Failed to get article by ID", "error", err)
 					return m, nil
@@ -197,9 +201,8 @@ func (m articleListModel) Update(msg tea.Msg) (articleListModel, tea.Cmd) {
 					m.confirmDialog.Show(
 						"記事を既読にしますか？ (y/N)",
 						func() tea.Cmd {
-							ctx := context.Background()
 							return func() tea.Msg {
-								if err := m.summaryRepos.UpdateReaded(ctx, article.Edges.Summary); err != nil {
+								if err := m.summaryRepos.UpdateReaded(m.ctx, article.Edges.Summary); err != nil {
 									slog.Error("Failed to mark as read", "error", err)
 									return errors.Wrap(err, "failed to mark article as read")
 								}
@@ -210,7 +213,7 @@ func (m articleListModel) Update(msg tea.Msg) (articleListModel, tea.Cmd) {
 						nil,
 					)
 				} else {
-					if err := m.summaryRepos.UpdateReaded(ctx, article.Edges.Summary); err != nil {
+					if err := m.summaryRepos.UpdateReaded(m.ctx, article.Edges.Summary); err != nil {
 						slog.Error("Failed to mark as read", "error", err)
 						return m, nil
 					}

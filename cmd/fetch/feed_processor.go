@@ -2,6 +2,7 @@ package fetch
 
 import (
 	"context"
+	stderrors "errors"
 	"sync"
 
 	pond "github.com/alitto/pond/v2"
@@ -47,6 +48,7 @@ func (fp *FeedProcessor) GetItems(ctx context.Context) ([]progress.QueueItem, er
 	}
 
 	var itemsMutex sync.Mutex
+	errs := make([]error, 0)
 
 	// Use a worker pool to limit concurrency
 	pool := pond.NewPool(5)
@@ -60,6 +62,9 @@ func (fp *FeedProcessor) GetItems(ctx context.Context) ([]progress.QueueItem, er
 		pool.Submit(func() {
 			res, err := fp.processFeed(ctx, feedData)
 			if err != nil {
+				itemsMutex.Lock()
+				errs = append(errs, errors.Wrapf(err, "failed to process feed %q (%s)", feedData.Title, feedData.URL))
+				itemsMutex.Unlock()
 				return
 			}
 			itemsMutex.Lock()
@@ -69,7 +74,7 @@ func (fp *FeedProcessor) GetItems(ctx context.Context) ([]progress.QueueItem, er
 	}
 
 	pool.StopAndWait()
-	return items, nil
+	return items, stderrors.Join(errs...)
 }
 
 // processFeed handles fetching and processing a single feed
@@ -91,7 +96,7 @@ func (fp *FeedProcessor) processFeed(ctx context.Context, feed *ent.Feed) ([]pro
 
 	for _, item := range parsedFeed.Items {
 		articleProcessor := NewArticleProcessor(feed, item, fp.articleRepos, fp.summaryRepos, fp.config)
-		items = append(items, &QueueItemWrapper{processor: articleProcessor, name: item.Title})
+		items = append(items, &QueueItemWrapper{processor: articleProcessor, name: item.Title, ctx: ctx})
 	}
 
 	return items, nil
@@ -101,6 +106,7 @@ func (fp *FeedProcessor) processFeed(ctx context.Context, feed *ent.Feed) ([]pro
 type QueueItemWrapper struct {
 	processor *ArticleProcessor
 	name      string
+	ctx       context.Context
 }
 
 func (q *QueueItemWrapper) DisplayName() string {
@@ -111,10 +117,12 @@ func (q *QueueItemWrapper) URL() string {
 	return q.processor.feedItem.Link
 }
 
-func (q *QueueItemWrapper) Process() {
-	ctx := context.Background()
-	// Process might need to return errors differently, but for now let's just log them
-	if err := q.processor.Process(ctx); err != nil {
-		// Log the error, as the UI layer might not handle errors from this method directly
+func (q *QueueItemWrapper) Process() error {
+	if q.ctx == nil {
+		q.ctx = context.Background()
 	}
+	if err := q.processor.Process(q.ctx); err != nil {
+		return errors.Wrapf(err, "failed to process article %q (%s)", q.DisplayName(), q.URL())
+	}
+	return nil
 }

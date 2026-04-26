@@ -30,7 +30,7 @@ func (g *GoogleTTS) SynthesizeText(ctx context.Context, text string) ([]byte, er
 	}
 
 	opts := make([]option.ClientOption, 0)
-	opts = append(opts, option.WithCredentialsFile(cred))
+	opts = append(opts, option.WithAuthCredentialsFile(option.ServiceAccount, cred))
 
 	client, err := NewClient(ctx, opts...)
 	if err != nil {

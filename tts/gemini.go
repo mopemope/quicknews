@@ -68,13 +68,16 @@ func (g *GeminiTTS) SynthesizeText(ctx context.Context, text string) ([]byte, er
 	for _, can := range res.Candidates {
 		for _, part := range can.Content.Parts {
 			// Check if the part is of type audio
+			if part.InlineData == nil {
+				continue
+			}
 			data := part.InlineData.Data
-			if data != nil {
+			if len(data) > 0 {
 				return runFFmpeg(data)
 			}
 		}
 	}
-	return nil, err
+	return nil, errors.New("gemini TTS response did not include audio data")
 }
 
 func (g *GeminiTTS) PlayAudioData(audioData []byte) error {

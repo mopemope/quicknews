@@ -28,15 +28,23 @@ type summaryViewModel struct {
 	summaryRepos  summary.SummaryRepository
 	articleRepos  article.ArticleRepository // Add ArticleRepository
 	bookmarkRepos bookmark.Repository
+	ctx           context.Context
 	confirmDialog *components.ConfirmationDialog
 	config        *config.Config
 }
 
-func newSummaryViewModel(client *ent.Client, config *config.Config) summaryViewModel {
+func newSummaryViewModel(ctx context.Context, client *ent.Client, config *config.Config) summaryViewModel {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
 	vp := viewport.New(0, 0) // Initial size, will be updated
 	vp.Style = summaryViewStyle
 
-	bookmarkRepos, _ := bookmark.NewRepository(context.Background(), client, config)
+	bookmarkRepos, err := bookmark.NewRepository(ctx, client, config)
+	if err != nil {
+		slog.Warn("bookmark repository not initialized", "error", err)
+	}
 	return summaryViewModel{
 		viewport:      vp,
 		summaryRepos:  summary.NewRepository(client),
@@ -44,6 +52,7 @@ func newSummaryViewModel(client *ent.Client, config *config.Config) summaryViewM
 		confirmDialog: components.NewConfirmationDialog(),
 		config:        config,
 		bookmarkRepos: bookmarkRepos,
+		ctx:           ctx,
 	}
 }
 
@@ -110,7 +119,7 @@ func (m summaryViewModel) Update(msg tea.Msg) (summaryViewModel, tea.Cmd) {
 			}
 		case "B":
 			if m.bookmarkRepos != nil {
-				if err := m.bookmarkRepos.AddBookmark(context.Background(), m.article.URL); err != nil {
+				if err := m.bookmarkRepos.AddBookmark(m.ctx, m.article.URL); err != nil {
 					slog.Error("Failed to add bookmark", slog.Any("error", err))
 				}
 			} else {
@@ -126,9 +135,8 @@ func (m summaryViewModel) Update(msg tea.Msg) (summaryViewModel, tea.Cmd) {
 					m.confirmDialog.Show(
 						"記事を既読にしますか？ (y/N)",
 						func() tea.Cmd {
-							ctx := context.Background()
 							return func() tea.Msg {
-								if err := m.summaryRepos.UpdateReaded(ctx, m.article.Edges.Summary); err != nil {
+								if err := m.summaryRepos.UpdateReaded(m.ctx, m.article.Edges.Summary); err != nil {
 									slog.Error("Failed to mark as read", "error", err)
 									return errors.Wrap(err, "failed to mark article as read")
 								}
@@ -139,7 +147,7 @@ func (m summaryViewModel) Update(msg tea.Msg) (summaryViewModel, tea.Cmd) {
 					)
 					return m, nil
 				} else {
-					if err := m.summaryRepos.UpdateReaded(context.Background(), m.article.Edges.Summary); err != nil {
+					if err := m.summaryRepos.UpdateReaded(m.ctx, m.article.Edges.Summary); err != nil {
 						slog.Error("Failed to update summary as readed", "error", err)
 					}
 					return m, func() tea.Msg { return backToArticleListMsg{} }
@@ -153,8 +161,7 @@ func (m summaryViewModel) Update(msg tea.Msg) (summaryViewModel, tea.Cmd) {
 				go func() {
 					sum := m.article.Edges.Summary
 					sum.Edges.Feed = m.article.Edges.Feed
-					ctx := context.Background()
-					audioData, err := summary.GetAudioData(ctx, sum, m.config)
+					audioData, err := summary.GetAudioData(m.ctx, sum, m.config)
 					if err != nil {
 						slog.Error("Failed to get audio data", "error", err)
 						return
@@ -170,9 +177,8 @@ func (m summaryViewModel) Update(msg tea.Msg) (summaryViewModel, tea.Cmd) {
 				m.confirmDialog.Show(
 					"この記事と要約を削除しますか？ (y/N)",
 					func() tea.Cmd {
-						ctx := context.Background()
 						return func() tea.Msg {
-							if err := m.articleRepos.Delete(ctx, m.article.ID.String()); err != nil {
+							if err := m.articleRepos.Delete(m.ctx, m.article.ID.String()); err != nil {
 								slog.Error("Failed to delete article and summary", "error", err)
 								// Optionally return an error message to display to the user
 								return errors.Wrap(err, "failed to delete article")
@@ -194,13 +200,6 @@ func (m summaryViewModel) Update(msg tea.Msg) (summaryViewModel, tea.Cmd) {
 			m.viewport.Width = msg.Width
 			m.viewport.Height = msg.Height - headerHeight - footerHeight
 			slog.Debug("Summary view resized", "width", m.viewport.Width, "height", m.viewport.Height)
-
-			go func() {
-				if err := m.summaryRepos.UpdateReaded(context.Background(), m.article.Edges.Summary); err != nil {
-					slog.Error("Failed to play audio data", "error", err)
-				}
-			}()
-
 		}
 	}
 

@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"context"
+	stderrors "errors"
 	"fmt"
 	"log/slog"
 	"time"
@@ -25,7 +25,7 @@ type FetchCmd struct {
 }
 
 func (cmd *FetchCmd) Run(client *ent.Client, config *config.Config) error {
-	ctx := context.Background()
+	ctx := RunContext()
 
 	feedRepos := feed.NewRepository(client)
 	articleRepos := article.NewRepository(client)
@@ -35,46 +35,77 @@ func (cmd *FetchCmd) Run(client *ent.Client, config *config.Config) error {
 
 	for {
 		items, err := feedProcessor.GetItems(ctx)
-		if err != nil {
+		if err != nil && len(items) == 0 {
 			return err
+		}
+		pendingErr := err
+		if pendingErr != nil {
+			slog.Error("failed to fetch one or more feeds", "error", pendingErr)
 		}
 
 		itemCount := len(items)
 		if itemCount > 0 {
 			if IsTTY() {
 				if itemCount > 50 {
-					if _, err := tea.NewProgram(progress.NewParallelProgressModel(items, "Fetching", 5)).Run(); err != nil {
+					model := progress.NewParallelProgressModel(items, "Fetching", 5)
+					finalModel, err := tea.NewProgram(model).Run()
+					if err != nil {
 						return errors.Wrap(err, "error running progress")
 					}
+					pendingErr = stderrors.Join(pendingErr, progressModelErr(finalModel))
 				} else {
-					if _, err := tea.NewProgram(progress.NewSingleProgressModel(ctx,
+					model := progress.NewSingleProgressModel(ctx,
 						&progress.Config{
 							Client:        client,
 							Config:        config,
 							Items:         items,
 							ProgressLabel: "Fetching",
-						})).Run(); err != nil {
+						})
+					finalModel, err := tea.NewProgram(model).Run()
+					if err != nil {
 						return errors.Wrap(err, "error running progress")
 					}
+					pendingErr = stderrors.Join(pendingErr, progressModelErr(finalModel))
 				}
 			} else {
 				// Non-TTY mode: Process items sequentially without UI
 				slog.Info("Processing items in non-TTY mode", "count", itemCount)
+				itemErrs := make([]error, 0)
 				for i, item := range items {
 					slog.Info("Processing item", "progress", fmt.Sprintf("%d/%d", i+1, itemCount), "title", item.DisplayName())
-					item.Process()
+					if err := item.Process(); err != nil {
+						slog.Error("failed to process item", "title", item.DisplayName(), "url", item.URL(), "error", err)
+						itemErrs = append(itemErrs, err)
+					}
 				}
 				slog.Info("Finished processing items", "count", itemCount)
+				pendingErr = stderrors.Join(pendingErr, stderrors.Join(itemErrs...))
 			}
 		} else {
 			fmt.Println("No new items to process.")
 		}
 
+		if pendingErr != nil {
+			return pendingErr
+		}
+
 		if cmd.Interval > 0 {
-			time.Sleep(cmd.Interval)
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case <-time.After(cmd.Interval):
+			}
 		} else {
 			break
 		}
 	}
 	return nil
+}
+
+func progressModelErr(model tea.Model) error {
+	errModel, ok := model.(interface{ Err() error })
+	if !ok {
+		return nil
+	}
+	return errModel.Err()
 }

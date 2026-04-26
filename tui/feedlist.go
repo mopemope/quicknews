@@ -17,6 +17,7 @@ import (
 
 type feedListModel struct {
 	repos         feed.FeedRepository
+	ctx           context.Context
 	list          list.Model
 	err           error
 	confirmDialog *components.ConfirmationDialog
@@ -37,12 +38,17 @@ func (i feedItem) Title() string {
 func (i feedItem) Description() string { return i.url } // Show URL in description for now
 func (i feedItem) FilterValue() string { return i.title }
 
-func newFeedListModel(client *ent.Client) feedListModel {
+func newFeedListModel(ctx context.Context, client *ent.Client) feedListModel {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
 	l := list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
 	l.Title = "Feeds"
 
 	return feedListModel{
 		repos:         feed.NewRepository(client),
+		ctx:           ctx,
 		list:          l,
 		confirmDialog: components.NewConfirmationDialog(),
 	}
@@ -52,8 +58,7 @@ func newFeedListModel(client *ent.Client) feedListModel {
 func (m *feedListModel) fetchFeedsCmd() tea.Msg {
 	slog.Debug("Fetching feeds from database")
 
-	ctx := context.Background()
-	feeds, err := m.repos.All(ctx)
+	feeds, err := m.repos.All(m.ctx)
 	if err != nil {
 		slog.Error("Failed to fetch feeds", "error", err)
 		return errors.Wrap(err, "failed to fetch feeds")
@@ -127,9 +132,8 @@ func (m feedListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.confirmDialog.Show(
 					"このフィード削除しますか？ (y/N)",
 					func() tea.Cmd {
-						ctx := context.Background()
 						return func() tea.Msg {
-							if err := m.repos.DeleteWithArticle(ctx, selectedItem.id); err != nil {
+							if err := m.repos.DeleteWithArticle(m.ctx, selectedItem.id); err != nil {
 								slog.Error("Failed to mark as read", "error", err)
 								return errors.Wrap(err, "failed to mark article as read")
 							}

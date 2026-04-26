@@ -2,6 +2,9 @@ package cmd
 
 import (
 	"log/slog"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -32,7 +35,7 @@ func validateReadMode(nonInteractive bool, isTTY bool) error {
 }
 
 // Run executes the TUI command.
-func (t *ReadCmd) Run(client *ent.Client, config *config.Config) error {
+func (t *ReadCmd) Run(client *ent.Client, cfg *config.Config) error {
 	if err := validateReadMode(t.NonInteractive, IsTTY()); err != nil {
 		return err
 	}
@@ -43,27 +46,28 @@ func (t *ReadCmd) Run(client *ent.Client, config *config.Config) error {
 		slog.Debug("Starting TUI mode")
 	}
 
-	if t.SpeakingRate == nil {
-		t.SpeakingRate = &config.SpeakingRate
-	}
-	tts.SpeachOpt.SpeakingRate = *t.SpeakingRate
-
-	if config.VoiceVox != nil {
-		tts.SpeachOpt.Engine = "voicevox"
-		tts.SpeachOpt.Speaker = config.VoiceVox.Speaker
-	}
+	t.applyTTSConfig(cfg)
+	ctx, stop := signal.NotifyContext(RunContext(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
 
 	if !t.NoFetch {
 		go func() {
+			fetchTicker := time.NewTicker(time.Hour)
+			defer fetchTicker.Stop()
+
 			for {
-				fetchArticles(client, config)
-				time.Sleep(time.Hour)
+				fetchArticles(ctx, client, cfg)
+				select {
+				case <-fetchTicker.C:
+				case <-ctx.Done():
+					return
+				}
 			}
 		}()
 	}
 
 	if !t.NonInteractive {
-		model := tui.InitialModel(client, config)
+		model := tui.InitialModelWithContext(ctx, client, cfg)
 		p := tea.NewProgram(model,
 			tea.WithAltScreen(),
 			tea.WithMouseCellMotion(),
@@ -74,9 +78,28 @@ func (t *ReadCmd) Run(client *ent.Client, config *config.Config) error {
 		slog.Debug("Exiting TUI mode")
 	} else {
 		slog.Info("Non-interactive mode: Running background fetch only, press Ctrl+C to stop")
-		// Keep the process alive for systemd
-		select {} // Block forever
+		<-ctx.Done()
 	}
 
 	return nil
+}
+
+func (t *ReadCmd) applyTTSConfig(cfg *config.Config) {
+	if t.SpeakingRate == nil {
+		t.SpeakingRate = &cfg.SpeakingRate
+	}
+	tts.SpeachOpt.SpeakingRate = *t.SpeakingRate
+
+	if t.Voicevox {
+		tts.SpeachOpt.Engine = "voicevox"
+		tts.SpeachOpt.Speaker = t.Speaker
+		if cfg.VoiceVox == nil {
+			cfg.VoiceVox = &config.VoiceVox{Speaker: t.Speaker}
+		} else {
+			cfg.VoiceVox.Speaker = t.Speaker
+		}
+	} else if cfg.VoiceVox != nil {
+		tts.SpeachOpt.Engine = "voicevox"
+		tts.SpeachOpt.Speaker = cfg.VoiceVox.Speaker
+	}
 }

@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"context"
-
 	"github.com/mopemope/quicknews/config"
 	"github.com/mopemope/quicknews/ent"
 	"github.com/mopemope/quicknews/models/summary"
@@ -13,7 +11,7 @@ type ExportAudioCmd struct {
 
 func (e *ExportAudioCmd) Run(client *ent.Client, config *config.Config) error {
 	summaryRepos := summary.NewRepository(client)
-	ctx := context.Background()
+	ctx := RunContext()
 	sums, err := summaryRepos.GetAll(ctx)
 	if err != nil {
 		return err

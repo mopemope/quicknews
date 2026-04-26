@@ -113,13 +113,13 @@ func (r *ArticleRepositoryImpl) GetByDate(ctx context.Context, feedId uuid.UUID,
 		return nil, errors.Wrap(err, "failed to parse date")
 	}
 
-	end := baseDate.UTC()
-	start := end.AddDate(0, 0, -1)
+	start := baseDate.UTC()
+	end := start.AddDate(0, 0, 1)
 
 	articles, err := r.client.Article.
 		Query().
-		Where(article.PublishedAtGT(start)).
-		Where(article.PublishedAtLTE(end)).
+		Where(article.PublishedAtGTE(start)).
+		Where(article.PublishedAtLT(end)).
 		Where(article.HasFeedWith(feed.ID(feedId))).
 		WithFeed().
 		WithSummary().
@@ -231,10 +231,15 @@ func (r *ArticleRepositoryImpl) SaveAll(ctx context.Context, articles ent.Articl
 }
 
 func (r *ArticleRepositoryImpl) Delete(ctx context.Context, id string) error {
+	articleID, err := uuid.Parse(id)
+	if err != nil {
+		return errors.Wrap(err, "failed to parse article ID")
+	}
+
 	return database.WithTx(ctx, r.client, func(tx *ent.Tx) error {
 		delArticle, err := tx.Article.
 			Query().
-			Where(article.IDEQ(uuid.MustParse(id))).
+			Where(article.IDEQ(articleID)).
 			Only(ctx)
 		if err != nil {
 			return errors.Wrap(err, "failed to get article by ID")

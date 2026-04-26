@@ -2,7 +2,11 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log/slog"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/alecthomas/kong"
 	_ "github.com/mattn/go-sqlite3" // SQLite driver
@@ -48,8 +52,22 @@ func logCommandError(kctx *kong.Context, err error) error {
 }
 
 func main() {
+	if err := run(os.Args[1:]); err != nil {
+		if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+			return
+		}
+		slog.Error("quicknews failed", "error", err)
+		os.Exit(1)
+	}
+}
+
+func run(args []string) error {
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	cmd.SetRunContext(ctx)
+
 	var cli CLI
-	kctx := kong.Parse(&cli,
+	parser, err := kong.New(&cli,
 		kong.Name("quicknews"),
 		kong.Description("RSS reader."),
 		kong.UsageOnError(),
@@ -58,23 +76,28 @@ func main() {
 			Compact: true,
 		}),
 	)
+	if err != nil {
+		return err
+	}
+
+	kctx, err := parser.Parse(args)
+	if err != nil {
+		return err
+	}
 
 	cfg, err := config.LoadConfig(cli.ConfigPath)
 	if err != nil {
-		slog.Error("failed to load config", "error", err)
-		return
+		return err
 	}
 	cli.config = cfg
 
 	if err := log.InitializeLogger(cli.LogPath, cli.Debug); err != nil {
-		slog.Error("failed to initialize logger", "error", err)
-		return
+		return err
 	}
 	// Initialize database client
 	client, err := ent.Open("sqlite3", cfg.DB+"?cache=shared&_fk=1")
 	if err != nil {
-		slog.Error("failed opening connection to sqlite", "error", err)
-		return
+		return err
 	}
 	defer func() {
 		if err := client.Close(); err != nil {
@@ -82,22 +105,22 @@ func main() {
 		}
 	}()
 
-	ctx := context.Background()
 	// Run the auto migration tool.
 	if err := client.Schema.Create(ctx); err != nil {
-		slog.Error("failed creating schema resources", "error", err)
-		return
+		return err
 	}
 
 	if err := setup(ctx, client); err != nil {
-		slog.Error("failed to setup initial data", "error", err)
-		return
+		return err
 	}
 	kctx.Bind(client, cli.config)
 
 	// Call the Run() method of the selected parsed command.
 	err = logCommandError(kctx, kctx.Run())
-	kctx.FatalIfErrorf(err)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func setup(ctx context.Context, cilent *ent.Client) error {

@@ -27,7 +27,7 @@ func ExportOrg(config *config.Config, sum *ent.Summary) error {
 	article := sum.Edges.Article
 
 	dst = path.Join(dst, ConvertPathName(feed.Title))
-	if err := os.MkdirAll(dst, os.ModePerm); err != nil {
+	if err := os.MkdirAll(dst, 0o755); err != nil {
 		return errors.Wrap(err, "failed to create directory")
 	}
 
@@ -65,7 +65,7 @@ func ExportOrg(config *config.Config, sum *ent.Summary) error {
 		sum.Title,
 		sum.URL,
 		sum.Summary)
-	return os.WriteFile(dst, []byte(content), os.ModePerm)
+	return os.WriteFile(dst, []byte(content), 0o644)
 }
 
 // ConvertPathName converts a string to a safe path name component

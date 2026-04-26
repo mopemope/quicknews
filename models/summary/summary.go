@@ -117,10 +117,10 @@ func (r *SummaryRepositoryImpl) GetUnlistened(ctx context.Context, date *string)
 			return nil, errors.Wrap(err, "failed to parse date")
 		}
 
-		end := baseDate.UTC()
-		start := end.AddDate(0, 0, -1)
-		q = q.Where(summary.HasArticleWith(article.PublishedAtGT(start))).
-			Where(summary.HasArticleWith(article.PublishedAtLTE(end)))
+		start := baseDate.UTC()
+		end := start.AddDate(0, 0, 1)
+		q = q.Where(summary.HasArticleWith(article.PublishedAtGTE(start))).
+			Where(summary.HasArticleWith(article.PublishedAtLT(end)))
 	}
 	q = q.Order(ent.Desc(summary.FieldCreatedAt))
 	sums, err := q.All(ctx)
@@ -182,6 +182,9 @@ func (r *SummaryRepositoryImpl) Delete(ctx context.Context, id uuid.UUID) error 
 // GetAudioData generates audio data for the given summary using the configured TTS engine.
 func GetAudioData(ctx context.Context, sum *ent.Summary, cfg *config.Config) ([]byte, error) {
 	if sum.AudioFile != "" {
+		if cfg.AudioPath == nil || *cfg.AudioPath == "" {
+			return nil, errors.New("audio path is not configured")
+		}
 		file := filepath.Join(*cfg.AudioPath, sum.AudioFile)
 		b, err := os.ReadFile(file)
 		if err != nil {
@@ -216,7 +219,7 @@ func GetAudioData(ctx context.Context, sum *ent.Summary, cfg *config.Config) ([]
 
 func SaveAudioData(ctx context.Context, sum *ent.Summary, cfg *config.Config) (*string, error) {
 	dir := cfg.AudioPath
-	if dir == nil {
+	if dir == nil || *dir == "" {
 		return nil, nil
 	}
 	data, err := GetAudioData(ctx, sum, cfg)
@@ -224,7 +227,7 @@ func SaveAudioData(ctx context.Context, sum *ent.Summary, cfg *config.Config) (*
 		return nil, err
 	}
 	filename := fmt.Sprintf("%s.mp3", sum.ID.String()) // TODO check fileformat
-	if err := os.WriteFile(filepath.Join(*dir, filename), data, os.ModePerm); err != nil {
+	if err := os.WriteFile(filepath.Join(*dir, filename), data, 0o644); err != nil {
 		return nil, errors.Wrap(err, "failed to save audio data")
 	}
 

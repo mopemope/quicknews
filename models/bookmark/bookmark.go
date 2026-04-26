@@ -3,6 +3,7 @@ package bookmark
 import (
 	"context"
 	"log/slog"
+	"sync"
 	"time"
 
 	"github.com/cockroachdb/errors"
@@ -27,17 +28,19 @@ type RepositoryImpl struct {
 	client       *ent.Client
 	config       *config.Config
 	geminiClient *gemini.Client
+	initMu       sync.Mutex
 }
 
-func NewRepository(ctx context.Context, client *ent.Client, config *config.Config) (Repository, error) {
-	geminiClient, err := gemini.NewClient(ctx, config)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to create gemini client")
+func NewRepository(ctx context.Context, client *ent.Client, cfg *config.Config) (Repository, error) {
+	if client == nil {
+		return nil, errors.New("ent client is required")
+	}
+	if cfg == nil {
+		cfg = &config.Config{}
 	}
 	return &RepositoryImpl{
-		client:       client,
-		config:       config,
-		geminiClient: geminiClient,
+		client: client,
+		config: cfg,
 	}, nil
 }
 
@@ -179,7 +182,7 @@ func (r *RepositoryImpl) createNewBookmarkArticle(ctx context.Context, tx *ent.T
 	if r.config.SaveAudioData {
 		if len(sum.Summary)+len(sum.Title) > 4500 {
 			// skip
-			slog.Warn("Skip summary because it is too long", slog.Any("title", article.Edges.Summary.Title))
+			slog.Warn("Skip summary because it is too long", slog.Any("title", sum.Title))
 		} else {
 			filename, err := summary.SaveAudioData(ctx, sum, r.config)
 			if err != nil {
@@ -209,6 +212,10 @@ func (r *RepositoryImpl) summarizePage(ctx context.Context, url string) (*gemini
 	const maxRetries = 3
 	const baseWaitSeconds = 1
 
+	if err := r.ensureGeminiClient(ctx); err != nil {
+		return nil, errors.Wrap(err, "failed to initialize gemini client")
+	}
+
 	for i := range maxRetries {
 		pageSummary, err = r.geminiClient.Summarize(ctx, url)
 		if err == nil && pageSummary != nil {
@@ -216,9 +223,45 @@ func (r *RepositoryImpl) summarizePage(ctx context.Context, url string) (*gemini
 		}
 
 		slog.Warn("retrying to summarize page", "link", url, "attempt", i+1, "error", err)
+		if i == maxRetries-1 {
+			break
+		}
 		waitDuration := time.Duration(baseWaitSeconds*(i+1)*(i+1)) * time.Second // Exponential backoff (1, 4, 9 seconds)
-		time.Sleep(waitDuration)
+		if waitErr := waitWithContext(ctx, waitDuration); waitErr != nil {
+			return nil, waitErr
+		}
 	}
 
+	if err == nil {
+		err = errors.New("summarizer returned nil summary")
+	}
 	return nil, errors.Wrapf(err, "failed to summarize page after %d attempts", maxRetries)
+}
+
+func (r *RepositoryImpl) ensureGeminiClient(ctx context.Context) error {
+	r.initMu.Lock()
+	defer r.initMu.Unlock()
+
+	if r.geminiClient != nil {
+		return nil
+	}
+
+	client, err := gemini.NewClient(ctx, r.config)
+	if err != nil {
+		return errors.Wrap(err, "failed to create gemini client")
+	}
+	r.geminiClient = client
+	return nil
+}
+
+func waitWithContext(ctx context.Context, duration time.Duration) error {
+	timer := time.NewTimer(duration)
+	defer timer.Stop()
+
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-timer.C:
+		return nil
+	}
 }

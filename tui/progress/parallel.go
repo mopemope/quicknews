@@ -1,7 +1,9 @@
 package progress
 
 import (
+	"errors"
 	"fmt"
+	"log/slog"
 	"strings"
 	"sync"
 
@@ -22,6 +24,7 @@ type parallelProgressModel struct {
 	progress      progress.Model
 	done          bool
 	progressLabel string
+	errs          []error
 }
 
 func NewParallelProgressModel(items []QueueItem, progressLabel string, parallel int) parallelProgressModel {
@@ -59,6 +62,10 @@ func (m parallelProgressModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		}
 	case finishedItemsMsg:
+		if msg.err != nil {
+			slog.Error("one or more queue items failed", "error", msg.err)
+			m.errs = append(m.errs, msg.err)
+		}
 
 		if m.index >= m.itemCount-1 {
 			// Everything's been installed. We're done!
@@ -90,6 +97,10 @@ func (m parallelProgressModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
+func (m parallelProgressModel) Err() error {
+	return errors.Join(m.errs...)
+}
+
 func (m parallelProgressModel) View() string {
 	n := m.itemCount
 	w := lipgloss.Width(fmt.Sprintf("%d", n))
@@ -116,6 +127,8 @@ func (m *parallelProgressModel) processItem() tea.Cmd {
 	return func() tea.Msg {
 		var wg sync.WaitGroup
 		fin := 0
+		errs := make([]error, 0)
+		var errsMu sync.Mutex
 
 		for range m.numParallel {
 			if m.index >= m.itemCount {
@@ -127,15 +140,20 @@ func (m *parallelProgressModel) processItem() tea.Cmd {
 			wg.Add(1)
 			go func(item QueueItem) {
 				defer wg.Done()
-				item.Process()
+				if err := item.Process(); err != nil {
+					errsMu.Lock()
+					errs = append(errs, err)
+					errsMu.Unlock()
+				}
 			}(item)
 		}
 		wg.Wait()
 
-		return finishedItemsMsg{finished: fin}
+		return finishedItemsMsg{finished: fin, err: errors.Join(errs...)}
 	}
 }
 
 type finishedItemsMsg struct {
 	finished int
+	err      error
 }

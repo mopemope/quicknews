@@ -4,10 +4,12 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/cockroachdb/errors"
 	"github.com/mopemope/quicknews/config"
@@ -62,6 +64,7 @@ type voiceVoxStyles struct {
 
 type voicevoxConfig struct {
 	endpoint   string
+	client     *http.Client
 	speaker    int
 	style      int
 	speed      float64
@@ -70,8 +73,19 @@ type voicevoxConfig struct {
 	pitch      float64
 }
 
-func getSpeakers(cfg voicevoxConfig) (voiceVoxSpeakers, error) {
-	resp, err := http.Get(cfg.endpoint + "/speakers")
+func (cfg voicevoxConfig) httpClient() *http.Client {
+	if cfg.client != nil {
+		return cfg.client
+	}
+	return &http.Client{Timeout: 30 * time.Second}
+}
+
+func getSpeakers(ctx context.Context, cfg voicevoxConfig) (voiceVoxSpeakers, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, cfg.endpoint+"/speakers", nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create speakers request")
+	}
+	resp, err := cfg.httpClient().Do(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get speakers")
 	}
@@ -80,6 +94,9 @@ func getSpeakers(cfg voicevoxConfig) (voiceVoxSpeakers, error) {
 			slog.Warn("failed to close response body", "error", err)
 		}
 	}()
+	if err := ensureVoiceVoxStatus(resp, "speakers"); err != nil {
+		return nil, err
+	}
 	var speakers voiceVoxSpeakers
 	if err := json.NewDecoder(resp.Body).Decode(&speakers); err != nil {
 		return nil, errors.Wrap(err, "failed to decode speakers")
@@ -87,8 +104,8 @@ func getSpeakers(cfg voicevoxConfig) (voiceVoxSpeakers, error) {
 	return speakers, nil
 }
 
-func getQuery(cfg voicevoxConfig, id int, text string) (*voiceVoxParams, error) {
-	req, err := http.NewRequest("POST", cfg.endpoint+"/audio_query", nil)
+func getQuery(ctx context.Context, cfg voicevoxConfig, id int, text string) (*voiceVoxParams, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, cfg.endpoint+"/audio_query", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +113,7 @@ func getQuery(cfg voicevoxConfig, id int, text string) (*voiceVoxParams, error) 
 	q.Add("speaker", strconv.Itoa(id))
 	q.Add("text", text)
 	req.URL.RawQuery = q.Encode()
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := cfg.httpClient().Do(req)
 	if err != nil {
 		return nil, errors.Wrap(err, " failed to get audio query")
 	}
@@ -105,6 +122,9 @@ func getQuery(cfg voicevoxConfig, id int, text string) (*voiceVoxParams, error) 
 			slog.Warn("failed to close response body", "error", err)
 		}
 	}()
+	if err := ensureVoiceVoxStatus(resp, "audio_query"); err != nil {
+		return nil, err
+	}
 	var params *voiceVoxParams
 	if err := json.NewDecoder(resp.Body).Decode(&params); err != nil {
 		return nil, errors.Wrap(err, "failed to decode params")
@@ -112,13 +132,13 @@ func getQuery(cfg voicevoxConfig, id int, text string) (*voiceVoxParams, error) 
 	return params, nil
 }
 
-func synth(cfg voicevoxConfig, id int, params *voiceVoxParams) ([]byte, error) {
+func synth(ctx context.Context, cfg voicevoxConfig, id int, params *voiceVoxParams) ([]byte, error) {
 	b, err := json.MarshalIndent(params, "", "  ")
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", cfg.endpoint+"/synthesis", bytes.NewReader(b))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, cfg.endpoint+"/synthesis", bytes.NewReader(b))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create request")
 	}
@@ -128,7 +148,7 @@ func synth(cfg voicevoxConfig, id int, params *voiceVoxParams) ([]byte, error) {
 	q.Add("speaker", strconv.Itoa(id))
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := cfg.httpClient().Do(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to synthesize")
 	}
@@ -137,6 +157,9 @@ func synth(cfg voicevoxConfig, id int, params *voiceVoxParams) ([]byte, error) {
 			slog.Warn("failed to close response body", "error", err)
 		}
 	}()
+	if err := ensureVoiceVoxStatus(resp, "synthesis"); err != nil {
+		return nil, err
+	}
 	buff := bytes.NewBuffer(nil)
 	if _, err := io.Copy(buff, resp.Body); err != nil {
 		return nil, errors.Wrap(err, "failed to copy response body")
@@ -147,11 +170,24 @@ func synth(cfg voicevoxConfig, id int, params *voiceVoxParams) ([]byte, error) {
 	return buff.Bytes(), nil
 }
 
+func ensureVoiceVoxStatus(resp *http.Response, operation string) error {
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+		return nil
+	}
+	return errors.Newf("voicevox %s failed with status %d", operation, resp.StatusCode)
+}
+
 func NewVoiceVox(config *config.Config) *VoiceVox {
+	speaker := SpeachOpt.Speaker
+	style := 0
+	if config.VoiceVox != nil {
+		speaker = config.VoiceVox.Speaker
+		style = config.VoiceVox.Style
+	}
 	return &VoiceVox{
 		Config:  config,
-		Speaker: config.VoiceVox.Speaker,
-		Style:   config.VoiceVox.Style,
+		Speaker: speaker,
+		Style:   style,
 	}
 }
 
@@ -167,22 +203,28 @@ func (v *VoiceVox) SynthesizeText(ctx context.Context, text string) ([]byte, err
 		pitch:      0,
 	}
 
-	speakers, err := getSpeakers(cfg)
+	speakers, err := getSpeakers(ctx, cfg)
 	if err != nil {
 		return nil, err
 	}
+	if cfg.speaker < 0 {
+		return nil, fmt.Errorf("speaker not found: %d", cfg.speaker)
+	}
 	if cfg.speaker >= len(speakers) {
-		return nil, errors.New("speaker not found")
+		return nil, fmt.Errorf("speaker not found: %d", cfg.speaker)
 	}
 	spk := speakers[cfg.speaker]
+	if cfg.style < 0 {
+		return nil, fmt.Errorf("style not found: %d", cfg.style)
+	}
 	if cfg.style >= len(spk.Styles) {
-		return nil, errors.New("style not found")
+		return nil, fmt.Errorf("style not found: %d", cfg.style)
 	}
 
 	spkID := spk.Styles[cfg.style].ID
 	slog.Info("VoiceVox", slog.Any("name", spk.Name), slog.Any("styles", spk.Styles[cfg.style].Name), slog.Any("speaker", spkID))
 
-	params, err := getQuery(cfg, spkID, text)
+	params, err := getQuery(ctx, cfg, spkID, text)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get query")
 	}
@@ -191,7 +233,7 @@ func (v *VoiceVox) SynthesizeText(ctx context.Context, text string) ([]byte, err
 	params.IntonationScale = cfg.intonation
 	params.VolumeScale = cfg.volume
 
-	return synth(cfg, spkID, params)
+	return synth(ctx, cfg, spkID, params)
 }
 
 func (v *VoiceVox) PlayAudioData(audioData []byte) error {

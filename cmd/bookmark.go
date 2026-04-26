@@ -1,7 +1,8 @@
 package cmd
 
 import (
-	"context"
+	stderrors "errors"
+	"fmt"
 	"log/slog"
 
 	"github.com/mopemope/quicknews/config"
@@ -14,16 +15,18 @@ type BookmarkCmd struct {
 }
 
 func (a *BookmarkCmd) Run(client *ent.Client, config *config.Config) error {
-	ctx := context.Background()
+	ctx := RunContext()
 	bookmarkRepos, err := bookmark.NewRepository(ctx, client, config)
 	if err != nil {
 		return err
 	}
+	errs := make([]error, 0)
 	for _, url := range a.URLs {
 		if err := bookmarkRepos.AddBookmark(ctx, url); err != nil {
 			slog.Error("failed to add bookmark", slog.Any("url", url), slog.Any("error", err))
+			errs = append(errs, fmt.Errorf("add bookmark %q: %w", url, err))
 		}
 	}
 
-	return nil
+	return stderrors.Join(errs...)
 }

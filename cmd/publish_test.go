@@ -141,6 +141,19 @@ func TestResolvePublishDates_InvalidDate(t *testing.T) {
 	require.Error(t, err)
 }
 
+func TestPublishCmd_RunRequiresNonEmptyAudioPath(t *testing.T) {
+	audioPath := ""
+	cmd := &PublishCmd{}
+	cfg := &config.Config{
+		AudioPath: &audioPath,
+		Podcast:   &config.Podcast{},
+	}
+
+	err := cmd.Run(nil, cfg)
+	require.Error(t, err)
+	require.ErrorContains(t, err, "AudioPath")
+}
+
 func TestProcessFeed_SkipsWhenNoAudioFiles(t *testing.T) {
 	audioDir := t.TempDir()
 	cfg := testPublishConfig(audioDir)
@@ -251,6 +264,44 @@ func TestProcessFeed_SaveAudioErrorIncludesContext(t *testing.T) {
 	require.ErrorContains(t, err, "Summary title")
 	require.ErrorContains(t, err, "Tech")
 	require.ErrorContains(t, err, "2026-04-22")
+}
+
+func TestProcessFeed_SkipsWhenSaveAudioReturnsNoFilename(t *testing.T) {
+	audioDir := t.TempDir()
+	cfg := testPublishConfig(audioDir)
+	storage := &fakeObjectStorage{}
+	sum := &ent.Summary{
+		ID:      uuid.New(),
+		Title:   "Summary title",
+		Summary: "Summary body",
+	}
+	articleItem := &ent.Article{
+		Edges: ent.ArticleEdges{
+			Summary: sum,
+		},
+	}
+
+	pb := &publisher{
+		ArticleRepository: &fakePublishArticleRepository{
+			articles: ent.Articles{articleItem},
+		},
+		SummaryRepository: &fakePublishSummaryRepository{},
+		RSSFeed:           rss.NewRSS(cfg.Podcast),
+		R2Client:          storage,
+		Config:            cfg,
+		mergeAudio: func(string, []string) error {
+			t.Fatal("mergeAudio should not be called without input audio files")
+			return nil
+		},
+		saveAudioData: func(context.Context, *ent.Summary, *config.Config) (*string, error) {
+			return nil, nil
+		},
+	}
+
+	err := pb.processFeed(context.Background(), &ent.Feed{ID: uuid.New(), Title: "Tech"}, "2026-04-22")
+	require.NoError(t, err)
+	require.Empty(t, storage.uploads)
+	require.Empty(t, pb.RSSFeed.Channel.Items)
 }
 
 func TestProcessFeed_UpdateAudioErrorIncludesContext(t *testing.T) {

@@ -23,6 +23,7 @@ type ArticleProcessor struct {
 	summaryRepos  summary.SummaryRepository
 	config        *config.Config
 	newSummarizer func(context.Context, *config.Config) (gemini.Summarizer, error)
+	retryWait     func(context.Context, time.Duration) error
 }
 
 // NewArticleProcessor creates a new ArticleProcessor
@@ -36,6 +37,7 @@ func NewArticleProcessor(feed *ent.Feed, item *gofeed.Item, articleRepos article
 		newSummarizer: func(ctx context.Context, cfg *config.Config) (gemini.Summarizer, error) {
 			return gemini.NewClient(ctx, cfg)
 		},
+		retryWait: waitWithContext,
 	}
 }
 
@@ -107,14 +109,22 @@ func (ap *ArticleProcessor) processSummary(ctx context.Context, article *ent.Art
 		if err != nil || pageSummary == nil {
 			// retry if error
 			slog.Info("retrying to summarize page", "link", url, "error", err)
+			if i == 2 {
+				break
+			}
 			wait := (i + 1) * (i + 1)
-			time.Sleep(time.Duration(wait) * time.Second)
+			if waitErr := ap.retryWait(ctx, time.Duration(wait)*time.Second); waitErr != nil {
+				return waitErr
+			}
 		} else {
 			break
 		}
 	}
 	if err != nil {
 		return errors.Wrap(err, "error summarizing page")
+	}
+	if pageSummary == nil {
+		return errors.New("summarizer returned nil summary")
 	}
 
 	sum := &ent.Summary{
@@ -161,4 +171,16 @@ func (ap *ArticleProcessor) processSummary(ctx context.Context, article *ent.Art
 	}
 
 	return nil
+}
+
+func waitWithContext(ctx context.Context, duration time.Duration) error {
+	timer := time.NewTimer(duration)
+	defer timer.Stop()
+
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-timer.C:
+		return nil
+	}
 }

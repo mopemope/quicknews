@@ -164,6 +164,70 @@ func TestArticleRepository_SaveAll(t *testing.T) {
 	assert.Equal(t, "Article 2", article2.Title)
 }
 
+func TestArticleRepository_GetByDate_UsesSelectedDay(t *testing.T) {
+	client := enttest.Open(t, dialect.SQLite, "file:ent?mode=memory&cache=shared&_fk=1")
+	defer func() { _ = client.Close() }()
+
+	repo := NewRepository(client)
+	ctx := context.Background()
+
+	feed, err := client.Feed.Create().
+		SetURL("https://example.com/date-feed").
+		SetTitle("Date Feed").
+		SetDescription("Technology").
+		SetLink("https://example.com").
+		SetUpdatedAt(time.Now()).
+		SetIsBookmark(false).
+		Save(ctx)
+	require.NoError(t, err)
+
+	_, err = client.Article.Create().
+		SetTitle("Previous day").
+		SetURL("https://example.com/previous-day").
+		SetDescription("Previous").
+		SetContent("Previous").
+		SetPublishedAt(time.Date(2026, 4, 21, 23, 59, 59, 0, time.UTC)).
+		SetFeed(feed).
+		Save(ctx)
+	require.NoError(t, err)
+
+	selected, err := client.Article.Create().
+		SetTitle("Selected day").
+		SetURL("https://example.com/selected-day").
+		SetDescription("Selected").
+		SetContent("Selected").
+		SetPublishedAt(time.Date(2026, 4, 22, 10, 0, 0, 0, time.UTC)).
+		SetFeed(feed).
+		Save(ctx)
+	require.NoError(t, err)
+
+	_, err = client.Article.Create().
+		SetTitle("Next day boundary").
+		SetURL("https://example.com/next-day").
+		SetDescription("Next").
+		SetContent("Next").
+		SetPublishedAt(time.Date(2026, 4, 23, 0, 0, 0, 0, time.UTC)).
+		SetFeed(feed).
+		Save(ctx)
+	require.NoError(t, err)
+
+	results, err := repo.GetByDate(ctx, feed.ID, "2026-04-22")
+	require.NoError(t, err)
+	require.Len(t, results, 1)
+	require.Equal(t, selected.ID, results[0].ID)
+}
+
+func TestArticleRepository_Delete_InvalidID(t *testing.T) {
+	client := enttest.Open(t, dialect.SQLite, "file:ent?mode=memory&cache=shared&_fk=1")
+	defer func() { _ = client.Close() }()
+
+	repo := NewRepository(client)
+
+	err := repo.Delete(context.Background(), "not-a-uuid")
+	require.Error(t, err)
+	require.ErrorContains(t, err, "failed to parse article ID")
+}
+
 func TestArticleRepository_Search(t *testing.T) {
 	client := enttest.Open(t, dialect.SQLite, "file:ent?mode=memory&cache=shared&_fk=1")
 	defer func() { _ = client.Close() }()

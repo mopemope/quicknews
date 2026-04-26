@@ -37,6 +37,7 @@ type model struct {
 	feedList      feedListModel
 	articleList   articleListModel
 	summaryView   summaryViewModel // Add summary view model
+	ctx           context.Context
 	currentView   viewState
 	confirmDialog *components.ConfirmationDialog
 	err           error
@@ -54,15 +55,24 @@ const (
 )
 
 func InitialModel(client *ent.Client, config *config.Config) model {
+	return InitialModelWithContext(context.Background(), client, config)
+}
+
+func InitialModelWithContext(ctx context.Context, client *ent.Client, config *config.Config) model {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
 	return model{
 		client:        client,
 		articleRepos:  article.NewRepository(client), // Initialize article repository
-		feedList:      newFeedListModel(client),
-		articleList:   newArticleListModel(client, config),
-		summaryView:   newSummaryViewModel(client, config), // Initialize summary view model
+		feedList:      newFeedListModel(ctx, client),
+		articleList:   newArticleListModel(ctx, client, config),
+		summaryView:   newSummaryViewModel(ctx, client, config), // Initialize summary view model
 		currentView:   feedListView,
 		confirmDialog: components.NewConfirmationDialog(),
 		config:        config,
+		ctx:           ctx,
 	}
 }
 
@@ -84,9 +94,8 @@ func (m model) Init() tea.Cmd {
 // fetchArticleContentCmd fetches the full content of a single article for the summary view.
 func (m *model) fetchArticleContentCmd(articleID uuid.UUID) tea.Cmd {
 	slog.Debug("Fetching article content for summary", "articleID", articleID)
-	ctx := context.Background()
 	return func() tea.Msg {
-		articleData, err := m.articleRepos.GetById(ctx, articleID) // Use main model's repo
+		articleData, err := m.articleRepos.GetById(m.ctx, articleID) // Use main model's repo
 		if err != nil {
 			slog.Error("Failed to fetch article content for summary", "error", err, "articleID", articleID)
 			// Return the error directly, the Update function will handle it

@@ -2,8 +2,8 @@ package storage
 
 import (
 	"context"
-	"fmt"
 	"io"
+	"log/slog"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
@@ -55,7 +55,7 @@ func NewR2Storage(ctx context.Context, cfg *config.Config) (*R2Storage, error) {
 
 // Upload uploads data to the specified key in the R2 bucket.
 func (r *R2Storage) Upload(ctx context.Context, key string, reader io.Reader, contentType string) error {
-	fmt.Println("Uploading to R2 bucket:", r.bucketName, "with key:", key)
+	slog.Info("uploading object to R2", "bucket", r.bucketName, "key", key, "content_type", contentType)
 
 	_, err := r.client.PutObject(ctx, &s3.PutObjectInput{
 		Bucket:      aws.String(r.bucketName),

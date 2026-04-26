@@ -2,7 +2,9 @@ package fetch
 
 import (
 	"context"
+	stderrors "errors"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/mmcdole/gofeed"
@@ -18,6 +20,8 @@ type fakeArticleRepository struct {
 	existing     *ent.Article
 	savedArticle *ent.Article
 	saveCalls    int
+	getErr       error
+	saveErr      error
 }
 
 func (r *fakeArticleRepository) GetById(context.Context, uuid.UUID) (*ent.Article, error) {
@@ -33,6 +37,9 @@ func (r *fakeArticleRepository) GetByUnreaded(context.Context, uuid.UUID) (ent.A
 }
 
 func (r *fakeArticleRepository) GetFromURL(context.Context, string) (*ent.Article, error) {
+	if r.getErr != nil {
+		return nil, r.getErr
+	}
 	return r.existing, nil
 }
 
@@ -45,6 +52,9 @@ func (r *fakeArticleRepository) Search(context.Context, article.SearchOptions) (
 }
 
 func (r *fakeArticleRepository) Save(_ context.Context, article *ent.Article) (*ent.Article, error) {
+	if r.saveErr != nil {
+		return nil, r.saveErr
+	}
 	r.saveCalls++
 	article.ID = uuid.New()
 	r.savedArticle = article
@@ -200,4 +210,56 @@ func TestArticleProcessor_Process_SkipsSummarizerWhenSummaryExists(t *testing.T)
 	require.Equal(t, 0, summaryRepo.saveCalls)
 	require.Equal(t, 0, summarizer.calls)
 	require.Equal(t, 0, summarizer.closeCalls)
+}
+
+func TestArticleProcessor_Process_ErrorsWhenSummarizerReturnsNil(t *testing.T) {
+	feedEntity := &ent.Feed{ID: uuid.New(), Title: "Tech", URL: "https://example.com/feed"}
+	item := &gofeed.Item{
+		Title: "Article title",
+		Link:  "https://example.com/article",
+	}
+	articleRepo := &fakeArticleRepository{}
+	summaryRepo := &fakeSummaryRepository{}
+	summarizer := &fakeSummarizer{}
+
+	processor := NewArticleProcessorWithSummarizer(
+		feedEntity,
+		item,
+		articleRepo,
+		summaryRepo,
+		&config.Config{},
+		func(context.Context, *config.Config) (gemini.Summarizer, error) {
+			return summarizer, nil
+		},
+	)
+	processor.retryWait = func(context.Context, time.Duration) error {
+		return nil
+	}
+
+	err := processor.Process(context.Background())
+	require.Error(t, err)
+	require.ErrorContains(t, err, "summarizer returned nil summary")
+	require.Equal(t, 3, summarizer.calls)
+	require.Equal(t, 0, summaryRepo.saveCalls)
+}
+
+func TestQueueItemWrapper_Process_ReturnsArticleError(t *testing.T) {
+	feedEntity := &ent.Feed{ID: uuid.New(), Title: "Tech", URL: "https://example.com/feed"}
+	item := &gofeed.Item{
+		Title: "Article title",
+		Link:  "https://example.com/article",
+	}
+	processor := NewArticleProcessor(
+		feedEntity,
+		item,
+		&fakeArticleRepository{getErr: stderrors.New("database unavailable")},
+		&fakeSummaryRepository{},
+		&config.Config{},
+	)
+	wrapper := &QueueItemWrapper{processor: processor, name: item.Title}
+
+	err := wrapper.Process()
+	require.Error(t, err)
+	require.ErrorContains(t, err, "failed to process article")
+	require.ErrorContains(t, err, "database unavailable")
 }

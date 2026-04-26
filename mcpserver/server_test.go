@@ -103,8 +103,8 @@ func TestMCPServerRegistersSearchArticles(t *testing.T) {
 	require.NotEmpty(t, result.Content)
 	require.NotNil(t, result.StructuredContent)
 
-	clientSession.Close()
-	serverSession.Wait()
+	require.NoError(t, clientSession.Close())
+	require.NoError(t, serverSession.Wait())
 }
 
 func TestTruncate(t *testing.T) {

@@ -19,7 +19,7 @@ type ImportCmd struct {
 
 // Run executes the import command.
 func (cmd *ImportCmd) Run(client *ent.Client) error {
-	ctx := context.Background()
+	ctx := RunContext()
 	cmd.feedRepos = feed.NewRepository(client)
 
 	doc, err := opml.NewOPMLFromFile(cmd.OpmlPath)
@@ -29,7 +29,7 @@ func (cmd *ImportCmd) Run(client *ent.Client) error {
 
 	var feedsToSave []*feed.FeedInput
 	for _, outline := range doc.Body.Outlines {
-		feedsToSave = append(feedsToSave, cmd.extractFeeds(&outline)...)
+		feedsToSave = append(feedsToSave, cmd.extractFeeds(ctx, &outline)...)
 	}
 
 	if len(feedsToSave) == 0 {
@@ -47,13 +47,13 @@ func (cmd *ImportCmd) Run(client *ent.Client) error {
 }
 
 // extractFeeds recursively extracts feed information from OPML outlines.
-func (cmd *ImportCmd) extractFeeds(outline *opml.Outline) []*feed.FeedInput {
+func (cmd *ImportCmd) extractFeeds(ctx context.Context, outline *opml.Outline) []*feed.FeedInput {
 	var feeds []*feed.FeedInput
 
 	// If it's a feed entry
 	if outline.XMLURL != "" {
 		// Check if feed already exists
-		exists, err := cmd.feedRepos.Exist(context.Background(), outline.XMLURL) // Use background context for check
+		exists, err := cmd.feedRepos.Exist(ctx, outline.XMLURL)
 		if err != nil {
 			slog.Error("Failed to check feed existence, skipping", "url", outline.XMLURL, "error", err)
 		} else if !exists {
@@ -75,7 +75,7 @@ func (cmd *ImportCmd) extractFeeds(outline *opml.Outline) []*feed.FeedInput {
 
 	// Recursively process sub-outlines
 	for _, subOutline := range outline.Outlines {
-		feeds = append(feeds, cmd.extractFeeds(&subOutline)...)
+		feeds = append(feeds, cmd.extractFeeds(ctx, &subOutline)...)
 	}
 
 	return feeds

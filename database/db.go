@@ -18,6 +18,7 @@ func WithTx(ctx context.Context, client *ent.Client, fn func(tx *ent.Tx) error) 
 			if err := tx.Rollback(); err != nil {
 				slog.Error("failed to rollback transaction", "error", err)
 			}
+			panic(v)
 		}
 	}()
 

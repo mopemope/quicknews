@@ -8,7 +8,9 @@ import (
 	"entgo.io/ent/dialect"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/mopemope/quicknews/config"
+	"github.com/mopemope/quicknews/ent/article"
 	"github.com/mopemope/quicknews/ent/enttest"
+	"github.com/mopemope/quicknews/ent/summary"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -19,7 +21,7 @@ func TestBookmarkRepository(t *testing.T) {
 
 	// Create a minimal config for testing
 	config := &config.Config{
-		GeminiApiKey: "test-key", // This will cause tests to skip if actual API is called
+		SaveAudioData: false,
 	}
 
 	// First, create a bookmark feed (this is needed for bookmark functionality)
@@ -51,11 +53,11 @@ func TestBookmarkRepository_AddBookmark(t *testing.T) {
 
 	// Create a minimal config for testing
 	config := &config.Config{
-		GeminiApiKey: "test-key", // This will cause tests to skip if actual API is called
+		SaveAudioData: false,
 	}
 
 	// First, create a bookmark feed (this is needed for bookmark functionality)
-	_, err := client.Feed.Create().
+	bookmarkFeed, err := client.Feed.Create().
 		SetURL("https://quicknews.org/bookmark/rss").
 		SetTitle("Bookmark").
 		SetDescription("Bookmark").
@@ -65,17 +67,64 @@ func TestBookmarkRepository_AddBookmark(t *testing.T) {
 		Save(context.Background())
 	require.NoError(t, err)
 
+	feed, err := client.Feed.Create().
+		SetURL("https://quicknews.org/feed").
+		SetTitle("Source Feed").
+		SetDescription("Source Feed").
+		SetLink("https://quicknews.org/feed").
+		SetUpdatedAt(time.Now()).
+		Save(context.Background())
+	require.NoError(t, err)
+
+	url := "https://example.com/article"
+	articleEntity, err := client.Article.Create().
+		SetTitle("Example").
+		SetURL(url).
+		SetDescription("desc").
+		SetContent("content").
+		SetCreatedAt(time.Now()).
+		SetPublishedAt(time.Now()).
+		SetFeed(feed).
+		Save(context.Background())
+	require.NoError(t, err)
+
+	_, err = client.Summary.Create().
+		SetTitle("Example Summary").
+		SetSummary("summary").
+		SetURL(url).
+		SetCreatedAt(time.Now()).
+		SetArticle(articleEntity).
+		SetFeed(feed).
+		Save(context.Background())
+	require.NoError(t, err)
+
 	// Create the bookmark repository
 	repo, err := NewRepository(context.Background(), client, config)
 	require.NoError(t, err)
 
 	ctx := context.Background()
 
-	// Test AddBookmark with a new URL
-	// This test will likely fail due to network calls, but we're testing the flow
-	url := "https://example.com/article"
-	_ = repo.AddBookmark(ctx, url)
-	// We expect this to fail due to network/API issues, but not panic
-	// If it doesn't panic, the test passes in terms of structure
-	// The important thing is that the function doesn't crash
+	require.NoError(t, repo.AddBookmark(ctx, url))
+
+	updatedArticle, err := client.Article.Query().
+		Where(article.URL(url)).
+		WithFeed().
+		Only(ctx)
+	require.NoError(t, err)
+	assert.Equal(t, bookmarkFeed.ID, updatedArticle.Edges.Feed.ID)
+	updatedSummary, err := client.Summary.Query().
+		Where(summary.URL(url)).
+		WithFeed().
+		Only(ctx)
+	require.NoError(t, err)
+	require.NotNil(t, updatedSummary.Edges.Feed)
+	assert.True(t, updatedSummary.Edges.Feed.IsBookmark)
+}
+
+func TestNewRepository_SucceedsWithoutGeminiKey(t *testing.T) {
+	client := enttest.Open(t, dialect.SQLite, "file:ent?mode=memory&cache=shared&_fk=1")
+	defer func() { _ = client.Close() }()
+
+	_, err := NewRepository(context.Background(), client, &config.Config{})
+	require.NoError(t, err)
 }

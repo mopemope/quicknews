@@ -1,7 +1,8 @@
 package cmd
 
 import (
-	"context"
+	stderrors "errors"
+	"fmt"
 	"log/slog"
 
 	"github.com/mmcdole/gofeed"
@@ -16,16 +17,17 @@ type AddCmd struct {
 
 // Run executes the add command.
 func (a *AddCmd) Run(client *ent.Client) error {
-
-	ctx := context.Background()
+	ctx := RunContext()
 	fp := gofeed.NewParser()
 	repo := feed.NewRepository(client)
+	errs := make([]error, 0)
 
 	for _, url := range a.URLs {
 		// Check if the feed already exists
 		exists, err := repo.Exist(ctx, url)
 		if err != nil {
 			slog.Error("Error checking url", "url", url, "error", err)
+			errs = append(errs, fmt.Errorf("check feed %q: %w", url, err))
 			continue // Skip this URL on error
 		}
 		if exists {
@@ -34,9 +36,10 @@ func (a *AddCmd) Run(client *ent.Client) error {
 		}
 
 		// Fetch feed information
-		parsedFeed, err := fp.ParseURL(url)
+		parsedFeed, err := fp.ParseURLWithContext(url, ctx)
 		if err != nil {
 			slog.Error("Error parsing", "url", url, "error", err)
+			errs = append(errs, fmt.Errorf("parse feed %q: %w", url, err))
 			continue // Skip this URL on error
 		}
 
@@ -50,6 +53,7 @@ func (a *AddCmd) Run(client *ent.Client) error {
 		err = repo.Save(ctx, input, false)
 		if err != nil {
 			slog.Error("Error saving feed", "url", url, "error", err)
+			errs = append(errs, fmt.Errorf("save feed %q: %w", url, err))
 			continue // Skip this URL on error
 		}
 
@@ -57,5 +61,5 @@ func (a *AddCmd) Run(client *ent.Client) error {
 	}
 
 	slog.Info("Add command finished.")
-	return nil
+	return stderrors.Join(errs...)
 }

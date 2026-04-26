@@ -2,8 +2,12 @@ package cmd
 
 import (
 	"context"
+	stderrors "errors"
 	"fmt"
 	"log/slog"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -25,6 +29,7 @@ type playArticle struct {
 	summary *ent.Summary
 	repo    summary.SummaryRepository
 	config  *config.Config
+	ctx     context.Context
 }
 
 func (a *playArticle) DisplayName() string {
@@ -35,31 +40,33 @@ func (a *playArticle) URL() string {
 	return a.summary.URL
 }
 
-func (a *playArticle) Process() {
-	ctx := context.Background()
+func (a *playArticle) Process() error {
 	// Pass config to GetAudioData
-	audioData, err := summary.GetAudioData(ctx, a.summary, a.config)
+	audioData, err := summary.GetAudioData(a.ctx, a.summary, a.config)
 	if err != nil {
 		slog.Error("Failed to get audio data", "error", err)
-		return
+		return err
 	}
 
 	ttsEngine := tts.NewTTSEngine(a.config)
 	if err := ttsEngine.PlayAudioData(audioData); err != nil {
 		slog.Error("failed to play audio data", "error", err)
-		return
+		return err
 	}
 	// Update the summary as listened
-	if err := a.repo.UpdateListened(ctx, a.summary); err != nil {
+	if err := a.repo.UpdateListened(a.ctx, a.summary); err != nil {
 		slog.Error("failed to update listened status", "error", err)
+		return err
 	}
+	return nil
 }
 
-func newArticle(summary *ent.Summary, repo summary.SummaryRepository, config *config.Config) *playArticle {
+func newArticle(ctx context.Context, summary *ent.Summary, repo summary.SummaryRepository, config *config.Config) *playArticle {
 	return &playArticle{
 		summary: summary,
 		repo:    repo,
 		config:  config,
+		ctx:     ctx,
 	}
 }
 
@@ -70,12 +77,20 @@ func (a *PlayCmd) Run(client *ent.Client, config *config.Config) error {
 		tts.SpeachOpt.Speaker = config.VoiceVox.Speaker
 	}
 
-	ctx := context.Background()
+	ctx, stop := signal.NotifyContext(RunContext(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
 	if !a.NoFetch {
 		go func() {
+			fetchTicker := time.NewTicker(time.Hour)
+			defer fetchTicker.Stop()
+
 			for {
-				fetchArticles(client, config)
-				time.Sleep(time.Hour)
+				fetchArticles(ctx, client, config)
+				select {
+				case <-fetchTicker.C:
+				case <-ctx.Done():
+					return
+				}
 			}
 		}()
 	}
@@ -89,28 +104,39 @@ func (a *PlayCmd) Run(client *ent.Client, config *config.Config) error {
 
 	items := make([]progress.QueueItem, 0)
 	for _, sum := range res {
-		items = append(items, newArticle(sum, repo, config))
+		items = append(items, newArticle(ctx, sum, repo, config))
 	}
 
 	if len(items) > 0 {
 		if IsTTY() {
-			if _, err := tea.NewProgram(progress.NewSingleProgressModel(ctx,
+			model := progress.NewSingleProgressModel(ctx,
 				&progress.Config{
 					Client:        client,
 					Config:        config,
 					Items:         items,
 					ProgressLabel: "Playing",
-				})).Run(); err != nil {
+				})
+			finalModel, err := tea.NewProgram(model).Run()
+			if err != nil {
 				return errors.Wrap(err, "error running progress")
+			}
+			if err := progressModelErr(finalModel); err != nil {
+				return err
 			}
 		} else {
 			// Non-TTY mode: Process items sequentially without UI
 			slog.Info("Playing items in non-TTY mode", "count", len(items))
+			errs := make([]error, 0)
 			for i, item := range items {
 				slog.Info("Playing item", "progress", fmt.Sprintf("%d/%d", i+1, len(items)), "title", item.DisplayName())
-				item.Process()
+				if err := item.Process(); err != nil {
+					errs = append(errs, err)
+				}
 			}
 			slog.Info("Finished playing items", "count", len(items))
+			if err := stderrors.Join(errs...); err != nil {
+				return err
+			}
 		}
 	} else {
 		fmt.Println("No new items to process.")

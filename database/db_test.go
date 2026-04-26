@@ -77,14 +77,11 @@ func TestWithTx_RollbackOnPanic(t *testing.T) {
 	mock.ExpectBegin()
 	mock.ExpectRollback()
 
-	// The WithTx function should handle the panic internally and not return an error
-	// The panic is recovered and the transaction is rolled back
-	err = WithTx(context.Background(), client, func(tx *ent.Tx) error {
-		panic("test panic")
+	require.PanicsWithValue(t, "test panic", func() {
+		_ = WithTx(context.Background(), client, func(tx *ent.Tx) error {
+			panic("test panic")
+		})
 	})
 
-	// The function should have handled the panic internally and not return an error
-	// since the panic is recovered in the defer function
-	assert.NoError(t, err)
 	assert.NoError(t, mock.ExpectationsWereMet())
 }

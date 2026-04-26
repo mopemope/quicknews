@@ -2,6 +2,7 @@ package progress
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"strings"
@@ -19,7 +20,7 @@ import (
 type QueueItem interface {
 	DisplayName() string
 	URL() string
-	Process()
+	Process() error
 }
 
 type Config struct {
@@ -38,7 +39,9 @@ type singleProgressModel struct {
 	progress      progress.Model
 	done          bool
 	progressLabel string
+	ctx           context.Context
 	bookmarkRepos bookmark.Repository
+	errs          []error
 }
 
 var (
@@ -48,13 +51,20 @@ var (
 )
 
 func NewSingleProgressModel(ctx context.Context, config *Config) singleProgressModel {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
 	p := progress.New(
 		progress.WithDefaultGradient(),
 		progress.WithWidth(40),
 		progress.WithoutPercentage(),
 	)
 
-	bookmarkRepos, _ := bookmark.NewRepository(ctx, config.Client, config.Config)
+	bookmarkRepos, err := bookmark.NewRepository(ctx, config.Client, config.Config)
+	if err != nil {
+		slog.Warn("bookmark repository not initialized", "error", err)
+	}
 
 	s := spinner.New()
 	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("63"))
@@ -63,6 +73,7 @@ func NewSingleProgressModel(ctx context.Context, config *Config) singleProgressM
 		spinner:       s,
 		progress:      p,
 		progressLabel: config.ProgressLabel,
+		ctx:           ctx,
 		bookmarkRepos: bookmarkRepos,
 	}
 }
@@ -81,7 +92,7 @@ func (m singleProgressModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		case "B":
 			if m.bookmarkRepos != nil {
-				if err := m.bookmarkRepos.AddBookmark(context.Background(), m.items[m.index].URL()); err != nil {
+				if err := m.bookmarkRepos.AddBookmark(m.ctx, m.items[m.index].URL()); err != nil {
 					slog.Error("Failed to add bookmark", "error", err)
 				} else {
 					slog.Info("Bookmark added", "url", m.items[m.index].URL())
@@ -96,6 +107,10 @@ func (m singleProgressModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case finishedItemMsg:
 		name := m.items[m.index].DisplayName()
+		if msg.err != nil {
+			slog.Error("queue item failed", "name", name, "url", msg.item.URL(), "error", msg.err)
+			m.errs = append(m.errs, msg.err)
+		}
 		if m.index >= len(m.items)-1 {
 			// Everything's been installed. We're done!
 			m.done = true
@@ -128,6 +143,10 @@ func (m singleProgressModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
+func (m singleProgressModel) Err() error {
+	return errors.Join(m.errs...)
+}
+
 func (m singleProgressModel) View() string {
 	n := len(m.items)
 	w := lipgloss.Width(fmt.Sprintf("%d", n))
@@ -155,13 +174,14 @@ func (m singleProgressModel) View() string {
 
 func (m *singleProgressModel) processItem(item QueueItem) tea.Cmd {
 	return func() tea.Msg {
-		item.Process()
-		return finishedItemMsg{item: item}
+		err := item.Process()
+		return finishedItemMsg{item: item, err: err}
 	}
 }
 
 type finishedItemMsg struct {
 	item QueueItem
+	err  error
 }
 
 func max(a, b int) int {

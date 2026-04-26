@@ -1,7 +1,7 @@
 package tts
 
 import (
-	"fmt"
+	"log/slog"
 	"os"
 
 	"github.com/cockroachdb/errors"
@@ -68,8 +68,7 @@ func MergeMP3(outpath string, inpaths []string) error {
 		}
 
 		if err := infile.Close(); err != nil {
-			// Consider logging the error or returning it if critical
-			fmt.Println("Error closing input file:", err)
+			slog.Warn("failed to close input file", "path", inpath, "error", err)
 		}
 		totalFiles += 1
 	}
