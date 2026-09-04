@@ -154,6 +154,31 @@ func (m summaryViewModel) Update(msg tea.Msg) (summaryViewModel, tea.Cmd) {
 				}
 
 			}
+		case "u": // Mark the current article as unread
+			if m.article != nil &&
+				m.article.Edges.Feed != nil &&
+				!m.article.Edges.Feed.IsBookmark &&
+				m.article.Edges.Summary != nil {
+				summaryID := m.article.Edges.Summary.ID
+				doUnread := func() tea.Msg {
+					if err := m.summaryRepos.SetReaded(m.ctx, summaryID, false); err != nil {
+						slog.Error("Failed to mark as unread", "error", err)
+						return errors.Wrap(err, "failed to mark article as unread")
+					}
+					return nil
+				}
+				if m.config.RequireConfirm {
+					m.confirmDialog.Show(
+						"記事を未読に戻しますか？ (y/N)",
+						func() tea.Cmd {
+							return doUnread
+						},
+						nil,
+					)
+					return m, nil
+				}
+				return m, doUnread
+			}
 		case "p":
 			if m.article != nil && m.article.Edges.Summary != nil {
 				// Play audio for the summary if available
@@ -244,5 +269,5 @@ func (m summaryViewModel) footerView() string {
 	return lipgloss.NewStyle().
 		Foreground(lipgloss.Color("240")). // Dim color
 		Padding(0, 1).
-		Render("Scroll: ↑/k ↓/j | Top: g | Bottom: G | Play: p | Read: r | Delete: d | Open: o | Bookmark: B | Back: b ")
+		Render("Scroll: ↑/k ↓/j | Top: g | Bottom: G | Play: p | Read: r | Unread: u | Delete: d | Open: o | Bookmark: B | Back: b ")
 }

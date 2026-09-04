@@ -214,3 +214,138 @@ func TestSummaryRepository_Delete_NotFound(t *testing.T) {
 	err := repo.Delete(ctx, nonExistentID)
 	assert.Error(t, err)
 }
+
+func TestSummaryRepository_SetReaded(t *testing.T) {
+	client := enttest.Open(t, dialect.SQLite, "file:ent?mode=memory&cache=shared&_fk=1")
+	defer func() { _ = client.Close() }()
+
+	repo := NewRepository(client)
+	ctx := context.Background()
+
+	feed, err := client.Feed.Create().
+		SetURL("https://example.com/feed").
+		SetTitle("Test Feed").
+		SetDescription("Test Description").
+		SetLink("https://example.com").
+		SetUpdatedAt(time.Now()).
+		SetIsBookmark(false).
+		Save(ctx)
+	require.NoError(t, err)
+
+	article, err := client.Article.Create().
+		SetTitle("Test Article").
+		SetURL("https://example.com/article").
+		SetDescription("Test Description").
+		SetContent("Test Content").
+		SetCreatedAt(time.Now()).
+		SetPublishedAt(time.Now()).
+		SetFeed(feed).
+		Save(ctx)
+	require.NoError(t, err)
+
+	summary := &ent.Summary{
+		URL:     article.URL,
+		Title:   "Test Summary",
+		Summary: "This is a test summary",
+	}
+	summary.Edges.Article = article
+	summary.Edges.Feed = feed
+
+	savedSummary, err := repo.Save(ctx, summary)
+	require.NoError(t, err)
+	assert.False(t, savedSummary.Readed)
+
+	// Mark as read
+	err = repo.SetReaded(ctx, savedSummary.ID, true)
+	require.NoError(t, err)
+
+	updated, err := repo.GetFromURL(ctx, summary.URL)
+	require.NoError(t, err)
+	assert.True(t, updated.Readed)
+
+	// Mark as unread again
+	err = repo.SetReaded(ctx, savedSummary.ID, false)
+	require.NoError(t, err)
+
+	updated, err = repo.GetFromURL(ctx, summary.URL)
+	require.NoError(t, err)
+	assert.False(t, updated.Readed)
+}
+
+func TestSummaryRepository_MarkFeedReaded(t *testing.T) {
+	client := enttest.Open(t, dialect.SQLite, "file:ent?mode=memory&cache=shared&_fk=1")
+	defer func() { _ = client.Close() }()
+
+	repo := NewRepository(client)
+	ctx := context.Background()
+
+	createFeed := func(url, title string) *ent.Feed {
+		f, err := client.Feed.Create().
+			SetURL(url).
+			SetTitle(title).
+			SetDescription("Test Description").
+			SetLink("https://example.com").
+			SetUpdatedAt(time.Now()).
+			SetIsBookmark(false).
+			Save(ctx)
+		require.NoError(t, err)
+		return f
+	}
+
+	createArticleWithSummary := func(f *ent.Feed, url string) *ent.Summary {
+		a, err := client.Article.Create().
+			SetTitle("Article " + url).
+			SetURL(url).
+			SetDescription("Test Description").
+			SetContent("Test Content").
+			SetCreatedAt(time.Now()).
+			SetPublishedAt(time.Now()).
+			SetFeed(f).
+			Save(ctx)
+		require.NoError(t, err)
+
+		s := &ent.Summary{
+			URL:     url,
+			Title:   "Summary " + url,
+			Summary: "This is a test summary",
+		}
+		s.Edges.Article = a
+		s.Edges.Feed = f
+
+		saved, err := repo.Save(ctx, s)
+		require.NoError(t, err)
+		return saved
+	}
+
+	feedA := createFeed("https://example.com/feed-a", "Feed A")
+	feedB := createFeed("https://example.com/feed-b", "Feed B")
+
+	summaryA1 := createArticleWithSummary(feedA, "https://example.com/a1")
+	createArticleWithSummary(feedA, "https://example.com/a2")
+	createArticleWithSummary(feedB, "https://example.com/b1")
+
+	// Pre-read one summary in feed A
+	err := repo.SetReaded(ctx, summaryA1.ID, true)
+	require.NoError(t, err)
+
+	// Mark feed A as read: only the remaining unread summary should be updated
+	count, err := repo.MarkFeedReaded(ctx, feedA.ID)
+	require.NoError(t, err)
+	assert.Equal(t, 1, count)
+
+	// All summaries of feed A are read, feed B is untouched
+	allSummaries, err := repo.GetAll(ctx)
+	require.NoError(t, err)
+	readedByURL := make(map[string]bool, len(allSummaries))
+	for _, s := range allSummaries {
+		readedByURL[s.URL] = s.Readed
+	}
+	assert.True(t, readedByURL["https://example.com/a1"])
+	assert.True(t, readedByURL["https://example.com/a2"])
+	assert.False(t, readedByURL["https://example.com/b1"])
+
+	// Marking again should update nothing
+	count, err = repo.MarkFeedReaded(ctx, feedA.ID)
+	require.NoError(t, err)
+	assert.Equal(t, 0, count)
+}

@@ -101,6 +101,14 @@ func (r *fakeSummaryRepository) UpdateReaded(context.Context, *ent.Summary) erro
 	return nil
 }
 
+func (r *fakeSummaryRepository) SetReaded(context.Context, uuid.UUID, bool) error {
+	return nil
+}
+
+func (r *fakeSummaryRepository) MarkFeedReaded(context.Context, uuid.UUID) (int, error) {
+	return 0, nil
+}
+
 func (r *fakeSummaryRepository) UpdateAudioFile(context.Context, uuid.UUID, string) error {
 	return nil
 }

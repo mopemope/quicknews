@@ -16,6 +16,7 @@ import (
 	"github.com/mopemope/quicknews/database"
 	"github.com/mopemope/quicknews/ent"
 	"github.com/mopemope/quicknews/ent/article"
+	"github.com/mopemope/quicknews/ent/feed"
 	"github.com/mopemope/quicknews/ent/summary"
 	"github.com/mopemope/quicknews/tts"
 )
@@ -27,6 +28,8 @@ type SummaryRepository interface {
 	GetUnlistened(ctx context.Context, date *string) ([]*ent.Summary, error)
 	UpdateListened(ctx context.Context, sum *ent.Summary) error
 	UpdateReaded(ctx context.Context, sum *ent.Summary) error
+	SetReaded(ctx context.Context, id uuid.UUID, readed bool) error
+	MarkFeedReaded(ctx context.Context, feedID uuid.UUID) (int, error)
 	UpdateAudioFile(ctx context.Context, id uuid.UUID, filename string) error
 	Delete(ctx context.Context, id uuid.UUID) error
 }
@@ -151,10 +154,45 @@ func (r *SummaryRepositoryImpl) UpdateReaded(ctx context.Context, sum *ent.Summa
 			SetReaded(true).
 			Save(ctx)
 		if err != nil {
-			return errors.Wrap(err, "failed to update summary as listened")
+			return errors.Wrap(err, "failed to update summary as readed")
 		}
 		return nil
 	})
+}
+
+// SetReaded sets the read status of the summary with the given ID.
+func (r *SummaryRepositoryImpl) SetReaded(ctx context.Context, id uuid.UUID, readed bool) error {
+	return database.WithTx(ctx, r.client, func(tx *ent.Tx) error {
+		_, err := tx.Summary.
+			UpdateOneID(id).
+			SetReaded(readed).
+			Save(ctx)
+		if err != nil {
+			return errors.Wrap(err, "failed to update summary read status")
+		}
+		return nil
+	})
+}
+
+// MarkFeedReaded marks all unread summaries of the given feed as read.
+func (r *SummaryRepositoryImpl) MarkFeedReaded(ctx context.Context, feedID uuid.UUID) (int, error) {
+	var count int
+	err := database.WithTx(ctx, r.client, func(tx *ent.Tx) error {
+		n, err := tx.Summary.
+			Update().
+			Where(
+				summary.HasFeedWith(feed.ID(feedID)),
+				summary.Readed(false),
+			).
+			SetReaded(true).
+			Save(ctx)
+		if err != nil {
+			return errors.Wrap(err, "failed to mark feed summaries as read")
+		}
+		count = n
+		return nil
+	})
+	return count, err
 }
 
 func (r *SummaryRepositoryImpl) UpdateAudioFile(ctx context.Context, id uuid.UUID, filename string) error {
@@ -164,7 +202,7 @@ func (r *SummaryRepositoryImpl) UpdateAudioFile(ctx context.Context, id uuid.UUI
 			SetAudioFile(filename).
 			Save(ctx)
 		if err != nil {
-			return errors.Wrap(err, "failed to update summary as listened")
+			return errors.Wrap(err, "failed to update summary audio file")
 		}
 		return nil
 	})

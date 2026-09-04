@@ -304,3 +304,69 @@ func TestArticleRepository_Search(t *testing.T) {
 	require.NoError(t, err)
 	require.Empty(t, results)
 }
+
+func TestArticleRepository_ReadStatusFiltering(t *testing.T) {
+	client := enttest.Open(t, dialect.SQLite, "file:ent?mode=memory&cache=shared&_fk=1")
+	defer func() { _ = client.Close() }()
+
+	repo := NewRepository(client)
+	ctx := context.Background()
+
+	feed, err := client.Feed.Create().
+		SetURL("https://example.com/feed").
+		SetTitle("Test Feed").
+		SetDescription("Test Description").
+		SetLink("https://example.com").
+		SetUpdatedAt(time.Now()).
+		SetIsBookmark(false).
+		Save(ctx)
+	require.NoError(t, err)
+
+	createArticleWithSummary := func(url, title string, readed bool) *ent.Article {
+		a, err := client.Article.Create().
+			SetTitle(title).
+			SetURL(url).
+			SetDescription("Test Description").
+			SetContent("Test Content").
+			SetCreatedAt(time.Now()).
+			SetPublishedAt(time.Now()).
+			SetFeed(feed).
+			Save(ctx)
+		require.NoError(t, err)
+
+		_, err = client.Summary.Create().
+			SetURL(url).
+			SetTitle(title + " Summary").
+			SetSummary("This is a test summary").
+			SetReaded(readed).
+			SetArticle(a).
+			SetFeed(feed).
+			Save(ctx)
+		require.NoError(t, err)
+		return a
+	}
+
+	readArticle := createArticleWithSummary("https://example.com/read", "Read Article", true)
+	unreadArticle := createArticleWithSummary("https://example.com/unread", "Unread Article", false)
+
+	// GetByFeed returns both read and unread articles
+	all, err := repo.GetByFeed(ctx, feed.ID)
+	require.NoError(t, err)
+	assert.Len(t, all, 2)
+
+	// GetByUnreaded returns only unread articles
+	unread, err := repo.GetByUnreaded(ctx, feed.ID)
+	require.NoError(t, err)
+	assert.Len(t, unread, 1)
+	assert.Equal(t, unreadArticle.ID, unread[0].ID)
+
+	// Summary edges are loaded with Readed status
+	for _, a := range all {
+		require.NotNil(t, a.Edges.Summary)
+	}
+
+	fresh, err := repo.GetById(ctx, readArticle.ID)
+	require.NoError(t, err)
+	require.NotNil(t, fresh.Edges.Summary)
+	assert.True(t, fresh.Edges.Summary.Readed)
+}
