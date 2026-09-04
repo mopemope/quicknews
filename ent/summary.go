@@ -102,7 +102,7 @@ func (*Summary) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the Summary fields.
-func (s *Summary) assignValues(columns []string, values []any) error {
+func (_m *Summary) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -112,66 +112,66 @@ func (s *Summary) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				s.ID = *value
+				_m.ID = *value
 			}
 		case summary.FieldURL:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field url", values[i])
 			} else if value.Valid {
-				s.URL = value.String
+				_m.URL = value.String
 			}
 		case summary.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field title", values[i])
 			} else if value.Valid {
-				s.Title = value.String
+				_m.Title = value.String
 			}
 		case summary.FieldSummary:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field summary", values[i])
 			} else if value.Valid {
-				s.Summary = value.String
+				_m.Summary = value.String
 			}
 		case summary.FieldReaded:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field readed", values[i])
 			} else if value.Valid {
-				s.Readed = value.Bool
+				_m.Readed = value.Bool
 			}
 		case summary.FieldListened:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field listened", values[i])
 			} else if value.Valid {
-				s.Listened = value.Bool
+				_m.Listened = value.Bool
 			}
 		case summary.FieldAudioFile:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field audio_file", values[i])
 			} else if value.Valid {
-				s.AudioFile = value.String
+				_m.AudioFile = value.String
 			}
 		case summary.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				s.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case summary.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field article_summary", values[i])
 			} else if value.Valid {
-				s.article_summary = new(uuid.UUID)
-				*s.article_summary = *value.S.(*uuid.UUID)
+				_m.article_summary = new(uuid.UUID)
+				*_m.article_summary = *value.S.(*uuid.UUID)
 			}
 		case summary.ForeignKeys[1]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field feed_summaries", values[i])
 			} else if value.Valid {
-				s.feed_summaries = new(uuid.UUID)
-				*s.feed_summaries = *value.S.(*uuid.UUID)
+				_m.feed_summaries = new(uuid.UUID)
+				*_m.feed_summaries = *value.S.(*uuid.UUID)
 			}
 		default:
-			s.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -179,63 +179,63 @@ func (s *Summary) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the Summary.
 // This includes values selected through modifiers, order, etc.
-func (s *Summary) Value(name string) (ent.Value, error) {
-	return s.selectValues.Get(name)
+func (_m *Summary) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryArticle queries the "article" edge of the Summary entity.
-func (s *Summary) QueryArticle() *ArticleQuery {
-	return NewSummaryClient(s.config).QueryArticle(s)
+func (_m *Summary) QueryArticle() *ArticleQuery {
+	return NewSummaryClient(_m.config).QueryArticle(_m)
 }
 
 // QueryFeed queries the "feed" edge of the Summary entity.
-func (s *Summary) QueryFeed() *FeedQuery {
-	return NewSummaryClient(s.config).QueryFeed(s)
+func (_m *Summary) QueryFeed() *FeedQuery {
+	return NewSummaryClient(_m.config).QueryFeed(_m)
 }
 
 // Update returns a builder for updating this Summary.
 // Note that you need to call Summary.Unwrap() before calling this method if this Summary
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (s *Summary) Update() *SummaryUpdateOne {
-	return NewSummaryClient(s.config).UpdateOne(s)
+func (_m *Summary) Update() *SummaryUpdateOne {
+	return NewSummaryClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the Summary entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (s *Summary) Unwrap() *Summary {
-	_tx, ok := s.config.driver.(*txDriver)
+func (_m *Summary) Unwrap() *Summary {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: Summary is not a transactional entity")
 	}
-	s.config.driver = _tx.drv
-	return s
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (s *Summary) String() string {
+func (_m *Summary) String() string {
 	var builder strings.Builder
 	builder.WriteString("Summary(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", s.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("url=")
-	builder.WriteString(s.URL)
+	builder.WriteString(_m.URL)
 	builder.WriteString(", ")
 	builder.WriteString("title=")
-	builder.WriteString(s.Title)
+	builder.WriteString(_m.Title)
 	builder.WriteString(", ")
 	builder.WriteString("summary=")
-	builder.WriteString(s.Summary)
+	builder.WriteString(_m.Summary)
 	builder.WriteString(", ")
 	builder.WriteString("readed=")
-	builder.WriteString(fmt.Sprintf("%v", s.Readed))
+	builder.WriteString(fmt.Sprintf("%v", _m.Readed))
 	builder.WriteString(", ")
 	builder.WriteString("listened=")
-	builder.WriteString(fmt.Sprintf("%v", s.Listened))
+	builder.WriteString(fmt.Sprintf("%v", _m.Listened))
 	builder.WriteString(", ")
 	builder.WriteString("audio_file=")
-	builder.WriteString(s.AudioFile)
+	builder.WriteString(_m.AudioFile)
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(s.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

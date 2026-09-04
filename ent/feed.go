@@ -96,7 +96,7 @@ func (*Feed) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the Feed fields.
-func (f *Feed) assignValues(columns []string, values []any) error {
+func (_m *Feed) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -106,64 +106,64 @@ func (f *Feed) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				f.ID = *value
+				_m.ID = *value
 			}
 		case feed.FieldURL:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field url", values[i])
 			} else if value.Valid {
-				f.URL = value.String
+				_m.URL = value.String
 			}
 		case feed.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field title", values[i])
 			} else if value.Valid {
-				f.Title = value.String
+				_m.Title = value.String
 			}
 		case feed.FieldDescription:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
-				f.Description = value.String
+				_m.Description = value.String
 			}
 		case feed.FieldLink:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field link", values[i])
 			} else if value.Valid {
-				f.Link = value.String
+				_m.Link = value.String
 			}
 		case feed.FieldOrder:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field order", values[i])
 			} else if value.Valid {
-				f.Order = int(value.Int64)
+				_m.Order = int(value.Int64)
 			}
 		case feed.FieldIsBookmark:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field is_bookmark", values[i])
 			} else if value.Valid {
-				f.IsBookmark = value.Bool
+				_m.IsBookmark = value.Bool
 			}
 		case feed.FieldLastCheckedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field last_checked_at", values[i])
 			} else if value.Valid {
-				f.LastCheckedAt = value.Time
+				_m.LastCheckedAt = value.Time
 			}
 		case feed.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				f.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case feed.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				f.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		default:
-			f.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -171,69 +171,69 @@ func (f *Feed) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the Feed.
 // This includes values selected through modifiers, order, etc.
-func (f *Feed) Value(name string) (ent.Value, error) {
-	return f.selectValues.Get(name)
+func (_m *Feed) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryArticles queries the "articles" edge of the Feed entity.
-func (f *Feed) QueryArticles() *ArticleQuery {
-	return NewFeedClient(f.config).QueryArticles(f)
+func (_m *Feed) QueryArticles() *ArticleQuery {
+	return NewFeedClient(_m.config).QueryArticles(_m)
 }
 
 // QuerySummaries queries the "summaries" edge of the Feed entity.
-func (f *Feed) QuerySummaries() *SummaryQuery {
-	return NewFeedClient(f.config).QuerySummaries(f)
+func (_m *Feed) QuerySummaries() *SummaryQuery {
+	return NewFeedClient(_m.config).QuerySummaries(_m)
 }
 
 // Update returns a builder for updating this Feed.
 // Note that you need to call Feed.Unwrap() before calling this method if this Feed
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (f *Feed) Update() *FeedUpdateOne {
-	return NewFeedClient(f.config).UpdateOne(f)
+func (_m *Feed) Update() *FeedUpdateOne {
+	return NewFeedClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the Feed entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (f *Feed) Unwrap() *Feed {
-	_tx, ok := f.config.driver.(*txDriver)
+func (_m *Feed) Unwrap() *Feed {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: Feed is not a transactional entity")
 	}
-	f.config.driver = _tx.drv
-	return f
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (f *Feed) String() string {
+func (_m *Feed) String() string {
 	var builder strings.Builder
 	builder.WriteString("Feed(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", f.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("url=")
-	builder.WriteString(f.URL)
+	builder.WriteString(_m.URL)
 	builder.WriteString(", ")
 	builder.WriteString("title=")
-	builder.WriteString(f.Title)
+	builder.WriteString(_m.Title)
 	builder.WriteString(", ")
 	builder.WriteString("description=")
-	builder.WriteString(f.Description)
+	builder.WriteString(_m.Description)
 	builder.WriteString(", ")
 	builder.WriteString("link=")
-	builder.WriteString(f.Link)
+	builder.WriteString(_m.Link)
 	builder.WriteString(", ")
 	builder.WriteString("order=")
-	builder.WriteString(fmt.Sprintf("%v", f.Order))
+	builder.WriteString(fmt.Sprintf("%v", _m.Order))
 	builder.WriteString(", ")
 	builder.WriteString("is_bookmark=")
-	builder.WriteString(fmt.Sprintf("%v", f.IsBookmark))
+	builder.WriteString(fmt.Sprintf("%v", _m.IsBookmark))
 	builder.WriteString(", ")
 	builder.WriteString("last_checked_at=")
-	builder.WriteString(f.LastCheckedAt.Format(time.ANSIC))
+	builder.WriteString(_m.LastCheckedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(f.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(f.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

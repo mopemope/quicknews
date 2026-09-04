@@ -95,7 +95,7 @@ func (*Article) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the Article fields.
-func (a *Article) assignValues(columns []string, values []any) error {
+func (_m *Article) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -105,53 +105,53 @@ func (a *Article) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				a.ID = *value
+				_m.ID = *value
 			}
 		case article.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field title", values[i])
 			} else if value.Valid {
-				a.Title = value.String
+				_m.Title = value.String
 			}
 		case article.FieldURL:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field url", values[i])
 			} else if value.Valid {
-				a.URL = value.String
+				_m.URL = value.String
 			}
 		case article.FieldDescription:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
-				a.Description = value.String
+				_m.Description = value.String
 			}
 		case article.FieldContent:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field content", values[i])
 			} else if value.Valid {
-				a.Content = value.String
+				_m.Content = value.String
 			}
 		case article.FieldPublishedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field published_at", values[i])
 			} else if value.Valid {
-				a.PublishedAt = value.Time
+				_m.PublishedAt = value.Time
 			}
 		case article.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				a.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case article.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field feed_articles", values[i])
 			} else if value.Valid {
-				a.feed_articles = new(uuid.UUID)
-				*a.feed_articles = *value.S.(*uuid.UUID)
+				_m.feed_articles = new(uuid.UUID)
+				*_m.feed_articles = *value.S.(*uuid.UUID)
 			}
 		default:
-			a.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -159,60 +159,60 @@ func (a *Article) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the Article.
 // This includes values selected through modifiers, order, etc.
-func (a *Article) Value(name string) (ent.Value, error) {
-	return a.selectValues.Get(name)
+func (_m *Article) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryFeed queries the "feed" edge of the Article entity.
-func (a *Article) QueryFeed() *FeedQuery {
-	return NewArticleClient(a.config).QueryFeed(a)
+func (_m *Article) QueryFeed() *FeedQuery {
+	return NewArticleClient(_m.config).QueryFeed(_m)
 }
 
 // QuerySummary queries the "summary" edge of the Article entity.
-func (a *Article) QuerySummary() *SummaryQuery {
-	return NewArticleClient(a.config).QuerySummary(a)
+func (_m *Article) QuerySummary() *SummaryQuery {
+	return NewArticleClient(_m.config).QuerySummary(_m)
 }
 
 // Update returns a builder for updating this Article.
 // Note that you need to call Article.Unwrap() before calling this method if this Article
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (a *Article) Update() *ArticleUpdateOne {
-	return NewArticleClient(a.config).UpdateOne(a)
+func (_m *Article) Update() *ArticleUpdateOne {
+	return NewArticleClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the Article entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (a *Article) Unwrap() *Article {
-	_tx, ok := a.config.driver.(*txDriver)
+func (_m *Article) Unwrap() *Article {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: Article is not a transactional entity")
 	}
-	a.config.driver = _tx.drv
-	return a
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (a *Article) String() string {
+func (_m *Article) String() string {
 	var builder strings.Builder
 	builder.WriteString("Article(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", a.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("title=")
-	builder.WriteString(a.Title)
+	builder.WriteString(_m.Title)
 	builder.WriteString(", ")
 	builder.WriteString("url=")
-	builder.WriteString(a.URL)
+	builder.WriteString(_m.URL)
 	builder.WriteString(", ")
 	builder.WriteString("description=")
-	builder.WriteString(a.Description)
+	builder.WriteString(_m.Description)
 	builder.WriteString(", ")
 	builder.WriteString("content=")
-	builder.WriteString(a.Content)
+	builder.WriteString(_m.Content)
 	builder.WriteString(", ")
 	builder.WriteString("published_at=")
-	builder.WriteString(a.PublishedAt.Format(time.ANSIC))
+	builder.WriteString(_m.PublishedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(a.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

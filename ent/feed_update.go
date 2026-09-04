@@ -26,226 +26,226 @@ type FeedUpdate struct {
 }
 
 // Where appends a list predicates to the FeedUpdate builder.
-func (fu *FeedUpdate) Where(ps ...predicate.Feed) *FeedUpdate {
-	fu.mutation.Where(ps...)
-	return fu
+func (_u *FeedUpdate) Where(ps ...predicate.Feed) *FeedUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetURL sets the "url" field.
-func (fu *FeedUpdate) SetURL(s string) *FeedUpdate {
-	fu.mutation.SetURL(s)
-	return fu
+func (_u *FeedUpdate) SetURL(v string) *FeedUpdate {
+	_u.mutation.SetURL(v)
+	return _u
 }
 
 // SetNillableURL sets the "url" field if the given value is not nil.
-func (fu *FeedUpdate) SetNillableURL(s *string) *FeedUpdate {
-	if s != nil {
-		fu.SetURL(*s)
+func (_u *FeedUpdate) SetNillableURL(v *string) *FeedUpdate {
+	if v != nil {
+		_u.SetURL(*v)
 	}
-	return fu
+	return _u
 }
 
 // SetTitle sets the "title" field.
-func (fu *FeedUpdate) SetTitle(s string) *FeedUpdate {
-	fu.mutation.SetTitle(s)
-	return fu
+func (_u *FeedUpdate) SetTitle(v string) *FeedUpdate {
+	_u.mutation.SetTitle(v)
+	return _u
 }
 
 // SetNillableTitle sets the "title" field if the given value is not nil.
-func (fu *FeedUpdate) SetNillableTitle(s *string) *FeedUpdate {
-	if s != nil {
-		fu.SetTitle(*s)
+func (_u *FeedUpdate) SetNillableTitle(v *string) *FeedUpdate {
+	if v != nil {
+		_u.SetTitle(*v)
 	}
-	return fu
+	return _u
 }
 
 // SetDescription sets the "description" field.
-func (fu *FeedUpdate) SetDescription(s string) *FeedUpdate {
-	fu.mutation.SetDescription(s)
-	return fu
+func (_u *FeedUpdate) SetDescription(v string) *FeedUpdate {
+	_u.mutation.SetDescription(v)
+	return _u
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (fu *FeedUpdate) SetNillableDescription(s *string) *FeedUpdate {
-	if s != nil {
-		fu.SetDescription(*s)
+func (_u *FeedUpdate) SetNillableDescription(v *string) *FeedUpdate {
+	if v != nil {
+		_u.SetDescription(*v)
 	}
-	return fu
+	return _u
 }
 
 // ClearDescription clears the value of the "description" field.
-func (fu *FeedUpdate) ClearDescription() *FeedUpdate {
-	fu.mutation.ClearDescription()
-	return fu
+func (_u *FeedUpdate) ClearDescription() *FeedUpdate {
+	_u.mutation.ClearDescription()
+	return _u
 }
 
 // SetLink sets the "link" field.
-func (fu *FeedUpdate) SetLink(s string) *FeedUpdate {
-	fu.mutation.SetLink(s)
-	return fu
+func (_u *FeedUpdate) SetLink(v string) *FeedUpdate {
+	_u.mutation.SetLink(v)
+	return _u
 }
 
 // SetNillableLink sets the "link" field if the given value is not nil.
-func (fu *FeedUpdate) SetNillableLink(s *string) *FeedUpdate {
-	if s != nil {
-		fu.SetLink(*s)
+func (_u *FeedUpdate) SetNillableLink(v *string) *FeedUpdate {
+	if v != nil {
+		_u.SetLink(*v)
 	}
-	return fu
+	return _u
 }
 
 // ClearLink clears the value of the "link" field.
-func (fu *FeedUpdate) ClearLink() *FeedUpdate {
-	fu.mutation.ClearLink()
-	return fu
+func (_u *FeedUpdate) ClearLink() *FeedUpdate {
+	_u.mutation.ClearLink()
+	return _u
 }
 
 // SetOrder sets the "order" field.
-func (fu *FeedUpdate) SetOrder(i int) *FeedUpdate {
-	fu.mutation.ResetOrder()
-	fu.mutation.SetOrder(i)
-	return fu
+func (_u *FeedUpdate) SetOrder(v int) *FeedUpdate {
+	_u.mutation.ResetOrder()
+	_u.mutation.SetOrder(v)
+	return _u
 }
 
 // SetNillableOrder sets the "order" field if the given value is not nil.
-func (fu *FeedUpdate) SetNillableOrder(i *int) *FeedUpdate {
-	if i != nil {
-		fu.SetOrder(*i)
+func (_u *FeedUpdate) SetNillableOrder(v *int) *FeedUpdate {
+	if v != nil {
+		_u.SetOrder(*v)
 	}
-	return fu
+	return _u
 }
 
-// AddOrder adds i to the "order" field.
-func (fu *FeedUpdate) AddOrder(i int) *FeedUpdate {
-	fu.mutation.AddOrder(i)
-	return fu
+// AddOrder adds value to the "order" field.
+func (_u *FeedUpdate) AddOrder(v int) *FeedUpdate {
+	_u.mutation.AddOrder(v)
+	return _u
 }
 
 // SetIsBookmark sets the "is_bookmark" field.
-func (fu *FeedUpdate) SetIsBookmark(b bool) *FeedUpdate {
-	fu.mutation.SetIsBookmark(b)
-	return fu
+func (_u *FeedUpdate) SetIsBookmark(v bool) *FeedUpdate {
+	_u.mutation.SetIsBookmark(v)
+	return _u
 }
 
 // SetNillableIsBookmark sets the "is_bookmark" field if the given value is not nil.
-func (fu *FeedUpdate) SetNillableIsBookmark(b *bool) *FeedUpdate {
-	if b != nil {
-		fu.SetIsBookmark(*b)
+func (_u *FeedUpdate) SetNillableIsBookmark(v *bool) *FeedUpdate {
+	if v != nil {
+		_u.SetIsBookmark(*v)
 	}
-	return fu
+	return _u
 }
 
 // SetLastCheckedAt sets the "last_checked_at" field.
-func (fu *FeedUpdate) SetLastCheckedAt(t time.Time) *FeedUpdate {
-	fu.mutation.SetLastCheckedAt(t)
-	return fu
+func (_u *FeedUpdate) SetLastCheckedAt(v time.Time) *FeedUpdate {
+	_u.mutation.SetLastCheckedAt(v)
+	return _u
 }
 
 // SetNillableLastCheckedAt sets the "last_checked_at" field if the given value is not nil.
-func (fu *FeedUpdate) SetNillableLastCheckedAt(t *time.Time) *FeedUpdate {
-	if t != nil {
-		fu.SetLastCheckedAt(*t)
+func (_u *FeedUpdate) SetNillableLastCheckedAt(v *time.Time) *FeedUpdate {
+	if v != nil {
+		_u.SetLastCheckedAt(*v)
 	}
-	return fu
+	return _u
 }
 
 // ClearLastCheckedAt clears the value of the "last_checked_at" field.
-func (fu *FeedUpdate) ClearLastCheckedAt() *FeedUpdate {
-	fu.mutation.ClearLastCheckedAt()
-	return fu
+func (_u *FeedUpdate) ClearLastCheckedAt() *FeedUpdate {
+	_u.mutation.ClearLastCheckedAt()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (fu *FeedUpdate) SetUpdatedAt(t time.Time) *FeedUpdate {
-	fu.mutation.SetUpdatedAt(t)
-	return fu
+func (_u *FeedUpdate) SetUpdatedAt(v time.Time) *FeedUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // AddArticleIDs adds the "articles" edge to the Article entity by IDs.
-func (fu *FeedUpdate) AddArticleIDs(ids ...uuid.UUID) *FeedUpdate {
-	fu.mutation.AddArticleIDs(ids...)
-	return fu
+func (_u *FeedUpdate) AddArticleIDs(ids ...uuid.UUID) *FeedUpdate {
+	_u.mutation.AddArticleIDs(ids...)
+	return _u
 }
 
 // AddArticles adds the "articles" edges to the Article entity.
-func (fu *FeedUpdate) AddArticles(a ...*Article) *FeedUpdate {
-	ids := make([]uuid.UUID, len(a))
-	for i := range a {
-		ids[i] = a[i].ID
+func (_u *FeedUpdate) AddArticles(v ...*Article) *FeedUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return fu.AddArticleIDs(ids...)
+	return _u.AddArticleIDs(ids...)
 }
 
 // AddSummaryIDs adds the "summaries" edge to the Summary entity by IDs.
-func (fu *FeedUpdate) AddSummaryIDs(ids ...uuid.UUID) *FeedUpdate {
-	fu.mutation.AddSummaryIDs(ids...)
-	return fu
+func (_u *FeedUpdate) AddSummaryIDs(ids ...uuid.UUID) *FeedUpdate {
+	_u.mutation.AddSummaryIDs(ids...)
+	return _u
 }
 
 // AddSummaries adds the "summaries" edges to the Summary entity.
-func (fu *FeedUpdate) AddSummaries(s ...*Summary) *FeedUpdate {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+func (_u *FeedUpdate) AddSummaries(v ...*Summary) *FeedUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return fu.AddSummaryIDs(ids...)
+	return _u.AddSummaryIDs(ids...)
 }
 
 // Mutation returns the FeedMutation object of the builder.
-func (fu *FeedUpdate) Mutation() *FeedMutation {
-	return fu.mutation
+func (_u *FeedUpdate) Mutation() *FeedMutation {
+	return _u.mutation
 }
 
 // ClearArticles clears all "articles" edges to the Article entity.
-func (fu *FeedUpdate) ClearArticles() *FeedUpdate {
-	fu.mutation.ClearArticles()
-	return fu
+func (_u *FeedUpdate) ClearArticles() *FeedUpdate {
+	_u.mutation.ClearArticles()
+	return _u
 }
 
 // RemoveArticleIDs removes the "articles" edge to Article entities by IDs.
-func (fu *FeedUpdate) RemoveArticleIDs(ids ...uuid.UUID) *FeedUpdate {
-	fu.mutation.RemoveArticleIDs(ids...)
-	return fu
+func (_u *FeedUpdate) RemoveArticleIDs(ids ...uuid.UUID) *FeedUpdate {
+	_u.mutation.RemoveArticleIDs(ids...)
+	return _u
 }
 
 // RemoveArticles removes "articles" edges to Article entities.
-func (fu *FeedUpdate) RemoveArticles(a ...*Article) *FeedUpdate {
-	ids := make([]uuid.UUID, len(a))
-	for i := range a {
-		ids[i] = a[i].ID
+func (_u *FeedUpdate) RemoveArticles(v ...*Article) *FeedUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return fu.RemoveArticleIDs(ids...)
+	return _u.RemoveArticleIDs(ids...)
 }
 
 // ClearSummaries clears all "summaries" edges to the Summary entity.
-func (fu *FeedUpdate) ClearSummaries() *FeedUpdate {
-	fu.mutation.ClearSummaries()
-	return fu
+func (_u *FeedUpdate) ClearSummaries() *FeedUpdate {
+	_u.mutation.ClearSummaries()
+	return _u
 }
 
 // RemoveSummaryIDs removes the "summaries" edge to Summary entities by IDs.
-func (fu *FeedUpdate) RemoveSummaryIDs(ids ...uuid.UUID) *FeedUpdate {
-	fu.mutation.RemoveSummaryIDs(ids...)
-	return fu
+func (_u *FeedUpdate) RemoveSummaryIDs(ids ...uuid.UUID) *FeedUpdate {
+	_u.mutation.RemoveSummaryIDs(ids...)
+	return _u
 }
 
 // RemoveSummaries removes "summaries" edges to Summary entities.
-func (fu *FeedUpdate) RemoveSummaries(s ...*Summary) *FeedUpdate {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+func (_u *FeedUpdate) RemoveSummaries(v ...*Summary) *FeedUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return fu.RemoveSummaryIDs(ids...)
+	return _u.RemoveSummaryIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (fu *FeedUpdate) Save(ctx context.Context) (int, error) {
-	fu.defaults()
-	return withHooks(ctx, fu.sqlSave, fu.mutation, fu.hooks)
+func (_u *FeedUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (fu *FeedUpdate) SaveX(ctx context.Context) int {
-	affected, err := fu.Save(ctx)
+func (_u *FeedUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -253,34 +253,34 @@ func (fu *FeedUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (fu *FeedUpdate) Exec(ctx context.Context) error {
-	_, err := fu.Save(ctx)
+func (_u *FeedUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (fu *FeedUpdate) ExecX(ctx context.Context) {
-	if err := fu.Exec(ctx); err != nil {
+func (_u *FeedUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (fu *FeedUpdate) defaults() {
-	if _, ok := fu.mutation.UpdatedAt(); !ok {
+func (_u *FeedUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := feed.UpdateDefaultUpdatedAt()
-		fu.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (fu *FeedUpdate) check() error {
-	if v, ok := fu.mutation.URL(); ok {
+func (_u *FeedUpdate) check() error {
+	if v, ok := _u.mutation.URL(); ok {
 		if err := feed.URLValidator(v); err != nil {
 			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Feed.url": %w`, err)}
 		}
 	}
-	if v, ok := fu.mutation.Title(); ok {
+	if v, ok := _u.mutation.Title(); ok {
 		if err := feed.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Feed.title": %w`, err)}
 		}
@@ -288,55 +288,55 @@ func (fu *FeedUpdate) check() error {
 	return nil
 }
 
-func (fu *FeedUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := fu.check(); err != nil {
-		return n, err
+func (_u *FeedUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(feed.Table, feed.Columns, sqlgraph.NewFieldSpec(feed.FieldID, field.TypeUUID))
-	if ps := fu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := fu.mutation.URL(); ok {
+	if value, ok := _u.mutation.URL(); ok {
 		_spec.SetField(feed.FieldURL, field.TypeString, value)
 	}
-	if value, ok := fu.mutation.Title(); ok {
+	if value, ok := _u.mutation.Title(); ok {
 		_spec.SetField(feed.FieldTitle, field.TypeString, value)
 	}
-	if value, ok := fu.mutation.Description(); ok {
+	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(feed.FieldDescription, field.TypeString, value)
 	}
-	if fu.mutation.DescriptionCleared() {
+	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(feed.FieldDescription, field.TypeString)
 	}
-	if value, ok := fu.mutation.Link(); ok {
+	if value, ok := _u.mutation.Link(); ok {
 		_spec.SetField(feed.FieldLink, field.TypeString, value)
 	}
-	if fu.mutation.LinkCleared() {
+	if _u.mutation.LinkCleared() {
 		_spec.ClearField(feed.FieldLink, field.TypeString)
 	}
-	if value, ok := fu.mutation.Order(); ok {
+	if value, ok := _u.mutation.Order(); ok {
 		_spec.SetField(feed.FieldOrder, field.TypeInt, value)
 	}
-	if value, ok := fu.mutation.AddedOrder(); ok {
+	if value, ok := _u.mutation.AddedOrder(); ok {
 		_spec.AddField(feed.FieldOrder, field.TypeInt, value)
 	}
-	if value, ok := fu.mutation.IsBookmark(); ok {
+	if value, ok := _u.mutation.IsBookmark(); ok {
 		_spec.SetField(feed.FieldIsBookmark, field.TypeBool, value)
 	}
-	if value, ok := fu.mutation.LastCheckedAt(); ok {
+	if value, ok := _u.mutation.LastCheckedAt(); ok {
 		_spec.SetField(feed.FieldLastCheckedAt, field.TypeTime, value)
 	}
-	if fu.mutation.LastCheckedAtCleared() {
+	if _u.mutation.LastCheckedAtCleared() {
 		_spec.ClearField(feed.FieldLastCheckedAt, field.TypeTime)
 	}
-	if value, ok := fu.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(feed.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if fu.mutation.ArticlesCleared() {
+	if _u.mutation.ArticlesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -349,7 +349,7 @@ func (fu *FeedUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := fu.mutation.RemovedArticlesIDs(); len(nodes) > 0 && !fu.mutation.ArticlesCleared() {
+	if nodes := _u.mutation.RemovedArticlesIDs(); len(nodes) > 0 && !_u.mutation.ArticlesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -365,7 +365,7 @@ func (fu *FeedUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := fu.mutation.ArticlesIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.ArticlesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -381,7 +381,7 @@ func (fu *FeedUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if fu.mutation.SummariesCleared() {
+	if _u.mutation.SummariesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -394,7 +394,7 @@ func (fu *FeedUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := fu.mutation.RemovedSummariesIDs(); len(nodes) > 0 && !fu.mutation.SummariesCleared() {
+	if nodes := _u.mutation.RemovedSummariesIDs(); len(nodes) > 0 && !_u.mutation.SummariesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -410,7 +410,7 @@ func (fu *FeedUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := fu.mutation.SummariesIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.SummariesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -426,7 +426,7 @@ func (fu *FeedUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, fu.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{feed.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -434,8 +434,8 @@ func (fu *FeedUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	fu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // FeedUpdateOne is the builder for updating a single Feed entity.
@@ -447,233 +447,233 @@ type FeedUpdateOne struct {
 }
 
 // SetURL sets the "url" field.
-func (fuo *FeedUpdateOne) SetURL(s string) *FeedUpdateOne {
-	fuo.mutation.SetURL(s)
-	return fuo
+func (_u *FeedUpdateOne) SetURL(v string) *FeedUpdateOne {
+	_u.mutation.SetURL(v)
+	return _u
 }
 
 // SetNillableURL sets the "url" field if the given value is not nil.
-func (fuo *FeedUpdateOne) SetNillableURL(s *string) *FeedUpdateOne {
-	if s != nil {
-		fuo.SetURL(*s)
+func (_u *FeedUpdateOne) SetNillableURL(v *string) *FeedUpdateOne {
+	if v != nil {
+		_u.SetURL(*v)
 	}
-	return fuo
+	return _u
 }
 
 // SetTitle sets the "title" field.
-func (fuo *FeedUpdateOne) SetTitle(s string) *FeedUpdateOne {
-	fuo.mutation.SetTitle(s)
-	return fuo
+func (_u *FeedUpdateOne) SetTitle(v string) *FeedUpdateOne {
+	_u.mutation.SetTitle(v)
+	return _u
 }
 
 // SetNillableTitle sets the "title" field if the given value is not nil.
-func (fuo *FeedUpdateOne) SetNillableTitle(s *string) *FeedUpdateOne {
-	if s != nil {
-		fuo.SetTitle(*s)
+func (_u *FeedUpdateOne) SetNillableTitle(v *string) *FeedUpdateOne {
+	if v != nil {
+		_u.SetTitle(*v)
 	}
-	return fuo
+	return _u
 }
 
 // SetDescription sets the "description" field.
-func (fuo *FeedUpdateOne) SetDescription(s string) *FeedUpdateOne {
-	fuo.mutation.SetDescription(s)
-	return fuo
+func (_u *FeedUpdateOne) SetDescription(v string) *FeedUpdateOne {
+	_u.mutation.SetDescription(v)
+	return _u
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (fuo *FeedUpdateOne) SetNillableDescription(s *string) *FeedUpdateOne {
-	if s != nil {
-		fuo.SetDescription(*s)
+func (_u *FeedUpdateOne) SetNillableDescription(v *string) *FeedUpdateOne {
+	if v != nil {
+		_u.SetDescription(*v)
 	}
-	return fuo
+	return _u
 }
 
 // ClearDescription clears the value of the "description" field.
-func (fuo *FeedUpdateOne) ClearDescription() *FeedUpdateOne {
-	fuo.mutation.ClearDescription()
-	return fuo
+func (_u *FeedUpdateOne) ClearDescription() *FeedUpdateOne {
+	_u.mutation.ClearDescription()
+	return _u
 }
 
 // SetLink sets the "link" field.
-func (fuo *FeedUpdateOne) SetLink(s string) *FeedUpdateOne {
-	fuo.mutation.SetLink(s)
-	return fuo
+func (_u *FeedUpdateOne) SetLink(v string) *FeedUpdateOne {
+	_u.mutation.SetLink(v)
+	return _u
 }
 
 // SetNillableLink sets the "link" field if the given value is not nil.
-func (fuo *FeedUpdateOne) SetNillableLink(s *string) *FeedUpdateOne {
-	if s != nil {
-		fuo.SetLink(*s)
+func (_u *FeedUpdateOne) SetNillableLink(v *string) *FeedUpdateOne {
+	if v != nil {
+		_u.SetLink(*v)
 	}
-	return fuo
+	return _u
 }
 
 // ClearLink clears the value of the "link" field.
-func (fuo *FeedUpdateOne) ClearLink() *FeedUpdateOne {
-	fuo.mutation.ClearLink()
-	return fuo
+func (_u *FeedUpdateOne) ClearLink() *FeedUpdateOne {
+	_u.mutation.ClearLink()
+	return _u
 }
 
 // SetOrder sets the "order" field.
-func (fuo *FeedUpdateOne) SetOrder(i int) *FeedUpdateOne {
-	fuo.mutation.ResetOrder()
-	fuo.mutation.SetOrder(i)
-	return fuo
+func (_u *FeedUpdateOne) SetOrder(v int) *FeedUpdateOne {
+	_u.mutation.ResetOrder()
+	_u.mutation.SetOrder(v)
+	return _u
 }
 
 // SetNillableOrder sets the "order" field if the given value is not nil.
-func (fuo *FeedUpdateOne) SetNillableOrder(i *int) *FeedUpdateOne {
-	if i != nil {
-		fuo.SetOrder(*i)
+func (_u *FeedUpdateOne) SetNillableOrder(v *int) *FeedUpdateOne {
+	if v != nil {
+		_u.SetOrder(*v)
 	}
-	return fuo
+	return _u
 }
 
-// AddOrder adds i to the "order" field.
-func (fuo *FeedUpdateOne) AddOrder(i int) *FeedUpdateOne {
-	fuo.mutation.AddOrder(i)
-	return fuo
+// AddOrder adds value to the "order" field.
+func (_u *FeedUpdateOne) AddOrder(v int) *FeedUpdateOne {
+	_u.mutation.AddOrder(v)
+	return _u
 }
 
 // SetIsBookmark sets the "is_bookmark" field.
-func (fuo *FeedUpdateOne) SetIsBookmark(b bool) *FeedUpdateOne {
-	fuo.mutation.SetIsBookmark(b)
-	return fuo
+func (_u *FeedUpdateOne) SetIsBookmark(v bool) *FeedUpdateOne {
+	_u.mutation.SetIsBookmark(v)
+	return _u
 }
 
 // SetNillableIsBookmark sets the "is_bookmark" field if the given value is not nil.
-func (fuo *FeedUpdateOne) SetNillableIsBookmark(b *bool) *FeedUpdateOne {
-	if b != nil {
-		fuo.SetIsBookmark(*b)
+func (_u *FeedUpdateOne) SetNillableIsBookmark(v *bool) *FeedUpdateOne {
+	if v != nil {
+		_u.SetIsBookmark(*v)
 	}
-	return fuo
+	return _u
 }
 
 // SetLastCheckedAt sets the "last_checked_at" field.
-func (fuo *FeedUpdateOne) SetLastCheckedAt(t time.Time) *FeedUpdateOne {
-	fuo.mutation.SetLastCheckedAt(t)
-	return fuo
+func (_u *FeedUpdateOne) SetLastCheckedAt(v time.Time) *FeedUpdateOne {
+	_u.mutation.SetLastCheckedAt(v)
+	return _u
 }
 
 // SetNillableLastCheckedAt sets the "last_checked_at" field if the given value is not nil.
-func (fuo *FeedUpdateOne) SetNillableLastCheckedAt(t *time.Time) *FeedUpdateOne {
-	if t != nil {
-		fuo.SetLastCheckedAt(*t)
+func (_u *FeedUpdateOne) SetNillableLastCheckedAt(v *time.Time) *FeedUpdateOne {
+	if v != nil {
+		_u.SetLastCheckedAt(*v)
 	}
-	return fuo
+	return _u
 }
 
 // ClearLastCheckedAt clears the value of the "last_checked_at" field.
-func (fuo *FeedUpdateOne) ClearLastCheckedAt() *FeedUpdateOne {
-	fuo.mutation.ClearLastCheckedAt()
-	return fuo
+func (_u *FeedUpdateOne) ClearLastCheckedAt() *FeedUpdateOne {
+	_u.mutation.ClearLastCheckedAt()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (fuo *FeedUpdateOne) SetUpdatedAt(t time.Time) *FeedUpdateOne {
-	fuo.mutation.SetUpdatedAt(t)
-	return fuo
+func (_u *FeedUpdateOne) SetUpdatedAt(v time.Time) *FeedUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // AddArticleIDs adds the "articles" edge to the Article entity by IDs.
-func (fuo *FeedUpdateOne) AddArticleIDs(ids ...uuid.UUID) *FeedUpdateOne {
-	fuo.mutation.AddArticleIDs(ids...)
-	return fuo
+func (_u *FeedUpdateOne) AddArticleIDs(ids ...uuid.UUID) *FeedUpdateOne {
+	_u.mutation.AddArticleIDs(ids...)
+	return _u
 }
 
 // AddArticles adds the "articles" edges to the Article entity.
-func (fuo *FeedUpdateOne) AddArticles(a ...*Article) *FeedUpdateOne {
-	ids := make([]uuid.UUID, len(a))
-	for i := range a {
-		ids[i] = a[i].ID
+func (_u *FeedUpdateOne) AddArticles(v ...*Article) *FeedUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return fuo.AddArticleIDs(ids...)
+	return _u.AddArticleIDs(ids...)
 }
 
 // AddSummaryIDs adds the "summaries" edge to the Summary entity by IDs.
-func (fuo *FeedUpdateOne) AddSummaryIDs(ids ...uuid.UUID) *FeedUpdateOne {
-	fuo.mutation.AddSummaryIDs(ids...)
-	return fuo
+func (_u *FeedUpdateOne) AddSummaryIDs(ids ...uuid.UUID) *FeedUpdateOne {
+	_u.mutation.AddSummaryIDs(ids...)
+	return _u
 }
 
 // AddSummaries adds the "summaries" edges to the Summary entity.
-func (fuo *FeedUpdateOne) AddSummaries(s ...*Summary) *FeedUpdateOne {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+func (_u *FeedUpdateOne) AddSummaries(v ...*Summary) *FeedUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return fuo.AddSummaryIDs(ids...)
+	return _u.AddSummaryIDs(ids...)
 }
 
 // Mutation returns the FeedMutation object of the builder.
-func (fuo *FeedUpdateOne) Mutation() *FeedMutation {
-	return fuo.mutation
+func (_u *FeedUpdateOne) Mutation() *FeedMutation {
+	return _u.mutation
 }
 
 // ClearArticles clears all "articles" edges to the Article entity.
-func (fuo *FeedUpdateOne) ClearArticles() *FeedUpdateOne {
-	fuo.mutation.ClearArticles()
-	return fuo
+func (_u *FeedUpdateOne) ClearArticles() *FeedUpdateOne {
+	_u.mutation.ClearArticles()
+	return _u
 }
 
 // RemoveArticleIDs removes the "articles" edge to Article entities by IDs.
-func (fuo *FeedUpdateOne) RemoveArticleIDs(ids ...uuid.UUID) *FeedUpdateOne {
-	fuo.mutation.RemoveArticleIDs(ids...)
-	return fuo
+func (_u *FeedUpdateOne) RemoveArticleIDs(ids ...uuid.UUID) *FeedUpdateOne {
+	_u.mutation.RemoveArticleIDs(ids...)
+	return _u
 }
 
 // RemoveArticles removes "articles" edges to Article entities.
-func (fuo *FeedUpdateOne) RemoveArticles(a ...*Article) *FeedUpdateOne {
-	ids := make([]uuid.UUID, len(a))
-	for i := range a {
-		ids[i] = a[i].ID
+func (_u *FeedUpdateOne) RemoveArticles(v ...*Article) *FeedUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return fuo.RemoveArticleIDs(ids...)
+	return _u.RemoveArticleIDs(ids...)
 }
 
 // ClearSummaries clears all "summaries" edges to the Summary entity.
-func (fuo *FeedUpdateOne) ClearSummaries() *FeedUpdateOne {
-	fuo.mutation.ClearSummaries()
-	return fuo
+func (_u *FeedUpdateOne) ClearSummaries() *FeedUpdateOne {
+	_u.mutation.ClearSummaries()
+	return _u
 }
 
 // RemoveSummaryIDs removes the "summaries" edge to Summary entities by IDs.
-func (fuo *FeedUpdateOne) RemoveSummaryIDs(ids ...uuid.UUID) *FeedUpdateOne {
-	fuo.mutation.RemoveSummaryIDs(ids...)
-	return fuo
+func (_u *FeedUpdateOne) RemoveSummaryIDs(ids ...uuid.UUID) *FeedUpdateOne {
+	_u.mutation.RemoveSummaryIDs(ids...)
+	return _u
 }
 
 // RemoveSummaries removes "summaries" edges to Summary entities.
-func (fuo *FeedUpdateOne) RemoveSummaries(s ...*Summary) *FeedUpdateOne {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+func (_u *FeedUpdateOne) RemoveSummaries(v ...*Summary) *FeedUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return fuo.RemoveSummaryIDs(ids...)
+	return _u.RemoveSummaryIDs(ids...)
 }
 
 // Where appends a list predicates to the FeedUpdate builder.
-func (fuo *FeedUpdateOne) Where(ps ...predicate.Feed) *FeedUpdateOne {
-	fuo.mutation.Where(ps...)
-	return fuo
+func (_u *FeedUpdateOne) Where(ps ...predicate.Feed) *FeedUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (fuo *FeedUpdateOne) Select(field string, fields ...string) *FeedUpdateOne {
-	fuo.fields = append([]string{field}, fields...)
-	return fuo
+func (_u *FeedUpdateOne) Select(field string, fields ...string) *FeedUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated Feed entity.
-func (fuo *FeedUpdateOne) Save(ctx context.Context) (*Feed, error) {
-	fuo.defaults()
-	return withHooks(ctx, fuo.sqlSave, fuo.mutation, fuo.hooks)
+func (_u *FeedUpdateOne) Save(ctx context.Context) (*Feed, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (fuo *FeedUpdateOne) SaveX(ctx context.Context) *Feed {
-	node, err := fuo.Save(ctx)
+func (_u *FeedUpdateOne) SaveX(ctx context.Context) *Feed {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -681,34 +681,34 @@ func (fuo *FeedUpdateOne) SaveX(ctx context.Context) *Feed {
 }
 
 // Exec executes the query on the entity.
-func (fuo *FeedUpdateOne) Exec(ctx context.Context) error {
-	_, err := fuo.Save(ctx)
+func (_u *FeedUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (fuo *FeedUpdateOne) ExecX(ctx context.Context) {
-	if err := fuo.Exec(ctx); err != nil {
+func (_u *FeedUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (fuo *FeedUpdateOne) defaults() {
-	if _, ok := fuo.mutation.UpdatedAt(); !ok {
+func (_u *FeedUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := feed.UpdateDefaultUpdatedAt()
-		fuo.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (fuo *FeedUpdateOne) check() error {
-	if v, ok := fuo.mutation.URL(); ok {
+func (_u *FeedUpdateOne) check() error {
+	if v, ok := _u.mutation.URL(); ok {
 		if err := feed.URLValidator(v); err != nil {
 			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Feed.url": %w`, err)}
 		}
 	}
-	if v, ok := fuo.mutation.Title(); ok {
+	if v, ok := _u.mutation.Title(); ok {
 		if err := feed.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Feed.title": %w`, err)}
 		}
@@ -716,17 +716,17 @@ func (fuo *FeedUpdateOne) check() error {
 	return nil
 }
 
-func (fuo *FeedUpdateOne) sqlSave(ctx context.Context) (_node *Feed, err error) {
-	if err := fuo.check(); err != nil {
+func (_u *FeedUpdateOne) sqlSave(ctx context.Context) (_node *Feed, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(feed.Table, feed.Columns, sqlgraph.NewFieldSpec(feed.FieldID, field.TypeUUID))
-	id, ok := fuo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Feed.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := fuo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, feed.FieldID)
 		for _, f := range fields {
@@ -738,50 +738,50 @@ func (fuo *FeedUpdateOne) sqlSave(ctx context.Context) (_node *Feed, err error) 
 			}
 		}
 	}
-	if ps := fuo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := fuo.mutation.URL(); ok {
+	if value, ok := _u.mutation.URL(); ok {
 		_spec.SetField(feed.FieldURL, field.TypeString, value)
 	}
-	if value, ok := fuo.mutation.Title(); ok {
+	if value, ok := _u.mutation.Title(); ok {
 		_spec.SetField(feed.FieldTitle, field.TypeString, value)
 	}
-	if value, ok := fuo.mutation.Description(); ok {
+	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(feed.FieldDescription, field.TypeString, value)
 	}
-	if fuo.mutation.DescriptionCleared() {
+	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(feed.FieldDescription, field.TypeString)
 	}
-	if value, ok := fuo.mutation.Link(); ok {
+	if value, ok := _u.mutation.Link(); ok {
 		_spec.SetField(feed.FieldLink, field.TypeString, value)
 	}
-	if fuo.mutation.LinkCleared() {
+	if _u.mutation.LinkCleared() {
 		_spec.ClearField(feed.FieldLink, field.TypeString)
 	}
-	if value, ok := fuo.mutation.Order(); ok {
+	if value, ok := _u.mutation.Order(); ok {
 		_spec.SetField(feed.FieldOrder, field.TypeInt, value)
 	}
-	if value, ok := fuo.mutation.AddedOrder(); ok {
+	if value, ok := _u.mutation.AddedOrder(); ok {
 		_spec.AddField(feed.FieldOrder, field.TypeInt, value)
 	}
-	if value, ok := fuo.mutation.IsBookmark(); ok {
+	if value, ok := _u.mutation.IsBookmark(); ok {
 		_spec.SetField(feed.FieldIsBookmark, field.TypeBool, value)
 	}
-	if value, ok := fuo.mutation.LastCheckedAt(); ok {
+	if value, ok := _u.mutation.LastCheckedAt(); ok {
 		_spec.SetField(feed.FieldLastCheckedAt, field.TypeTime, value)
 	}
-	if fuo.mutation.LastCheckedAtCleared() {
+	if _u.mutation.LastCheckedAtCleared() {
 		_spec.ClearField(feed.FieldLastCheckedAt, field.TypeTime)
 	}
-	if value, ok := fuo.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(feed.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if fuo.mutation.ArticlesCleared() {
+	if _u.mutation.ArticlesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -794,7 +794,7 @@ func (fuo *FeedUpdateOne) sqlSave(ctx context.Context) (_node *Feed, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := fuo.mutation.RemovedArticlesIDs(); len(nodes) > 0 && !fuo.mutation.ArticlesCleared() {
+	if nodes := _u.mutation.RemovedArticlesIDs(); len(nodes) > 0 && !_u.mutation.ArticlesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -810,7 +810,7 @@ func (fuo *FeedUpdateOne) sqlSave(ctx context.Context) (_node *Feed, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := fuo.mutation.ArticlesIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.ArticlesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -826,7 +826,7 @@ func (fuo *FeedUpdateOne) sqlSave(ctx context.Context) (_node *Feed, err error) 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if fuo.mutation.SummariesCleared() {
+	if _u.mutation.SummariesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -839,7 +839,7 @@ func (fuo *FeedUpdateOne) sqlSave(ctx context.Context) (_node *Feed, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := fuo.mutation.RemovedSummariesIDs(); len(nodes) > 0 && !fuo.mutation.SummariesCleared() {
+	if nodes := _u.mutation.RemovedSummariesIDs(); len(nodes) > 0 && !_u.mutation.SummariesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -855,7 +855,7 @@ func (fuo *FeedUpdateOne) sqlSave(ctx context.Context) (_node *Feed, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := fuo.mutation.SummariesIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.SummariesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -871,10 +871,10 @@ func (fuo *FeedUpdateOne) sqlSave(ctx context.Context) (_node *Feed, err error) 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &Feed{config: fuo.config}
+	_node = &Feed{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, fuo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{feed.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -882,6 +882,6 @@ func (fuo *FeedUpdateOne) sqlSave(ctx context.Context) (_node *Feed, err error) 
 		}
 		return nil, err
 	}
-	fuo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

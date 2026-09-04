@@ -5,6 +5,8 @@
 - `make test-all`
 - `make test-integration`
 - `make smoke-config`
+- `make lint`(golangci-lint 未インストール時は `go vet ./...` のみ)
+- `make gen`(ent schema 変更後の再生成)
 
 ## 変更種別ごとの最小検証
 

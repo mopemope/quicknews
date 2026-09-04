@@ -23,6 +23,9 @@ run_eval() {
 		publish-r2)
 			GOCACHE="$GOCACHE_DIR" go test ./cmd/... ./storage
 			;;
+		mcp-search)
+			GOCACHE="$GOCACHE_DIR" go test ./mcpserver ./cmd/...
+			;;
 		*)
 			echo "unknown eval: $1" >&2
 			exit 1
@@ -33,7 +36,7 @@ run_eval() {
 main() {
 	local target="${1:-all}"
 	if [[ "$target" == "all" ]]; then
-		for eval_name in cli-flag tui-list schema-change gemini-prompt publish-r2; do
+		for eval_name in cli-flag tui-list schema-change gemini-prompt publish-r2 mcp-search; do
 			echo "==> $eval_name"
 			run_eval "$eval_name"
 		done

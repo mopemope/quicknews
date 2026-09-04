@@ -26,154 +26,154 @@ type ArticleUpdate struct {
 }
 
 // Where appends a list predicates to the ArticleUpdate builder.
-func (au *ArticleUpdate) Where(ps ...predicate.Article) *ArticleUpdate {
-	au.mutation.Where(ps...)
-	return au
+func (_u *ArticleUpdate) Where(ps ...predicate.Article) *ArticleUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetTitle sets the "title" field.
-func (au *ArticleUpdate) SetTitle(s string) *ArticleUpdate {
-	au.mutation.SetTitle(s)
-	return au
+func (_u *ArticleUpdate) SetTitle(v string) *ArticleUpdate {
+	_u.mutation.SetTitle(v)
+	return _u
 }
 
 // SetNillableTitle sets the "title" field if the given value is not nil.
-func (au *ArticleUpdate) SetNillableTitle(s *string) *ArticleUpdate {
-	if s != nil {
-		au.SetTitle(*s)
+func (_u *ArticleUpdate) SetNillableTitle(v *string) *ArticleUpdate {
+	if v != nil {
+		_u.SetTitle(*v)
 	}
-	return au
+	return _u
 }
 
 // SetURL sets the "url" field.
-func (au *ArticleUpdate) SetURL(s string) *ArticleUpdate {
-	au.mutation.SetURL(s)
-	return au
+func (_u *ArticleUpdate) SetURL(v string) *ArticleUpdate {
+	_u.mutation.SetURL(v)
+	return _u
 }
 
 // SetNillableURL sets the "url" field if the given value is not nil.
-func (au *ArticleUpdate) SetNillableURL(s *string) *ArticleUpdate {
-	if s != nil {
-		au.SetURL(*s)
+func (_u *ArticleUpdate) SetNillableURL(v *string) *ArticleUpdate {
+	if v != nil {
+		_u.SetURL(*v)
 	}
-	return au
+	return _u
 }
 
 // SetDescription sets the "description" field.
-func (au *ArticleUpdate) SetDescription(s string) *ArticleUpdate {
-	au.mutation.SetDescription(s)
-	return au
+func (_u *ArticleUpdate) SetDescription(v string) *ArticleUpdate {
+	_u.mutation.SetDescription(v)
+	return _u
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (au *ArticleUpdate) SetNillableDescription(s *string) *ArticleUpdate {
-	if s != nil {
-		au.SetDescription(*s)
+func (_u *ArticleUpdate) SetNillableDescription(v *string) *ArticleUpdate {
+	if v != nil {
+		_u.SetDescription(*v)
 	}
-	return au
+	return _u
 }
 
 // ClearDescription clears the value of the "description" field.
-func (au *ArticleUpdate) ClearDescription() *ArticleUpdate {
-	au.mutation.ClearDescription()
-	return au
+func (_u *ArticleUpdate) ClearDescription() *ArticleUpdate {
+	_u.mutation.ClearDescription()
+	return _u
 }
 
 // SetContent sets the "content" field.
-func (au *ArticleUpdate) SetContent(s string) *ArticleUpdate {
-	au.mutation.SetContent(s)
-	return au
+func (_u *ArticleUpdate) SetContent(v string) *ArticleUpdate {
+	_u.mutation.SetContent(v)
+	return _u
 }
 
 // SetNillableContent sets the "content" field if the given value is not nil.
-func (au *ArticleUpdate) SetNillableContent(s *string) *ArticleUpdate {
-	if s != nil {
-		au.SetContent(*s)
+func (_u *ArticleUpdate) SetNillableContent(v *string) *ArticleUpdate {
+	if v != nil {
+		_u.SetContent(*v)
 	}
-	return au
+	return _u
 }
 
 // ClearContent clears the value of the "content" field.
-func (au *ArticleUpdate) ClearContent() *ArticleUpdate {
-	au.mutation.ClearContent()
-	return au
+func (_u *ArticleUpdate) ClearContent() *ArticleUpdate {
+	_u.mutation.ClearContent()
+	return _u
 }
 
 // SetPublishedAt sets the "published_at" field.
-func (au *ArticleUpdate) SetPublishedAt(t time.Time) *ArticleUpdate {
-	au.mutation.SetPublishedAt(t)
-	return au
+func (_u *ArticleUpdate) SetPublishedAt(v time.Time) *ArticleUpdate {
+	_u.mutation.SetPublishedAt(v)
+	return _u
 }
 
 // SetNillablePublishedAt sets the "published_at" field if the given value is not nil.
-func (au *ArticleUpdate) SetNillablePublishedAt(t *time.Time) *ArticleUpdate {
-	if t != nil {
-		au.SetPublishedAt(*t)
+func (_u *ArticleUpdate) SetNillablePublishedAt(v *time.Time) *ArticleUpdate {
+	if v != nil {
+		_u.SetPublishedAt(*v)
 	}
-	return au
+	return _u
 }
 
 // ClearPublishedAt clears the value of the "published_at" field.
-func (au *ArticleUpdate) ClearPublishedAt() *ArticleUpdate {
-	au.mutation.ClearPublishedAt()
-	return au
+func (_u *ArticleUpdate) ClearPublishedAt() *ArticleUpdate {
+	_u.mutation.ClearPublishedAt()
+	return _u
 }
 
 // SetFeedID sets the "feed" edge to the Feed entity by ID.
-func (au *ArticleUpdate) SetFeedID(id uuid.UUID) *ArticleUpdate {
-	au.mutation.SetFeedID(id)
-	return au
+func (_u *ArticleUpdate) SetFeedID(id uuid.UUID) *ArticleUpdate {
+	_u.mutation.SetFeedID(id)
+	return _u
 }
 
 // SetFeed sets the "feed" edge to the Feed entity.
-func (au *ArticleUpdate) SetFeed(f *Feed) *ArticleUpdate {
-	return au.SetFeedID(f.ID)
+func (_u *ArticleUpdate) SetFeed(v *Feed) *ArticleUpdate {
+	return _u.SetFeedID(v.ID)
 }
 
 // SetSummaryID sets the "summary" edge to the Summary entity by ID.
-func (au *ArticleUpdate) SetSummaryID(id uuid.UUID) *ArticleUpdate {
-	au.mutation.SetSummaryID(id)
-	return au
+func (_u *ArticleUpdate) SetSummaryID(id uuid.UUID) *ArticleUpdate {
+	_u.mutation.SetSummaryID(id)
+	return _u
 }
 
 // SetNillableSummaryID sets the "summary" edge to the Summary entity by ID if the given value is not nil.
-func (au *ArticleUpdate) SetNillableSummaryID(id *uuid.UUID) *ArticleUpdate {
+func (_u *ArticleUpdate) SetNillableSummaryID(id *uuid.UUID) *ArticleUpdate {
 	if id != nil {
-		au = au.SetSummaryID(*id)
+		_u = _u.SetSummaryID(*id)
 	}
-	return au
+	return _u
 }
 
 // SetSummary sets the "summary" edge to the Summary entity.
-func (au *ArticleUpdate) SetSummary(s *Summary) *ArticleUpdate {
-	return au.SetSummaryID(s.ID)
+func (_u *ArticleUpdate) SetSummary(v *Summary) *ArticleUpdate {
+	return _u.SetSummaryID(v.ID)
 }
 
 // Mutation returns the ArticleMutation object of the builder.
-func (au *ArticleUpdate) Mutation() *ArticleMutation {
-	return au.mutation
+func (_u *ArticleUpdate) Mutation() *ArticleMutation {
+	return _u.mutation
 }
 
 // ClearFeed clears the "feed" edge to the Feed entity.
-func (au *ArticleUpdate) ClearFeed() *ArticleUpdate {
-	au.mutation.ClearFeed()
-	return au
+func (_u *ArticleUpdate) ClearFeed() *ArticleUpdate {
+	_u.mutation.ClearFeed()
+	return _u
 }
 
 // ClearSummary clears the "summary" edge to the Summary entity.
-func (au *ArticleUpdate) ClearSummary() *ArticleUpdate {
-	au.mutation.ClearSummary()
-	return au
+func (_u *ArticleUpdate) ClearSummary() *ArticleUpdate {
+	_u.mutation.ClearSummary()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (au *ArticleUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks(ctx, au.sqlSave, au.mutation, au.hooks)
+func (_u *ArticleUpdate) Save(ctx context.Context) (int, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (au *ArticleUpdate) SaveX(ctx context.Context) int {
-	affected, err := au.Save(ctx)
+func (_u *ArticleUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -181,73 +181,73 @@ func (au *ArticleUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (au *ArticleUpdate) Exec(ctx context.Context) error {
-	_, err := au.Save(ctx)
+func (_u *ArticleUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (au *ArticleUpdate) ExecX(ctx context.Context) {
-	if err := au.Exec(ctx); err != nil {
+func (_u *ArticleUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (au *ArticleUpdate) check() error {
-	if v, ok := au.mutation.Title(); ok {
+func (_u *ArticleUpdate) check() error {
+	if v, ok := _u.mutation.Title(); ok {
 		if err := article.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Article.title": %w`, err)}
 		}
 	}
-	if v, ok := au.mutation.URL(); ok {
+	if v, ok := _u.mutation.URL(); ok {
 		if err := article.URLValidator(v); err != nil {
 			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Article.url": %w`, err)}
 		}
 	}
-	if au.mutation.FeedCleared() && len(au.mutation.FeedIDs()) > 0 {
+	if _u.mutation.FeedCleared() && len(_u.mutation.FeedIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Article.feed"`)
 	}
 	return nil
 }
 
-func (au *ArticleUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := au.check(); err != nil {
-		return n, err
+func (_u *ArticleUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(article.Table, article.Columns, sqlgraph.NewFieldSpec(article.FieldID, field.TypeUUID))
-	if ps := au.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := au.mutation.Title(); ok {
+	if value, ok := _u.mutation.Title(); ok {
 		_spec.SetField(article.FieldTitle, field.TypeString, value)
 	}
-	if value, ok := au.mutation.URL(); ok {
+	if value, ok := _u.mutation.URL(); ok {
 		_spec.SetField(article.FieldURL, field.TypeString, value)
 	}
-	if value, ok := au.mutation.Description(); ok {
+	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(article.FieldDescription, field.TypeString, value)
 	}
-	if au.mutation.DescriptionCleared() {
+	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(article.FieldDescription, field.TypeString)
 	}
-	if value, ok := au.mutation.Content(); ok {
+	if value, ok := _u.mutation.Content(); ok {
 		_spec.SetField(article.FieldContent, field.TypeString, value)
 	}
-	if au.mutation.ContentCleared() {
+	if _u.mutation.ContentCleared() {
 		_spec.ClearField(article.FieldContent, field.TypeString)
 	}
-	if value, ok := au.mutation.PublishedAt(); ok {
+	if value, ok := _u.mutation.PublishedAt(); ok {
 		_spec.SetField(article.FieldPublishedAt, field.TypeTime, value)
 	}
-	if au.mutation.PublishedAtCleared() {
+	if _u.mutation.PublishedAtCleared() {
 		_spec.ClearField(article.FieldPublishedAt, field.TypeTime)
 	}
-	if au.mutation.FeedCleared() {
+	if _u.mutation.FeedCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -260,7 +260,7 @@ func (au *ArticleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := au.mutation.FeedIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.FeedIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -276,7 +276,7 @@ func (au *ArticleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if au.mutation.SummaryCleared() {
+	if _u.mutation.SummaryCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: false,
@@ -289,7 +289,7 @@ func (au *ArticleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := au.mutation.SummaryIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.SummaryIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: false,
@@ -305,7 +305,7 @@ func (au *ArticleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, au.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{article.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -313,8 +313,8 @@ func (au *ArticleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	au.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // ArticleUpdateOne is the builder for updating a single Article entity.
@@ -326,161 +326,161 @@ type ArticleUpdateOne struct {
 }
 
 // SetTitle sets the "title" field.
-func (auo *ArticleUpdateOne) SetTitle(s string) *ArticleUpdateOne {
-	auo.mutation.SetTitle(s)
-	return auo
+func (_u *ArticleUpdateOne) SetTitle(v string) *ArticleUpdateOne {
+	_u.mutation.SetTitle(v)
+	return _u
 }
 
 // SetNillableTitle sets the "title" field if the given value is not nil.
-func (auo *ArticleUpdateOne) SetNillableTitle(s *string) *ArticleUpdateOne {
-	if s != nil {
-		auo.SetTitle(*s)
+func (_u *ArticleUpdateOne) SetNillableTitle(v *string) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetTitle(*v)
 	}
-	return auo
+	return _u
 }
 
 // SetURL sets the "url" field.
-func (auo *ArticleUpdateOne) SetURL(s string) *ArticleUpdateOne {
-	auo.mutation.SetURL(s)
-	return auo
+func (_u *ArticleUpdateOne) SetURL(v string) *ArticleUpdateOne {
+	_u.mutation.SetURL(v)
+	return _u
 }
 
 // SetNillableURL sets the "url" field if the given value is not nil.
-func (auo *ArticleUpdateOne) SetNillableURL(s *string) *ArticleUpdateOne {
-	if s != nil {
-		auo.SetURL(*s)
+func (_u *ArticleUpdateOne) SetNillableURL(v *string) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetURL(*v)
 	}
-	return auo
+	return _u
 }
 
 // SetDescription sets the "description" field.
-func (auo *ArticleUpdateOne) SetDescription(s string) *ArticleUpdateOne {
-	auo.mutation.SetDescription(s)
-	return auo
+func (_u *ArticleUpdateOne) SetDescription(v string) *ArticleUpdateOne {
+	_u.mutation.SetDescription(v)
+	return _u
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (auo *ArticleUpdateOne) SetNillableDescription(s *string) *ArticleUpdateOne {
-	if s != nil {
-		auo.SetDescription(*s)
+func (_u *ArticleUpdateOne) SetNillableDescription(v *string) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetDescription(*v)
 	}
-	return auo
+	return _u
 }
 
 // ClearDescription clears the value of the "description" field.
-func (auo *ArticleUpdateOne) ClearDescription() *ArticleUpdateOne {
-	auo.mutation.ClearDescription()
-	return auo
+func (_u *ArticleUpdateOne) ClearDescription() *ArticleUpdateOne {
+	_u.mutation.ClearDescription()
+	return _u
 }
 
 // SetContent sets the "content" field.
-func (auo *ArticleUpdateOne) SetContent(s string) *ArticleUpdateOne {
-	auo.mutation.SetContent(s)
-	return auo
+func (_u *ArticleUpdateOne) SetContent(v string) *ArticleUpdateOne {
+	_u.mutation.SetContent(v)
+	return _u
 }
 
 // SetNillableContent sets the "content" field if the given value is not nil.
-func (auo *ArticleUpdateOne) SetNillableContent(s *string) *ArticleUpdateOne {
-	if s != nil {
-		auo.SetContent(*s)
+func (_u *ArticleUpdateOne) SetNillableContent(v *string) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetContent(*v)
 	}
-	return auo
+	return _u
 }
 
 // ClearContent clears the value of the "content" field.
-func (auo *ArticleUpdateOne) ClearContent() *ArticleUpdateOne {
-	auo.mutation.ClearContent()
-	return auo
+func (_u *ArticleUpdateOne) ClearContent() *ArticleUpdateOne {
+	_u.mutation.ClearContent()
+	return _u
 }
 
 // SetPublishedAt sets the "published_at" field.
-func (auo *ArticleUpdateOne) SetPublishedAt(t time.Time) *ArticleUpdateOne {
-	auo.mutation.SetPublishedAt(t)
-	return auo
+func (_u *ArticleUpdateOne) SetPublishedAt(v time.Time) *ArticleUpdateOne {
+	_u.mutation.SetPublishedAt(v)
+	return _u
 }
 
 // SetNillablePublishedAt sets the "published_at" field if the given value is not nil.
-func (auo *ArticleUpdateOne) SetNillablePublishedAt(t *time.Time) *ArticleUpdateOne {
-	if t != nil {
-		auo.SetPublishedAt(*t)
+func (_u *ArticleUpdateOne) SetNillablePublishedAt(v *time.Time) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetPublishedAt(*v)
 	}
-	return auo
+	return _u
 }
 
 // ClearPublishedAt clears the value of the "published_at" field.
-func (auo *ArticleUpdateOne) ClearPublishedAt() *ArticleUpdateOne {
-	auo.mutation.ClearPublishedAt()
-	return auo
+func (_u *ArticleUpdateOne) ClearPublishedAt() *ArticleUpdateOne {
+	_u.mutation.ClearPublishedAt()
+	return _u
 }
 
 // SetFeedID sets the "feed" edge to the Feed entity by ID.
-func (auo *ArticleUpdateOne) SetFeedID(id uuid.UUID) *ArticleUpdateOne {
-	auo.mutation.SetFeedID(id)
-	return auo
+func (_u *ArticleUpdateOne) SetFeedID(id uuid.UUID) *ArticleUpdateOne {
+	_u.mutation.SetFeedID(id)
+	return _u
 }
 
 // SetFeed sets the "feed" edge to the Feed entity.
-func (auo *ArticleUpdateOne) SetFeed(f *Feed) *ArticleUpdateOne {
-	return auo.SetFeedID(f.ID)
+func (_u *ArticleUpdateOne) SetFeed(v *Feed) *ArticleUpdateOne {
+	return _u.SetFeedID(v.ID)
 }
 
 // SetSummaryID sets the "summary" edge to the Summary entity by ID.
-func (auo *ArticleUpdateOne) SetSummaryID(id uuid.UUID) *ArticleUpdateOne {
-	auo.mutation.SetSummaryID(id)
-	return auo
+func (_u *ArticleUpdateOne) SetSummaryID(id uuid.UUID) *ArticleUpdateOne {
+	_u.mutation.SetSummaryID(id)
+	return _u
 }
 
 // SetNillableSummaryID sets the "summary" edge to the Summary entity by ID if the given value is not nil.
-func (auo *ArticleUpdateOne) SetNillableSummaryID(id *uuid.UUID) *ArticleUpdateOne {
+func (_u *ArticleUpdateOne) SetNillableSummaryID(id *uuid.UUID) *ArticleUpdateOne {
 	if id != nil {
-		auo = auo.SetSummaryID(*id)
+		_u = _u.SetSummaryID(*id)
 	}
-	return auo
+	return _u
 }
 
 // SetSummary sets the "summary" edge to the Summary entity.
-func (auo *ArticleUpdateOne) SetSummary(s *Summary) *ArticleUpdateOne {
-	return auo.SetSummaryID(s.ID)
+func (_u *ArticleUpdateOne) SetSummary(v *Summary) *ArticleUpdateOne {
+	return _u.SetSummaryID(v.ID)
 }
 
 // Mutation returns the ArticleMutation object of the builder.
-func (auo *ArticleUpdateOne) Mutation() *ArticleMutation {
-	return auo.mutation
+func (_u *ArticleUpdateOne) Mutation() *ArticleMutation {
+	return _u.mutation
 }
 
 // ClearFeed clears the "feed" edge to the Feed entity.
-func (auo *ArticleUpdateOne) ClearFeed() *ArticleUpdateOne {
-	auo.mutation.ClearFeed()
-	return auo
+func (_u *ArticleUpdateOne) ClearFeed() *ArticleUpdateOne {
+	_u.mutation.ClearFeed()
+	return _u
 }
 
 // ClearSummary clears the "summary" edge to the Summary entity.
-func (auo *ArticleUpdateOne) ClearSummary() *ArticleUpdateOne {
-	auo.mutation.ClearSummary()
-	return auo
+func (_u *ArticleUpdateOne) ClearSummary() *ArticleUpdateOne {
+	_u.mutation.ClearSummary()
+	return _u
 }
 
 // Where appends a list predicates to the ArticleUpdate builder.
-func (auo *ArticleUpdateOne) Where(ps ...predicate.Article) *ArticleUpdateOne {
-	auo.mutation.Where(ps...)
-	return auo
+func (_u *ArticleUpdateOne) Where(ps ...predicate.Article) *ArticleUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (auo *ArticleUpdateOne) Select(field string, fields ...string) *ArticleUpdateOne {
-	auo.fields = append([]string{field}, fields...)
-	return auo
+func (_u *ArticleUpdateOne) Select(field string, fields ...string) *ArticleUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated Article entity.
-func (auo *ArticleUpdateOne) Save(ctx context.Context) (*Article, error) {
-	return withHooks(ctx, auo.sqlSave, auo.mutation, auo.hooks)
+func (_u *ArticleUpdateOne) Save(ctx context.Context) (*Article, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (auo *ArticleUpdateOne) SaveX(ctx context.Context) *Article {
-	node, err := auo.Save(ctx)
+func (_u *ArticleUpdateOne) SaveX(ctx context.Context) *Article {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -488,47 +488,47 @@ func (auo *ArticleUpdateOne) SaveX(ctx context.Context) *Article {
 }
 
 // Exec executes the query on the entity.
-func (auo *ArticleUpdateOne) Exec(ctx context.Context) error {
-	_, err := auo.Save(ctx)
+func (_u *ArticleUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (auo *ArticleUpdateOne) ExecX(ctx context.Context) {
-	if err := auo.Exec(ctx); err != nil {
+func (_u *ArticleUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (auo *ArticleUpdateOne) check() error {
-	if v, ok := auo.mutation.Title(); ok {
+func (_u *ArticleUpdateOne) check() error {
+	if v, ok := _u.mutation.Title(); ok {
 		if err := article.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Article.title": %w`, err)}
 		}
 	}
-	if v, ok := auo.mutation.URL(); ok {
+	if v, ok := _u.mutation.URL(); ok {
 		if err := article.URLValidator(v); err != nil {
 			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Article.url": %w`, err)}
 		}
 	}
-	if auo.mutation.FeedCleared() && len(auo.mutation.FeedIDs()) > 0 {
+	if _u.mutation.FeedCleared() && len(_u.mutation.FeedIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Article.feed"`)
 	}
 	return nil
 }
 
-func (auo *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err error) {
-	if err := auo.check(); err != nil {
+func (_u *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(article.Table, article.Columns, sqlgraph.NewFieldSpec(article.FieldID, field.TypeUUID))
-	id, ok := auo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Article.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := auo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, article.FieldID)
 		for _, f := range fields {
@@ -540,38 +540,38 @@ func (auo *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err e
 			}
 		}
 	}
-	if ps := auo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := auo.mutation.Title(); ok {
+	if value, ok := _u.mutation.Title(); ok {
 		_spec.SetField(article.FieldTitle, field.TypeString, value)
 	}
-	if value, ok := auo.mutation.URL(); ok {
+	if value, ok := _u.mutation.URL(); ok {
 		_spec.SetField(article.FieldURL, field.TypeString, value)
 	}
-	if value, ok := auo.mutation.Description(); ok {
+	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(article.FieldDescription, field.TypeString, value)
 	}
-	if auo.mutation.DescriptionCleared() {
+	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(article.FieldDescription, field.TypeString)
 	}
-	if value, ok := auo.mutation.Content(); ok {
+	if value, ok := _u.mutation.Content(); ok {
 		_spec.SetField(article.FieldContent, field.TypeString, value)
 	}
-	if auo.mutation.ContentCleared() {
+	if _u.mutation.ContentCleared() {
 		_spec.ClearField(article.FieldContent, field.TypeString)
 	}
-	if value, ok := auo.mutation.PublishedAt(); ok {
+	if value, ok := _u.mutation.PublishedAt(); ok {
 		_spec.SetField(article.FieldPublishedAt, field.TypeTime, value)
 	}
-	if auo.mutation.PublishedAtCleared() {
+	if _u.mutation.PublishedAtCleared() {
 		_spec.ClearField(article.FieldPublishedAt, field.TypeTime)
 	}
-	if auo.mutation.FeedCleared() {
+	if _u.mutation.FeedCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -584,7 +584,7 @@ func (auo *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err e
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := auo.mutation.FeedIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.FeedIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -600,7 +600,7 @@ func (auo *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err e
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if auo.mutation.SummaryCleared() {
+	if _u.mutation.SummaryCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: false,
@@ -613,7 +613,7 @@ func (auo *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err e
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := auo.mutation.SummaryIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.SummaryIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: false,
@@ -629,10 +629,10 @@ func (auo *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err e
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &Article{config: auo.config}
+	_node = &Article{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, auo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{article.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -640,6 +640,6 @@ func (auo *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err e
 		}
 		return nil, err
 	}
-	auo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

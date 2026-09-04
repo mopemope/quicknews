@@ -24,131 +24,131 @@ type ArticleCreate struct {
 }
 
 // SetTitle sets the "title" field.
-func (ac *ArticleCreate) SetTitle(s string) *ArticleCreate {
-	ac.mutation.SetTitle(s)
-	return ac
+func (_c *ArticleCreate) SetTitle(v string) *ArticleCreate {
+	_c.mutation.SetTitle(v)
+	return _c
 }
 
 // SetURL sets the "url" field.
-func (ac *ArticleCreate) SetURL(s string) *ArticleCreate {
-	ac.mutation.SetURL(s)
-	return ac
+func (_c *ArticleCreate) SetURL(v string) *ArticleCreate {
+	_c.mutation.SetURL(v)
+	return _c
 }
 
 // SetDescription sets the "description" field.
-func (ac *ArticleCreate) SetDescription(s string) *ArticleCreate {
-	ac.mutation.SetDescription(s)
-	return ac
+func (_c *ArticleCreate) SetDescription(v string) *ArticleCreate {
+	_c.mutation.SetDescription(v)
+	return _c
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (ac *ArticleCreate) SetNillableDescription(s *string) *ArticleCreate {
-	if s != nil {
-		ac.SetDescription(*s)
+func (_c *ArticleCreate) SetNillableDescription(v *string) *ArticleCreate {
+	if v != nil {
+		_c.SetDescription(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetContent sets the "content" field.
-func (ac *ArticleCreate) SetContent(s string) *ArticleCreate {
-	ac.mutation.SetContent(s)
-	return ac
+func (_c *ArticleCreate) SetContent(v string) *ArticleCreate {
+	_c.mutation.SetContent(v)
+	return _c
 }
 
 // SetNillableContent sets the "content" field if the given value is not nil.
-func (ac *ArticleCreate) SetNillableContent(s *string) *ArticleCreate {
-	if s != nil {
-		ac.SetContent(*s)
+func (_c *ArticleCreate) SetNillableContent(v *string) *ArticleCreate {
+	if v != nil {
+		_c.SetContent(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetPublishedAt sets the "published_at" field.
-func (ac *ArticleCreate) SetPublishedAt(t time.Time) *ArticleCreate {
-	ac.mutation.SetPublishedAt(t)
-	return ac
+func (_c *ArticleCreate) SetPublishedAt(v time.Time) *ArticleCreate {
+	_c.mutation.SetPublishedAt(v)
+	return _c
 }
 
 // SetNillablePublishedAt sets the "published_at" field if the given value is not nil.
-func (ac *ArticleCreate) SetNillablePublishedAt(t *time.Time) *ArticleCreate {
-	if t != nil {
-		ac.SetPublishedAt(*t)
+func (_c *ArticleCreate) SetNillablePublishedAt(v *time.Time) *ArticleCreate {
+	if v != nil {
+		_c.SetPublishedAt(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (ac *ArticleCreate) SetCreatedAt(t time.Time) *ArticleCreate {
-	ac.mutation.SetCreatedAt(t)
-	return ac
+func (_c *ArticleCreate) SetCreatedAt(v time.Time) *ArticleCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (ac *ArticleCreate) SetNillableCreatedAt(t *time.Time) *ArticleCreate {
-	if t != nil {
-		ac.SetCreatedAt(*t)
+func (_c *ArticleCreate) SetNillableCreatedAt(v *time.Time) *ArticleCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetID sets the "id" field.
-func (ac *ArticleCreate) SetID(u uuid.UUID) *ArticleCreate {
-	ac.mutation.SetID(u)
-	return ac
+func (_c *ArticleCreate) SetID(v uuid.UUID) *ArticleCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // SetNillableID sets the "id" field if the given value is not nil.
-func (ac *ArticleCreate) SetNillableID(u *uuid.UUID) *ArticleCreate {
-	if u != nil {
-		ac.SetID(*u)
+func (_c *ArticleCreate) SetNillableID(v *uuid.UUID) *ArticleCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetFeedID sets the "feed" edge to the Feed entity by ID.
-func (ac *ArticleCreate) SetFeedID(id uuid.UUID) *ArticleCreate {
-	ac.mutation.SetFeedID(id)
-	return ac
+func (_c *ArticleCreate) SetFeedID(id uuid.UUID) *ArticleCreate {
+	_c.mutation.SetFeedID(id)
+	return _c
 }
 
 // SetFeed sets the "feed" edge to the Feed entity.
-func (ac *ArticleCreate) SetFeed(f *Feed) *ArticleCreate {
-	return ac.SetFeedID(f.ID)
+func (_c *ArticleCreate) SetFeed(v *Feed) *ArticleCreate {
+	return _c.SetFeedID(v.ID)
 }
 
 // SetSummaryID sets the "summary" edge to the Summary entity by ID.
-func (ac *ArticleCreate) SetSummaryID(id uuid.UUID) *ArticleCreate {
-	ac.mutation.SetSummaryID(id)
-	return ac
+func (_c *ArticleCreate) SetSummaryID(id uuid.UUID) *ArticleCreate {
+	_c.mutation.SetSummaryID(id)
+	return _c
 }
 
 // SetNillableSummaryID sets the "summary" edge to the Summary entity by ID if the given value is not nil.
-func (ac *ArticleCreate) SetNillableSummaryID(id *uuid.UUID) *ArticleCreate {
+func (_c *ArticleCreate) SetNillableSummaryID(id *uuid.UUID) *ArticleCreate {
 	if id != nil {
-		ac = ac.SetSummaryID(*id)
+		_c = _c.SetSummaryID(*id)
 	}
-	return ac
+	return _c
 }
 
 // SetSummary sets the "summary" edge to the Summary entity.
-func (ac *ArticleCreate) SetSummary(s *Summary) *ArticleCreate {
-	return ac.SetSummaryID(s.ID)
+func (_c *ArticleCreate) SetSummary(v *Summary) *ArticleCreate {
+	return _c.SetSummaryID(v.ID)
 }
 
 // Mutation returns the ArticleMutation object of the builder.
-func (ac *ArticleCreate) Mutation() *ArticleMutation {
-	return ac.mutation
+func (_c *ArticleCreate) Mutation() *ArticleMutation {
+	return _c.mutation
 }
 
 // Save creates the Article in the database.
-func (ac *ArticleCreate) Save(ctx context.Context) (*Article, error) {
-	ac.defaults()
-	return withHooks(ctx, ac.sqlSave, ac.mutation, ac.hooks)
+func (_c *ArticleCreate) Save(ctx context.Context) (*Article, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (ac *ArticleCreate) SaveX(ctx context.Context) *Article {
-	v, err := ac.Save(ctx)
+func (_c *ArticleCreate) SaveX(ctx context.Context) *Article {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -156,63 +156,63 @@ func (ac *ArticleCreate) SaveX(ctx context.Context) *Article {
 }
 
 // Exec executes the query.
-func (ac *ArticleCreate) Exec(ctx context.Context) error {
-	_, err := ac.Save(ctx)
+func (_c *ArticleCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ac *ArticleCreate) ExecX(ctx context.Context) {
-	if err := ac.Exec(ctx); err != nil {
+func (_c *ArticleCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (ac *ArticleCreate) defaults() {
-	if _, ok := ac.mutation.CreatedAt(); !ok {
+func (_c *ArticleCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := article.DefaultCreatedAt()
-		ac.mutation.SetCreatedAt(v)
+		_c.mutation.SetCreatedAt(v)
 	}
-	if _, ok := ac.mutation.ID(); !ok {
+	if _, ok := _c.mutation.ID(); !ok {
 		v := article.DefaultID()
-		ac.mutation.SetID(v)
+		_c.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (ac *ArticleCreate) check() error {
-	if _, ok := ac.mutation.Title(); !ok {
+func (_c *ArticleCreate) check() error {
+	if _, ok := _c.mutation.Title(); !ok {
 		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "Article.title"`)}
 	}
-	if v, ok := ac.mutation.Title(); ok {
+	if v, ok := _c.mutation.Title(); ok {
 		if err := article.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Article.title": %w`, err)}
 		}
 	}
-	if _, ok := ac.mutation.URL(); !ok {
+	if _, ok := _c.mutation.URL(); !ok {
 		return &ValidationError{Name: "url", err: errors.New(`ent: missing required field "Article.url"`)}
 	}
-	if v, ok := ac.mutation.URL(); ok {
+	if v, ok := _c.mutation.URL(); ok {
 		if err := article.URLValidator(v); err != nil {
 			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Article.url": %w`, err)}
 		}
 	}
-	if _, ok := ac.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Article.created_at"`)}
 	}
-	if len(ac.mutation.FeedIDs()) == 0 {
+	if len(_c.mutation.FeedIDs()) == 0 {
 		return &ValidationError{Name: "feed", err: errors.New(`ent: missing required edge "Article.feed"`)}
 	}
 	return nil
 }
 
-func (ac *ArticleCreate) sqlSave(ctx context.Context) (*Article, error) {
-	if err := ac.check(); err != nil {
+func (_c *ArticleCreate) sqlSave(ctx context.Context) (*Article, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := ac.createSpec()
-	if err := sqlgraph.CreateNode(ctx, ac.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -225,45 +225,45 @@ func (ac *ArticleCreate) sqlSave(ctx context.Context) (*Article, error) {
 			return nil, err
 		}
 	}
-	ac.mutation.id = &_node.ID
-	ac.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (ac *ArticleCreate) createSpec() (*Article, *sqlgraph.CreateSpec) {
+func (_c *ArticleCreate) createSpec() (*Article, *sqlgraph.CreateSpec) {
 	var (
-		_node = &Article{config: ac.config}
+		_node = &Article{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(article.Table, sqlgraph.NewFieldSpec(article.FieldID, field.TypeUUID))
 	)
-	if id, ok := ac.mutation.ID(); ok {
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
-	if value, ok := ac.mutation.Title(); ok {
+	if value, ok := _c.mutation.Title(); ok {
 		_spec.SetField(article.FieldTitle, field.TypeString, value)
 		_node.Title = value
 	}
-	if value, ok := ac.mutation.URL(); ok {
+	if value, ok := _c.mutation.URL(); ok {
 		_spec.SetField(article.FieldURL, field.TypeString, value)
 		_node.URL = value
 	}
-	if value, ok := ac.mutation.Description(); ok {
+	if value, ok := _c.mutation.Description(); ok {
 		_spec.SetField(article.FieldDescription, field.TypeString, value)
 		_node.Description = value
 	}
-	if value, ok := ac.mutation.Content(); ok {
+	if value, ok := _c.mutation.Content(); ok {
 		_spec.SetField(article.FieldContent, field.TypeString, value)
 		_node.Content = value
 	}
-	if value, ok := ac.mutation.PublishedAt(); ok {
+	if value, ok := _c.mutation.PublishedAt(); ok {
 		_spec.SetField(article.FieldPublishedAt, field.TypeTime, value)
 		_node.PublishedAt = value
 	}
-	if value, ok := ac.mutation.CreatedAt(); ok {
+	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(article.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if nodes := ac.mutation.FeedIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.FeedIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -280,7 +280,7 @@ func (ac *ArticleCreate) createSpec() (*Article, *sqlgraph.CreateSpec) {
 		_node.feed_articles = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := ac.mutation.SummaryIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.SummaryIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: false,
@@ -307,16 +307,16 @@ type ArticleCreateBulk struct {
 }
 
 // Save creates the Article entities in the database.
-func (acb *ArticleCreateBulk) Save(ctx context.Context) ([]*Article, error) {
-	if acb.err != nil {
-		return nil, acb.err
+func (_c *ArticleCreateBulk) Save(ctx context.Context) ([]*Article, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(acb.builders))
-	nodes := make([]*Article, len(acb.builders))
-	mutators := make([]Mutator, len(acb.builders))
-	for i := range acb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*Article, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := acb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*ArticleMutation)
@@ -330,11 +330,11 @@ func (acb *ArticleCreateBulk) Save(ctx context.Context) ([]*Article, error) {
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, acb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, acb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -354,7 +354,7 @@ func (acb *ArticleCreateBulk) Save(ctx context.Context) ([]*Article, error) {
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, acb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -362,8 +362,8 @@ func (acb *ArticleCreateBulk) Save(ctx context.Context) ([]*Article, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (acb *ArticleCreateBulk) SaveX(ctx context.Context) []*Article {
-	v, err := acb.Save(ctx)
+func (_c *ArticleCreateBulk) SaveX(ctx context.Context) []*Article {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -371,14 +371,14 @@ func (acb *ArticleCreateBulk) SaveX(ctx context.Context) []*Article {
 }
 
 // Exec executes the query.
-func (acb *ArticleCreateBulk) Exec(ctx context.Context) error {
-	_, err := acb.Save(ctx)
+func (_c *ArticleCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (acb *ArticleCreateBulk) ExecX(ctx context.Context) {
-	if err := acb.Exec(ctx); err != nil {
+func (_c *ArticleCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

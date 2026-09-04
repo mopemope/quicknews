@@ -14,6 +14,7 @@
 - `bookmark [URL...]`: ブックマーク登録
 - `export_audio`: 既存 summary の音声再生成
 - `publish [YYYY-MM-DD]`: 複数日の音声を feed ごとに結合して R2 / podcast RSS へ公開
+- `mcp`: stdio MCP server を起動。AI ツールから `search_articles` で記事検索が可能
 
 ## 技術スタック
 - Go
@@ -29,3 +30,4 @@
 - TUI: `tui/`
 - 永続化: `models/`, `database/`, `ent/schema/`
 - 外部連携: `gemini/`, `tts/`, `storage/`, `rss/`
+- MCP: `cmd/mcp.go`, `mcpserver/`

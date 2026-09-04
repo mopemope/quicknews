@@ -24,153 +24,153 @@ type SummaryCreate struct {
 }
 
 // SetURL sets the "url" field.
-func (sc *SummaryCreate) SetURL(s string) *SummaryCreate {
-	sc.mutation.SetURL(s)
-	return sc
+func (_c *SummaryCreate) SetURL(v string) *SummaryCreate {
+	_c.mutation.SetURL(v)
+	return _c
 }
 
 // SetTitle sets the "title" field.
-func (sc *SummaryCreate) SetTitle(s string) *SummaryCreate {
-	sc.mutation.SetTitle(s)
-	return sc
+func (_c *SummaryCreate) SetTitle(v string) *SummaryCreate {
+	_c.mutation.SetTitle(v)
+	return _c
 }
 
 // SetNillableTitle sets the "title" field if the given value is not nil.
-func (sc *SummaryCreate) SetNillableTitle(s *string) *SummaryCreate {
-	if s != nil {
-		sc.SetTitle(*s)
+func (_c *SummaryCreate) SetNillableTitle(v *string) *SummaryCreate {
+	if v != nil {
+		_c.SetTitle(*v)
 	}
-	return sc
+	return _c
 }
 
 // SetSummary sets the "summary" field.
-func (sc *SummaryCreate) SetSummary(s string) *SummaryCreate {
-	sc.mutation.SetSummary(s)
-	return sc
+func (_c *SummaryCreate) SetSummary(v string) *SummaryCreate {
+	_c.mutation.SetSummary(v)
+	return _c
 }
 
 // SetNillableSummary sets the "summary" field if the given value is not nil.
-func (sc *SummaryCreate) SetNillableSummary(s *string) *SummaryCreate {
-	if s != nil {
-		sc.SetSummary(*s)
+func (_c *SummaryCreate) SetNillableSummary(v *string) *SummaryCreate {
+	if v != nil {
+		_c.SetSummary(*v)
 	}
-	return sc
+	return _c
 }
 
 // SetReaded sets the "readed" field.
-func (sc *SummaryCreate) SetReaded(b bool) *SummaryCreate {
-	sc.mutation.SetReaded(b)
-	return sc
+func (_c *SummaryCreate) SetReaded(v bool) *SummaryCreate {
+	_c.mutation.SetReaded(v)
+	return _c
 }
 
 // SetNillableReaded sets the "readed" field if the given value is not nil.
-func (sc *SummaryCreate) SetNillableReaded(b *bool) *SummaryCreate {
-	if b != nil {
-		sc.SetReaded(*b)
+func (_c *SummaryCreate) SetNillableReaded(v *bool) *SummaryCreate {
+	if v != nil {
+		_c.SetReaded(*v)
 	}
-	return sc
+	return _c
 }
 
 // SetListened sets the "listened" field.
-func (sc *SummaryCreate) SetListened(b bool) *SummaryCreate {
-	sc.mutation.SetListened(b)
-	return sc
+func (_c *SummaryCreate) SetListened(v bool) *SummaryCreate {
+	_c.mutation.SetListened(v)
+	return _c
 }
 
 // SetNillableListened sets the "listened" field if the given value is not nil.
-func (sc *SummaryCreate) SetNillableListened(b *bool) *SummaryCreate {
-	if b != nil {
-		sc.SetListened(*b)
+func (_c *SummaryCreate) SetNillableListened(v *bool) *SummaryCreate {
+	if v != nil {
+		_c.SetListened(*v)
 	}
-	return sc
+	return _c
 }
 
 // SetAudioFile sets the "audio_file" field.
-func (sc *SummaryCreate) SetAudioFile(s string) *SummaryCreate {
-	sc.mutation.SetAudioFile(s)
-	return sc
+func (_c *SummaryCreate) SetAudioFile(v string) *SummaryCreate {
+	_c.mutation.SetAudioFile(v)
+	return _c
 }
 
 // SetNillableAudioFile sets the "audio_file" field if the given value is not nil.
-func (sc *SummaryCreate) SetNillableAudioFile(s *string) *SummaryCreate {
-	if s != nil {
-		sc.SetAudioFile(*s)
+func (_c *SummaryCreate) SetNillableAudioFile(v *string) *SummaryCreate {
+	if v != nil {
+		_c.SetAudioFile(*v)
 	}
-	return sc
+	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (sc *SummaryCreate) SetCreatedAt(t time.Time) *SummaryCreate {
-	sc.mutation.SetCreatedAt(t)
-	return sc
+func (_c *SummaryCreate) SetCreatedAt(v time.Time) *SummaryCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (sc *SummaryCreate) SetNillableCreatedAt(t *time.Time) *SummaryCreate {
-	if t != nil {
-		sc.SetCreatedAt(*t)
+func (_c *SummaryCreate) SetNillableCreatedAt(v *time.Time) *SummaryCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
 	}
-	return sc
+	return _c
 }
 
 // SetID sets the "id" field.
-func (sc *SummaryCreate) SetID(u uuid.UUID) *SummaryCreate {
-	sc.mutation.SetID(u)
-	return sc
+func (_c *SummaryCreate) SetID(v uuid.UUID) *SummaryCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // SetNillableID sets the "id" field if the given value is not nil.
-func (sc *SummaryCreate) SetNillableID(u *uuid.UUID) *SummaryCreate {
-	if u != nil {
-		sc.SetID(*u)
+func (_c *SummaryCreate) SetNillableID(v *uuid.UUID) *SummaryCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
-	return sc
+	return _c
 }
 
 // SetArticleID sets the "article" edge to the Article entity by ID.
-func (sc *SummaryCreate) SetArticleID(id uuid.UUID) *SummaryCreate {
-	sc.mutation.SetArticleID(id)
-	return sc
+func (_c *SummaryCreate) SetArticleID(id uuid.UUID) *SummaryCreate {
+	_c.mutation.SetArticleID(id)
+	return _c
 }
 
 // SetNillableArticleID sets the "article" edge to the Article entity by ID if the given value is not nil.
-func (sc *SummaryCreate) SetNillableArticleID(id *uuid.UUID) *SummaryCreate {
+func (_c *SummaryCreate) SetNillableArticleID(id *uuid.UUID) *SummaryCreate {
 	if id != nil {
-		sc = sc.SetArticleID(*id)
+		_c = _c.SetArticleID(*id)
 	}
-	return sc
+	return _c
 }
 
 // SetArticle sets the "article" edge to the Article entity.
-func (sc *SummaryCreate) SetArticle(a *Article) *SummaryCreate {
-	return sc.SetArticleID(a.ID)
+func (_c *SummaryCreate) SetArticle(v *Article) *SummaryCreate {
+	return _c.SetArticleID(v.ID)
 }
 
 // SetFeedID sets the "feed" edge to the Feed entity by ID.
-func (sc *SummaryCreate) SetFeedID(id uuid.UUID) *SummaryCreate {
-	sc.mutation.SetFeedID(id)
-	return sc
+func (_c *SummaryCreate) SetFeedID(id uuid.UUID) *SummaryCreate {
+	_c.mutation.SetFeedID(id)
+	return _c
 }
 
 // SetFeed sets the "feed" edge to the Feed entity.
-func (sc *SummaryCreate) SetFeed(f *Feed) *SummaryCreate {
-	return sc.SetFeedID(f.ID)
+func (_c *SummaryCreate) SetFeed(v *Feed) *SummaryCreate {
+	return _c.SetFeedID(v.ID)
 }
 
 // Mutation returns the SummaryMutation object of the builder.
-func (sc *SummaryCreate) Mutation() *SummaryMutation {
-	return sc.mutation
+func (_c *SummaryCreate) Mutation() *SummaryMutation {
+	return _c.mutation
 }
 
 // Save creates the Summary in the database.
-func (sc *SummaryCreate) Save(ctx context.Context) (*Summary, error) {
-	sc.defaults()
-	return withHooks(ctx, sc.sqlSave, sc.mutation, sc.hooks)
+func (_c *SummaryCreate) Save(ctx context.Context) (*Summary, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (sc *SummaryCreate) SaveX(ctx context.Context) *Summary {
-	v, err := sc.Save(ctx)
+func (_c *SummaryCreate) SaveX(ctx context.Context) *Summary {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -178,69 +178,69 @@ func (sc *SummaryCreate) SaveX(ctx context.Context) *Summary {
 }
 
 // Exec executes the query.
-func (sc *SummaryCreate) Exec(ctx context.Context) error {
-	_, err := sc.Save(ctx)
+func (_c *SummaryCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (sc *SummaryCreate) ExecX(ctx context.Context) {
-	if err := sc.Exec(ctx); err != nil {
+func (_c *SummaryCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (sc *SummaryCreate) defaults() {
-	if _, ok := sc.mutation.Readed(); !ok {
+func (_c *SummaryCreate) defaults() {
+	if _, ok := _c.mutation.Readed(); !ok {
 		v := summary.DefaultReaded
-		sc.mutation.SetReaded(v)
+		_c.mutation.SetReaded(v)
 	}
-	if _, ok := sc.mutation.Listened(); !ok {
+	if _, ok := _c.mutation.Listened(); !ok {
 		v := summary.DefaultListened
-		sc.mutation.SetListened(v)
+		_c.mutation.SetListened(v)
 	}
-	if _, ok := sc.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := summary.DefaultCreatedAt()
-		sc.mutation.SetCreatedAt(v)
+		_c.mutation.SetCreatedAt(v)
 	}
-	if _, ok := sc.mutation.ID(); !ok {
+	if _, ok := _c.mutation.ID(); !ok {
 		v := summary.DefaultID()
-		sc.mutation.SetID(v)
+		_c.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (sc *SummaryCreate) check() error {
-	if _, ok := sc.mutation.URL(); !ok {
+func (_c *SummaryCreate) check() error {
+	if _, ok := _c.mutation.URL(); !ok {
 		return &ValidationError{Name: "url", err: errors.New(`ent: missing required field "Summary.url"`)}
 	}
-	if v, ok := sc.mutation.URL(); ok {
+	if v, ok := _c.mutation.URL(); ok {
 		if err := summary.URLValidator(v); err != nil {
 			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Summary.url": %w`, err)}
 		}
 	}
-	if _, ok := sc.mutation.Readed(); !ok {
+	if _, ok := _c.mutation.Readed(); !ok {
 		return &ValidationError{Name: "readed", err: errors.New(`ent: missing required field "Summary.readed"`)}
 	}
-	if _, ok := sc.mutation.Listened(); !ok {
+	if _, ok := _c.mutation.Listened(); !ok {
 		return &ValidationError{Name: "listened", err: errors.New(`ent: missing required field "Summary.listened"`)}
 	}
-	if _, ok := sc.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Summary.created_at"`)}
 	}
-	if len(sc.mutation.FeedIDs()) == 0 {
+	if len(_c.mutation.FeedIDs()) == 0 {
 		return &ValidationError{Name: "feed", err: errors.New(`ent: missing required edge "Summary.feed"`)}
 	}
 	return nil
 }
 
-func (sc *SummaryCreate) sqlSave(ctx context.Context) (*Summary, error) {
-	if err := sc.check(); err != nil {
+func (_c *SummaryCreate) sqlSave(ctx context.Context) (*Summary, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := sc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, sc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -253,49 +253,49 @@ func (sc *SummaryCreate) sqlSave(ctx context.Context) (*Summary, error) {
 			return nil, err
 		}
 	}
-	sc.mutation.id = &_node.ID
-	sc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (sc *SummaryCreate) createSpec() (*Summary, *sqlgraph.CreateSpec) {
+func (_c *SummaryCreate) createSpec() (*Summary, *sqlgraph.CreateSpec) {
 	var (
-		_node = &Summary{config: sc.config}
+		_node = &Summary{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(summary.Table, sqlgraph.NewFieldSpec(summary.FieldID, field.TypeUUID))
 	)
-	if id, ok := sc.mutation.ID(); ok {
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
-	if value, ok := sc.mutation.URL(); ok {
+	if value, ok := _c.mutation.URL(); ok {
 		_spec.SetField(summary.FieldURL, field.TypeString, value)
 		_node.URL = value
 	}
-	if value, ok := sc.mutation.Title(); ok {
+	if value, ok := _c.mutation.Title(); ok {
 		_spec.SetField(summary.FieldTitle, field.TypeString, value)
 		_node.Title = value
 	}
-	if value, ok := sc.mutation.Summary(); ok {
+	if value, ok := _c.mutation.Summary(); ok {
 		_spec.SetField(summary.FieldSummary, field.TypeString, value)
 		_node.Summary = value
 	}
-	if value, ok := sc.mutation.Readed(); ok {
+	if value, ok := _c.mutation.Readed(); ok {
 		_spec.SetField(summary.FieldReaded, field.TypeBool, value)
 		_node.Readed = value
 	}
-	if value, ok := sc.mutation.Listened(); ok {
+	if value, ok := _c.mutation.Listened(); ok {
 		_spec.SetField(summary.FieldListened, field.TypeBool, value)
 		_node.Listened = value
 	}
-	if value, ok := sc.mutation.AudioFile(); ok {
+	if value, ok := _c.mutation.AudioFile(); ok {
 		_spec.SetField(summary.FieldAudioFile, field.TypeString, value)
 		_node.AudioFile = value
 	}
-	if value, ok := sc.mutation.CreatedAt(); ok {
+	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(summary.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if nodes := sc.mutation.ArticleIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.ArticleIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -312,7 +312,7 @@ func (sc *SummaryCreate) createSpec() (*Summary, *sqlgraph.CreateSpec) {
 		_node.article_summary = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := sc.mutation.FeedIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.FeedIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -340,16 +340,16 @@ type SummaryCreateBulk struct {
 }
 
 // Save creates the Summary entities in the database.
-func (scb *SummaryCreateBulk) Save(ctx context.Context) ([]*Summary, error) {
-	if scb.err != nil {
-		return nil, scb.err
+func (_c *SummaryCreateBulk) Save(ctx context.Context) ([]*Summary, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(scb.builders))
-	nodes := make([]*Summary, len(scb.builders))
-	mutators := make([]Mutator, len(scb.builders))
-	for i := range scb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*Summary, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := scb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*SummaryMutation)
@@ -363,11 +363,11 @@ func (scb *SummaryCreateBulk) Save(ctx context.Context) ([]*Summary, error) {
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, scb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, scb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -387,7 +387,7 @@ func (scb *SummaryCreateBulk) Save(ctx context.Context) ([]*Summary, error) {
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, scb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -395,8 +395,8 @@ func (scb *SummaryCreateBulk) Save(ctx context.Context) ([]*Summary, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (scb *SummaryCreateBulk) SaveX(ctx context.Context) []*Summary {
-	v, err := scb.Save(ctx)
+func (_c *SummaryCreateBulk) SaveX(ctx context.Context) []*Summary {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -404,14 +404,14 @@ func (scb *SummaryCreateBulk) SaveX(ctx context.Context) []*Summary {
 }
 
 // Exec executes the query.
-func (scb *SummaryCreateBulk) Exec(ctx context.Context) error {
-	_, err := scb.Save(ctx)
+func (_c *SummaryCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (scb *SummaryCreateBulk) ExecX(ctx context.Context) {
-	if err := scb.Exec(ctx); err != nil {
+func (_c *SummaryCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

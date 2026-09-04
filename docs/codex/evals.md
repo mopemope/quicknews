@@ -33,3 +33,9 @@
 - 最初に見るべき場所: `cmd/publish.go`, `storage/r2.go`
 - 見てはいけない場所: `tui/`
 - 期待する検証: `go test ./cmd/... ./storage`
+
+## Eval 6: MCP search 変更 (`mcp-search`)
+- 課題: `search_articles` の limit 既定値を 20 に変え、上限 50 を維持する。
+- 最初に見るべき場所: `cmd/mcp.go`, `mcpserver/server.go`
+- 見てはいけない場所: `ent/` generated code 全体, `tui/`
+- 期待する検証: `go test ./mcpserver ./cmd/...`

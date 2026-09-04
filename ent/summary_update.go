@@ -25,168 +25,168 @@ type SummaryUpdate struct {
 }
 
 // Where appends a list predicates to the SummaryUpdate builder.
-func (su *SummaryUpdate) Where(ps ...predicate.Summary) *SummaryUpdate {
-	su.mutation.Where(ps...)
-	return su
+func (_u *SummaryUpdate) Where(ps ...predicate.Summary) *SummaryUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetURL sets the "url" field.
-func (su *SummaryUpdate) SetURL(s string) *SummaryUpdate {
-	su.mutation.SetURL(s)
-	return su
+func (_u *SummaryUpdate) SetURL(v string) *SummaryUpdate {
+	_u.mutation.SetURL(v)
+	return _u
 }
 
 // SetNillableURL sets the "url" field if the given value is not nil.
-func (su *SummaryUpdate) SetNillableURL(s *string) *SummaryUpdate {
-	if s != nil {
-		su.SetURL(*s)
+func (_u *SummaryUpdate) SetNillableURL(v *string) *SummaryUpdate {
+	if v != nil {
+		_u.SetURL(*v)
 	}
-	return su
+	return _u
 }
 
 // SetTitle sets the "title" field.
-func (su *SummaryUpdate) SetTitle(s string) *SummaryUpdate {
-	su.mutation.SetTitle(s)
-	return su
+func (_u *SummaryUpdate) SetTitle(v string) *SummaryUpdate {
+	_u.mutation.SetTitle(v)
+	return _u
 }
 
 // SetNillableTitle sets the "title" field if the given value is not nil.
-func (su *SummaryUpdate) SetNillableTitle(s *string) *SummaryUpdate {
-	if s != nil {
-		su.SetTitle(*s)
+func (_u *SummaryUpdate) SetNillableTitle(v *string) *SummaryUpdate {
+	if v != nil {
+		_u.SetTitle(*v)
 	}
-	return su
+	return _u
 }
 
 // ClearTitle clears the value of the "title" field.
-func (su *SummaryUpdate) ClearTitle() *SummaryUpdate {
-	su.mutation.ClearTitle()
-	return su
+func (_u *SummaryUpdate) ClearTitle() *SummaryUpdate {
+	_u.mutation.ClearTitle()
+	return _u
 }
 
 // SetSummary sets the "summary" field.
-func (su *SummaryUpdate) SetSummary(s string) *SummaryUpdate {
-	su.mutation.SetSummary(s)
-	return su
+func (_u *SummaryUpdate) SetSummary(v string) *SummaryUpdate {
+	_u.mutation.SetSummary(v)
+	return _u
 }
 
 // SetNillableSummary sets the "summary" field if the given value is not nil.
-func (su *SummaryUpdate) SetNillableSummary(s *string) *SummaryUpdate {
-	if s != nil {
-		su.SetSummary(*s)
+func (_u *SummaryUpdate) SetNillableSummary(v *string) *SummaryUpdate {
+	if v != nil {
+		_u.SetSummary(*v)
 	}
-	return su
+	return _u
 }
 
 // ClearSummary clears the value of the "summary" field.
-func (su *SummaryUpdate) ClearSummary() *SummaryUpdate {
-	su.mutation.ClearSummary()
-	return su
+func (_u *SummaryUpdate) ClearSummary() *SummaryUpdate {
+	_u.mutation.ClearSummary()
+	return _u
 }
 
 // SetReaded sets the "readed" field.
-func (su *SummaryUpdate) SetReaded(b bool) *SummaryUpdate {
-	su.mutation.SetReaded(b)
-	return su
+func (_u *SummaryUpdate) SetReaded(v bool) *SummaryUpdate {
+	_u.mutation.SetReaded(v)
+	return _u
 }
 
 // SetNillableReaded sets the "readed" field if the given value is not nil.
-func (su *SummaryUpdate) SetNillableReaded(b *bool) *SummaryUpdate {
-	if b != nil {
-		su.SetReaded(*b)
+func (_u *SummaryUpdate) SetNillableReaded(v *bool) *SummaryUpdate {
+	if v != nil {
+		_u.SetReaded(*v)
 	}
-	return su
+	return _u
 }
 
 // SetListened sets the "listened" field.
-func (su *SummaryUpdate) SetListened(b bool) *SummaryUpdate {
-	su.mutation.SetListened(b)
-	return su
+func (_u *SummaryUpdate) SetListened(v bool) *SummaryUpdate {
+	_u.mutation.SetListened(v)
+	return _u
 }
 
 // SetNillableListened sets the "listened" field if the given value is not nil.
-func (su *SummaryUpdate) SetNillableListened(b *bool) *SummaryUpdate {
-	if b != nil {
-		su.SetListened(*b)
+func (_u *SummaryUpdate) SetNillableListened(v *bool) *SummaryUpdate {
+	if v != nil {
+		_u.SetListened(*v)
 	}
-	return su
+	return _u
 }
 
 // SetAudioFile sets the "audio_file" field.
-func (su *SummaryUpdate) SetAudioFile(s string) *SummaryUpdate {
-	su.mutation.SetAudioFile(s)
-	return su
+func (_u *SummaryUpdate) SetAudioFile(v string) *SummaryUpdate {
+	_u.mutation.SetAudioFile(v)
+	return _u
 }
 
 // SetNillableAudioFile sets the "audio_file" field if the given value is not nil.
-func (su *SummaryUpdate) SetNillableAudioFile(s *string) *SummaryUpdate {
-	if s != nil {
-		su.SetAudioFile(*s)
+func (_u *SummaryUpdate) SetNillableAudioFile(v *string) *SummaryUpdate {
+	if v != nil {
+		_u.SetAudioFile(*v)
 	}
-	return su
+	return _u
 }
 
 // ClearAudioFile clears the value of the "audio_file" field.
-func (su *SummaryUpdate) ClearAudioFile() *SummaryUpdate {
-	su.mutation.ClearAudioFile()
-	return su
+func (_u *SummaryUpdate) ClearAudioFile() *SummaryUpdate {
+	_u.mutation.ClearAudioFile()
+	return _u
 }
 
 // SetArticleID sets the "article" edge to the Article entity by ID.
-func (su *SummaryUpdate) SetArticleID(id uuid.UUID) *SummaryUpdate {
-	su.mutation.SetArticleID(id)
-	return su
+func (_u *SummaryUpdate) SetArticleID(id uuid.UUID) *SummaryUpdate {
+	_u.mutation.SetArticleID(id)
+	return _u
 }
 
 // SetNillableArticleID sets the "article" edge to the Article entity by ID if the given value is not nil.
-func (su *SummaryUpdate) SetNillableArticleID(id *uuid.UUID) *SummaryUpdate {
+func (_u *SummaryUpdate) SetNillableArticleID(id *uuid.UUID) *SummaryUpdate {
 	if id != nil {
-		su = su.SetArticleID(*id)
+		_u = _u.SetArticleID(*id)
 	}
-	return su
+	return _u
 }
 
 // SetArticle sets the "article" edge to the Article entity.
-func (su *SummaryUpdate) SetArticle(a *Article) *SummaryUpdate {
-	return su.SetArticleID(a.ID)
+func (_u *SummaryUpdate) SetArticle(v *Article) *SummaryUpdate {
+	return _u.SetArticleID(v.ID)
 }
 
 // SetFeedID sets the "feed" edge to the Feed entity by ID.
-func (su *SummaryUpdate) SetFeedID(id uuid.UUID) *SummaryUpdate {
-	su.mutation.SetFeedID(id)
-	return su
+func (_u *SummaryUpdate) SetFeedID(id uuid.UUID) *SummaryUpdate {
+	_u.mutation.SetFeedID(id)
+	return _u
 }
 
 // SetFeed sets the "feed" edge to the Feed entity.
-func (su *SummaryUpdate) SetFeed(f *Feed) *SummaryUpdate {
-	return su.SetFeedID(f.ID)
+func (_u *SummaryUpdate) SetFeed(v *Feed) *SummaryUpdate {
+	return _u.SetFeedID(v.ID)
 }
 
 // Mutation returns the SummaryMutation object of the builder.
-func (su *SummaryUpdate) Mutation() *SummaryMutation {
-	return su.mutation
+func (_u *SummaryUpdate) Mutation() *SummaryMutation {
+	return _u.mutation
 }
 
 // ClearArticle clears the "article" edge to the Article entity.
-func (su *SummaryUpdate) ClearArticle() *SummaryUpdate {
-	su.mutation.ClearArticle()
-	return su
+func (_u *SummaryUpdate) ClearArticle() *SummaryUpdate {
+	_u.mutation.ClearArticle()
+	return _u
 }
 
 // ClearFeed clears the "feed" edge to the Feed entity.
-func (su *SummaryUpdate) ClearFeed() *SummaryUpdate {
-	su.mutation.ClearFeed()
-	return su
+func (_u *SummaryUpdate) ClearFeed() *SummaryUpdate {
+	_u.mutation.ClearFeed()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (su *SummaryUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks(ctx, su.sqlSave, su.mutation, su.hooks)
+func (_u *SummaryUpdate) Save(ctx context.Context) (int, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (su *SummaryUpdate) SaveX(ctx context.Context) int {
-	affected, err := su.Save(ctx)
+func (_u *SummaryUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -194,71 +194,71 @@ func (su *SummaryUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (su *SummaryUpdate) Exec(ctx context.Context) error {
-	_, err := su.Save(ctx)
+func (_u *SummaryUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (su *SummaryUpdate) ExecX(ctx context.Context) {
-	if err := su.Exec(ctx); err != nil {
+func (_u *SummaryUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (su *SummaryUpdate) check() error {
-	if v, ok := su.mutation.URL(); ok {
+func (_u *SummaryUpdate) check() error {
+	if v, ok := _u.mutation.URL(); ok {
 		if err := summary.URLValidator(v); err != nil {
 			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Summary.url": %w`, err)}
 		}
 	}
-	if su.mutation.FeedCleared() && len(su.mutation.FeedIDs()) > 0 {
+	if _u.mutation.FeedCleared() && len(_u.mutation.FeedIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Summary.feed"`)
 	}
 	return nil
 }
 
-func (su *SummaryUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := su.check(); err != nil {
-		return n, err
+func (_u *SummaryUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(summary.Table, summary.Columns, sqlgraph.NewFieldSpec(summary.FieldID, field.TypeUUID))
-	if ps := su.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := su.mutation.URL(); ok {
+	if value, ok := _u.mutation.URL(); ok {
 		_spec.SetField(summary.FieldURL, field.TypeString, value)
 	}
-	if value, ok := su.mutation.Title(); ok {
+	if value, ok := _u.mutation.Title(); ok {
 		_spec.SetField(summary.FieldTitle, field.TypeString, value)
 	}
-	if su.mutation.TitleCleared() {
+	if _u.mutation.TitleCleared() {
 		_spec.ClearField(summary.FieldTitle, field.TypeString)
 	}
-	if value, ok := su.mutation.Summary(); ok {
+	if value, ok := _u.mutation.Summary(); ok {
 		_spec.SetField(summary.FieldSummary, field.TypeString, value)
 	}
-	if su.mutation.SummaryCleared() {
+	if _u.mutation.SummaryCleared() {
 		_spec.ClearField(summary.FieldSummary, field.TypeString)
 	}
-	if value, ok := su.mutation.Readed(); ok {
+	if value, ok := _u.mutation.Readed(); ok {
 		_spec.SetField(summary.FieldReaded, field.TypeBool, value)
 	}
-	if value, ok := su.mutation.Listened(); ok {
+	if value, ok := _u.mutation.Listened(); ok {
 		_spec.SetField(summary.FieldListened, field.TypeBool, value)
 	}
-	if value, ok := su.mutation.AudioFile(); ok {
+	if value, ok := _u.mutation.AudioFile(); ok {
 		_spec.SetField(summary.FieldAudioFile, field.TypeString, value)
 	}
-	if su.mutation.AudioFileCleared() {
+	if _u.mutation.AudioFileCleared() {
 		_spec.ClearField(summary.FieldAudioFile, field.TypeString)
 	}
-	if su.mutation.ArticleCleared() {
+	if _u.mutation.ArticleCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -271,7 +271,7 @@ func (su *SummaryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := su.mutation.ArticleIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.ArticleIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -287,7 +287,7 @@ func (su *SummaryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if su.mutation.FeedCleared() {
+	if _u.mutation.FeedCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -300,7 +300,7 @@ func (su *SummaryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := su.mutation.FeedIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.FeedIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -316,7 +316,7 @@ func (su *SummaryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, su.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{summary.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -324,8 +324,8 @@ func (su *SummaryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	su.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // SummaryUpdateOne is the builder for updating a single Summary entity.
@@ -337,175 +337,175 @@ type SummaryUpdateOne struct {
 }
 
 // SetURL sets the "url" field.
-func (suo *SummaryUpdateOne) SetURL(s string) *SummaryUpdateOne {
-	suo.mutation.SetURL(s)
-	return suo
+func (_u *SummaryUpdateOne) SetURL(v string) *SummaryUpdateOne {
+	_u.mutation.SetURL(v)
+	return _u
 }
 
 // SetNillableURL sets the "url" field if the given value is not nil.
-func (suo *SummaryUpdateOne) SetNillableURL(s *string) *SummaryUpdateOne {
-	if s != nil {
-		suo.SetURL(*s)
+func (_u *SummaryUpdateOne) SetNillableURL(v *string) *SummaryUpdateOne {
+	if v != nil {
+		_u.SetURL(*v)
 	}
-	return suo
+	return _u
 }
 
 // SetTitle sets the "title" field.
-func (suo *SummaryUpdateOne) SetTitle(s string) *SummaryUpdateOne {
-	suo.mutation.SetTitle(s)
-	return suo
+func (_u *SummaryUpdateOne) SetTitle(v string) *SummaryUpdateOne {
+	_u.mutation.SetTitle(v)
+	return _u
 }
 
 // SetNillableTitle sets the "title" field if the given value is not nil.
-func (suo *SummaryUpdateOne) SetNillableTitle(s *string) *SummaryUpdateOne {
-	if s != nil {
-		suo.SetTitle(*s)
+func (_u *SummaryUpdateOne) SetNillableTitle(v *string) *SummaryUpdateOne {
+	if v != nil {
+		_u.SetTitle(*v)
 	}
-	return suo
+	return _u
 }
 
 // ClearTitle clears the value of the "title" field.
-func (suo *SummaryUpdateOne) ClearTitle() *SummaryUpdateOne {
-	suo.mutation.ClearTitle()
-	return suo
+func (_u *SummaryUpdateOne) ClearTitle() *SummaryUpdateOne {
+	_u.mutation.ClearTitle()
+	return _u
 }
 
 // SetSummary sets the "summary" field.
-func (suo *SummaryUpdateOne) SetSummary(s string) *SummaryUpdateOne {
-	suo.mutation.SetSummary(s)
-	return suo
+func (_u *SummaryUpdateOne) SetSummary(v string) *SummaryUpdateOne {
+	_u.mutation.SetSummary(v)
+	return _u
 }
 
 // SetNillableSummary sets the "summary" field if the given value is not nil.
-func (suo *SummaryUpdateOne) SetNillableSummary(s *string) *SummaryUpdateOne {
-	if s != nil {
-		suo.SetSummary(*s)
+func (_u *SummaryUpdateOne) SetNillableSummary(v *string) *SummaryUpdateOne {
+	if v != nil {
+		_u.SetSummary(*v)
 	}
-	return suo
+	return _u
 }
 
 // ClearSummary clears the value of the "summary" field.
-func (suo *SummaryUpdateOne) ClearSummary() *SummaryUpdateOne {
-	suo.mutation.ClearSummary()
-	return suo
+func (_u *SummaryUpdateOne) ClearSummary() *SummaryUpdateOne {
+	_u.mutation.ClearSummary()
+	return _u
 }
 
 // SetReaded sets the "readed" field.
-func (suo *SummaryUpdateOne) SetReaded(b bool) *SummaryUpdateOne {
-	suo.mutation.SetReaded(b)
-	return suo
+func (_u *SummaryUpdateOne) SetReaded(v bool) *SummaryUpdateOne {
+	_u.mutation.SetReaded(v)
+	return _u
 }
 
 // SetNillableReaded sets the "readed" field if the given value is not nil.
-func (suo *SummaryUpdateOne) SetNillableReaded(b *bool) *SummaryUpdateOne {
-	if b != nil {
-		suo.SetReaded(*b)
+func (_u *SummaryUpdateOne) SetNillableReaded(v *bool) *SummaryUpdateOne {
+	if v != nil {
+		_u.SetReaded(*v)
 	}
-	return suo
+	return _u
 }
 
 // SetListened sets the "listened" field.
-func (suo *SummaryUpdateOne) SetListened(b bool) *SummaryUpdateOne {
-	suo.mutation.SetListened(b)
-	return suo
+func (_u *SummaryUpdateOne) SetListened(v bool) *SummaryUpdateOne {
+	_u.mutation.SetListened(v)
+	return _u
 }
 
 // SetNillableListened sets the "listened" field if the given value is not nil.
-func (suo *SummaryUpdateOne) SetNillableListened(b *bool) *SummaryUpdateOne {
-	if b != nil {
-		suo.SetListened(*b)
+func (_u *SummaryUpdateOne) SetNillableListened(v *bool) *SummaryUpdateOne {
+	if v != nil {
+		_u.SetListened(*v)
 	}
-	return suo
+	return _u
 }
 
 // SetAudioFile sets the "audio_file" field.
-func (suo *SummaryUpdateOne) SetAudioFile(s string) *SummaryUpdateOne {
-	suo.mutation.SetAudioFile(s)
-	return suo
+func (_u *SummaryUpdateOne) SetAudioFile(v string) *SummaryUpdateOne {
+	_u.mutation.SetAudioFile(v)
+	return _u
 }
 
 // SetNillableAudioFile sets the "audio_file" field if the given value is not nil.
-func (suo *SummaryUpdateOne) SetNillableAudioFile(s *string) *SummaryUpdateOne {
-	if s != nil {
-		suo.SetAudioFile(*s)
+func (_u *SummaryUpdateOne) SetNillableAudioFile(v *string) *SummaryUpdateOne {
+	if v != nil {
+		_u.SetAudioFile(*v)
 	}
-	return suo
+	return _u
 }
 
 // ClearAudioFile clears the value of the "audio_file" field.
-func (suo *SummaryUpdateOne) ClearAudioFile() *SummaryUpdateOne {
-	suo.mutation.ClearAudioFile()
-	return suo
+func (_u *SummaryUpdateOne) ClearAudioFile() *SummaryUpdateOne {
+	_u.mutation.ClearAudioFile()
+	return _u
 }
 
 // SetArticleID sets the "article" edge to the Article entity by ID.
-func (suo *SummaryUpdateOne) SetArticleID(id uuid.UUID) *SummaryUpdateOne {
-	suo.mutation.SetArticleID(id)
-	return suo
+func (_u *SummaryUpdateOne) SetArticleID(id uuid.UUID) *SummaryUpdateOne {
+	_u.mutation.SetArticleID(id)
+	return _u
 }
 
 // SetNillableArticleID sets the "article" edge to the Article entity by ID if the given value is not nil.
-func (suo *SummaryUpdateOne) SetNillableArticleID(id *uuid.UUID) *SummaryUpdateOne {
+func (_u *SummaryUpdateOne) SetNillableArticleID(id *uuid.UUID) *SummaryUpdateOne {
 	if id != nil {
-		suo = suo.SetArticleID(*id)
+		_u = _u.SetArticleID(*id)
 	}
-	return suo
+	return _u
 }
 
 // SetArticle sets the "article" edge to the Article entity.
-func (suo *SummaryUpdateOne) SetArticle(a *Article) *SummaryUpdateOne {
-	return suo.SetArticleID(a.ID)
+func (_u *SummaryUpdateOne) SetArticle(v *Article) *SummaryUpdateOne {
+	return _u.SetArticleID(v.ID)
 }
 
 // SetFeedID sets the "feed" edge to the Feed entity by ID.
-func (suo *SummaryUpdateOne) SetFeedID(id uuid.UUID) *SummaryUpdateOne {
-	suo.mutation.SetFeedID(id)
-	return suo
+func (_u *SummaryUpdateOne) SetFeedID(id uuid.UUID) *SummaryUpdateOne {
+	_u.mutation.SetFeedID(id)
+	return _u
 }
 
 // SetFeed sets the "feed" edge to the Feed entity.
-func (suo *SummaryUpdateOne) SetFeed(f *Feed) *SummaryUpdateOne {
-	return suo.SetFeedID(f.ID)
+func (_u *SummaryUpdateOne) SetFeed(v *Feed) *SummaryUpdateOne {
+	return _u.SetFeedID(v.ID)
 }
 
 // Mutation returns the SummaryMutation object of the builder.
-func (suo *SummaryUpdateOne) Mutation() *SummaryMutation {
-	return suo.mutation
+func (_u *SummaryUpdateOne) Mutation() *SummaryMutation {
+	return _u.mutation
 }
 
 // ClearArticle clears the "article" edge to the Article entity.
-func (suo *SummaryUpdateOne) ClearArticle() *SummaryUpdateOne {
-	suo.mutation.ClearArticle()
-	return suo
+func (_u *SummaryUpdateOne) ClearArticle() *SummaryUpdateOne {
+	_u.mutation.ClearArticle()
+	return _u
 }
 
 // ClearFeed clears the "feed" edge to the Feed entity.
-func (suo *SummaryUpdateOne) ClearFeed() *SummaryUpdateOne {
-	suo.mutation.ClearFeed()
-	return suo
+func (_u *SummaryUpdateOne) ClearFeed() *SummaryUpdateOne {
+	_u.mutation.ClearFeed()
+	return _u
 }
 
 // Where appends a list predicates to the SummaryUpdate builder.
-func (suo *SummaryUpdateOne) Where(ps ...predicate.Summary) *SummaryUpdateOne {
-	suo.mutation.Where(ps...)
-	return suo
+func (_u *SummaryUpdateOne) Where(ps ...predicate.Summary) *SummaryUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (suo *SummaryUpdateOne) Select(field string, fields ...string) *SummaryUpdateOne {
-	suo.fields = append([]string{field}, fields...)
-	return suo
+func (_u *SummaryUpdateOne) Select(field string, fields ...string) *SummaryUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated Summary entity.
-func (suo *SummaryUpdateOne) Save(ctx context.Context) (*Summary, error) {
-	return withHooks(ctx, suo.sqlSave, suo.mutation, suo.hooks)
+func (_u *SummaryUpdateOne) Save(ctx context.Context) (*Summary, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (suo *SummaryUpdateOne) SaveX(ctx context.Context) *Summary {
-	node, err := suo.Save(ctx)
+func (_u *SummaryUpdateOne) SaveX(ctx context.Context) *Summary {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -513,42 +513,42 @@ func (suo *SummaryUpdateOne) SaveX(ctx context.Context) *Summary {
 }
 
 // Exec executes the query on the entity.
-func (suo *SummaryUpdateOne) Exec(ctx context.Context) error {
-	_, err := suo.Save(ctx)
+func (_u *SummaryUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (suo *SummaryUpdateOne) ExecX(ctx context.Context) {
-	if err := suo.Exec(ctx); err != nil {
+func (_u *SummaryUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (suo *SummaryUpdateOne) check() error {
-	if v, ok := suo.mutation.URL(); ok {
+func (_u *SummaryUpdateOne) check() error {
+	if v, ok := _u.mutation.URL(); ok {
 		if err := summary.URLValidator(v); err != nil {
 			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Summary.url": %w`, err)}
 		}
 	}
-	if suo.mutation.FeedCleared() && len(suo.mutation.FeedIDs()) > 0 {
+	if _u.mutation.FeedCleared() && len(_u.mutation.FeedIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Summary.feed"`)
 	}
 	return nil
 }
 
-func (suo *SummaryUpdateOne) sqlSave(ctx context.Context) (_node *Summary, err error) {
-	if err := suo.check(); err != nil {
+func (_u *SummaryUpdateOne) sqlSave(ctx context.Context) (_node *Summary, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(summary.Table, summary.Columns, sqlgraph.NewFieldSpec(summary.FieldID, field.TypeUUID))
-	id, ok := suo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Summary.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := suo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, summary.FieldID)
 		for _, f := range fields {
@@ -560,41 +560,41 @@ func (suo *SummaryUpdateOne) sqlSave(ctx context.Context) (_node *Summary, err e
 			}
 		}
 	}
-	if ps := suo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := suo.mutation.URL(); ok {
+	if value, ok := _u.mutation.URL(); ok {
 		_spec.SetField(summary.FieldURL, field.TypeString, value)
 	}
-	if value, ok := suo.mutation.Title(); ok {
+	if value, ok := _u.mutation.Title(); ok {
 		_spec.SetField(summary.FieldTitle, field.TypeString, value)
 	}
-	if suo.mutation.TitleCleared() {
+	if _u.mutation.TitleCleared() {
 		_spec.ClearField(summary.FieldTitle, field.TypeString)
 	}
-	if value, ok := suo.mutation.Summary(); ok {
+	if value, ok := _u.mutation.Summary(); ok {
 		_spec.SetField(summary.FieldSummary, field.TypeString, value)
 	}
-	if suo.mutation.SummaryCleared() {
+	if _u.mutation.SummaryCleared() {
 		_spec.ClearField(summary.FieldSummary, field.TypeString)
 	}
-	if value, ok := suo.mutation.Readed(); ok {
+	if value, ok := _u.mutation.Readed(); ok {
 		_spec.SetField(summary.FieldReaded, field.TypeBool, value)
 	}
-	if value, ok := suo.mutation.Listened(); ok {
+	if value, ok := _u.mutation.Listened(); ok {
 		_spec.SetField(summary.FieldListened, field.TypeBool, value)
 	}
-	if value, ok := suo.mutation.AudioFile(); ok {
+	if value, ok := _u.mutation.AudioFile(); ok {
 		_spec.SetField(summary.FieldAudioFile, field.TypeString, value)
 	}
-	if suo.mutation.AudioFileCleared() {
+	if _u.mutation.AudioFileCleared() {
 		_spec.ClearField(summary.FieldAudioFile, field.TypeString)
 	}
-	if suo.mutation.ArticleCleared() {
+	if _u.mutation.ArticleCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -607,7 +607,7 @@ func (suo *SummaryUpdateOne) sqlSave(ctx context.Context) (_node *Summary, err e
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := suo.mutation.ArticleIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.ArticleIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -623,7 +623,7 @@ func (suo *SummaryUpdateOne) sqlSave(ctx context.Context) (_node *Summary, err e
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if suo.mutation.FeedCleared() {
+	if _u.mutation.FeedCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -636,7 +636,7 @@ func (suo *SummaryUpdateOne) sqlSave(ctx context.Context) (_node *Summary, err e
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := suo.mutation.FeedIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.FeedIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -652,10 +652,10 @@ func (suo *SummaryUpdateOne) sqlSave(ctx context.Context) (_node *Summary, err e
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &Summary{config: suo.config}
+	_node = &Summary{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, suo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{summary.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -663,6 +663,6 @@ func (suo *SummaryUpdateOne) sqlSave(ctx context.Context) (_node *Summary, err e
 		}
 		return nil, err
 	}
-	suo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

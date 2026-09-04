@@ -273,8 +273,8 @@ func (c *ArticleClient) Update() *ArticleUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *ArticleClient) UpdateOne(a *Article) *ArticleUpdateOne {
-	mutation := newArticleMutation(c.config, OpUpdateOne, withArticle(a))
+func (c *ArticleClient) UpdateOne(_m *Article) *ArticleUpdateOne {
+	mutation := newArticleMutation(c.config, OpUpdateOne, withArticle(_m))
 	return &ArticleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -291,8 +291,8 @@ func (c *ArticleClient) Delete() *ArticleDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *ArticleClient) DeleteOne(a *Article) *ArticleDeleteOne {
-	return c.DeleteOneID(a.ID)
+func (c *ArticleClient) DeleteOne(_m *Article) *ArticleDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -327,32 +327,32 @@ func (c *ArticleClient) GetX(ctx context.Context, id uuid.UUID) *Article {
 }
 
 // QueryFeed queries the feed edge of a Article.
-func (c *ArticleClient) QueryFeed(a *Article) *FeedQuery {
+func (c *ArticleClient) QueryFeed(_m *Article) *FeedQuery {
 	query := (&FeedClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := a.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(article.Table, article.FieldID, id),
 			sqlgraph.To(feed.Table, feed.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, article.FeedTable, article.FeedColumn),
 		)
-		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // QuerySummary queries the summary edge of a Article.
-func (c *ArticleClient) QuerySummary(a *Article) *SummaryQuery {
+func (c *ArticleClient) QuerySummary(_m *Article) *SummaryQuery {
 	query := (&SummaryClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := a.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(article.Table, article.FieldID, id),
 			sqlgraph.To(summary.Table, summary.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, false, article.SummaryTable, article.SummaryColumn),
 		)
-		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
@@ -438,8 +438,8 @@ func (c *FeedClient) Update() *FeedUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *FeedClient) UpdateOne(f *Feed) *FeedUpdateOne {
-	mutation := newFeedMutation(c.config, OpUpdateOne, withFeed(f))
+func (c *FeedClient) UpdateOne(_m *Feed) *FeedUpdateOne {
+	mutation := newFeedMutation(c.config, OpUpdateOne, withFeed(_m))
 	return &FeedUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -456,8 +456,8 @@ func (c *FeedClient) Delete() *FeedDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *FeedClient) DeleteOne(f *Feed) *FeedDeleteOne {
-	return c.DeleteOneID(f.ID)
+func (c *FeedClient) DeleteOne(_m *Feed) *FeedDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -492,32 +492,32 @@ func (c *FeedClient) GetX(ctx context.Context, id uuid.UUID) *Feed {
 }
 
 // QueryArticles queries the articles edge of a Feed.
-func (c *FeedClient) QueryArticles(f *Feed) *ArticleQuery {
+func (c *FeedClient) QueryArticles(_m *Feed) *ArticleQuery {
 	query := (&ArticleClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := f.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(feed.Table, feed.FieldID, id),
 			sqlgraph.To(article.Table, article.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, feed.ArticlesTable, feed.ArticlesColumn),
 		)
-		fromV = sqlgraph.Neighbors(f.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // QuerySummaries queries the summaries edge of a Feed.
-func (c *FeedClient) QuerySummaries(f *Feed) *SummaryQuery {
+func (c *FeedClient) QuerySummaries(_m *Feed) *SummaryQuery {
 	query := (&SummaryClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := f.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(feed.Table, feed.FieldID, id),
 			sqlgraph.To(summary.Table, summary.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, feed.SummariesTable, feed.SummariesColumn),
 		)
-		fromV = sqlgraph.Neighbors(f.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
@@ -603,8 +603,8 @@ func (c *SummaryClient) Update() *SummaryUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *SummaryClient) UpdateOne(s *Summary) *SummaryUpdateOne {
-	mutation := newSummaryMutation(c.config, OpUpdateOne, withSummary(s))
+func (c *SummaryClient) UpdateOne(_m *Summary) *SummaryUpdateOne {
+	mutation := newSummaryMutation(c.config, OpUpdateOne, withSummary(_m))
 	return &SummaryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -621,8 +621,8 @@ func (c *SummaryClient) Delete() *SummaryDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *SummaryClient) DeleteOne(s *Summary) *SummaryDeleteOne {
-	return c.DeleteOneID(s.ID)
+func (c *SummaryClient) DeleteOne(_m *Summary) *SummaryDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -657,32 +657,32 @@ func (c *SummaryClient) GetX(ctx context.Context, id uuid.UUID) *Summary {
 }
 
 // QueryArticle queries the article edge of a Summary.
-func (c *SummaryClient) QueryArticle(s *Summary) *ArticleQuery {
+func (c *SummaryClient) QueryArticle(_m *Summary) *ArticleQuery {
 	query := (&ArticleClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := s.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(summary.Table, summary.FieldID, id),
 			sqlgraph.To(article.Table, article.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, true, summary.ArticleTable, summary.ArticleColumn),
 		)
-		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // QueryFeed queries the feed edge of a Summary.
-func (c *SummaryClient) QueryFeed(s *Summary) *FeedQuery {
+func (c *SummaryClient) QueryFeed(_m *Summary) *FeedQuery {
 	query := (&FeedClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := s.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(summary.Table, summary.FieldID, id),
 			sqlgraph.To(feed.Table, feed.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, summary.FeedTable, summary.FeedColumn),
 		)
-		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query

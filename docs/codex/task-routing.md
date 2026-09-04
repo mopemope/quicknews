@@ -25,6 +25,10 @@ Codex が最初の探索で読む範囲を絞るための導線。
   - `cmd/publish.go`
   - `storage/r2.go`
   - `rss/`
+- MCP server (`search_articles`)
+  - `cmd/mcp.go`
+  - `mcpserver/server.go`
+  - `models/article/`
 
 ## 初手で避ける場所
 - `ent/` generated code 全体

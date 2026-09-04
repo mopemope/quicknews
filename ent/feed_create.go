@@ -24,173 +24,173 @@ type FeedCreate struct {
 }
 
 // SetURL sets the "url" field.
-func (fc *FeedCreate) SetURL(s string) *FeedCreate {
-	fc.mutation.SetURL(s)
-	return fc
+func (_c *FeedCreate) SetURL(v string) *FeedCreate {
+	_c.mutation.SetURL(v)
+	return _c
 }
 
 // SetTitle sets the "title" field.
-func (fc *FeedCreate) SetTitle(s string) *FeedCreate {
-	fc.mutation.SetTitle(s)
-	return fc
+func (_c *FeedCreate) SetTitle(v string) *FeedCreate {
+	_c.mutation.SetTitle(v)
+	return _c
 }
 
 // SetDescription sets the "description" field.
-func (fc *FeedCreate) SetDescription(s string) *FeedCreate {
-	fc.mutation.SetDescription(s)
-	return fc
+func (_c *FeedCreate) SetDescription(v string) *FeedCreate {
+	_c.mutation.SetDescription(v)
+	return _c
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (fc *FeedCreate) SetNillableDescription(s *string) *FeedCreate {
-	if s != nil {
-		fc.SetDescription(*s)
+func (_c *FeedCreate) SetNillableDescription(v *string) *FeedCreate {
+	if v != nil {
+		_c.SetDescription(*v)
 	}
-	return fc
+	return _c
 }
 
 // SetLink sets the "link" field.
-func (fc *FeedCreate) SetLink(s string) *FeedCreate {
-	fc.mutation.SetLink(s)
-	return fc
+func (_c *FeedCreate) SetLink(v string) *FeedCreate {
+	_c.mutation.SetLink(v)
+	return _c
 }
 
 // SetNillableLink sets the "link" field if the given value is not nil.
-func (fc *FeedCreate) SetNillableLink(s *string) *FeedCreate {
-	if s != nil {
-		fc.SetLink(*s)
+func (_c *FeedCreate) SetNillableLink(v *string) *FeedCreate {
+	if v != nil {
+		_c.SetLink(*v)
 	}
-	return fc
+	return _c
 }
 
 // SetOrder sets the "order" field.
-func (fc *FeedCreate) SetOrder(i int) *FeedCreate {
-	fc.mutation.SetOrder(i)
-	return fc
+func (_c *FeedCreate) SetOrder(v int) *FeedCreate {
+	_c.mutation.SetOrder(v)
+	return _c
 }
 
 // SetNillableOrder sets the "order" field if the given value is not nil.
-func (fc *FeedCreate) SetNillableOrder(i *int) *FeedCreate {
-	if i != nil {
-		fc.SetOrder(*i)
+func (_c *FeedCreate) SetNillableOrder(v *int) *FeedCreate {
+	if v != nil {
+		_c.SetOrder(*v)
 	}
-	return fc
+	return _c
 }
 
 // SetIsBookmark sets the "is_bookmark" field.
-func (fc *FeedCreate) SetIsBookmark(b bool) *FeedCreate {
-	fc.mutation.SetIsBookmark(b)
-	return fc
+func (_c *FeedCreate) SetIsBookmark(v bool) *FeedCreate {
+	_c.mutation.SetIsBookmark(v)
+	return _c
 }
 
 // SetNillableIsBookmark sets the "is_bookmark" field if the given value is not nil.
-func (fc *FeedCreate) SetNillableIsBookmark(b *bool) *FeedCreate {
-	if b != nil {
-		fc.SetIsBookmark(*b)
+func (_c *FeedCreate) SetNillableIsBookmark(v *bool) *FeedCreate {
+	if v != nil {
+		_c.SetIsBookmark(*v)
 	}
-	return fc
+	return _c
 }
 
 // SetLastCheckedAt sets the "last_checked_at" field.
-func (fc *FeedCreate) SetLastCheckedAt(t time.Time) *FeedCreate {
-	fc.mutation.SetLastCheckedAt(t)
-	return fc
+func (_c *FeedCreate) SetLastCheckedAt(v time.Time) *FeedCreate {
+	_c.mutation.SetLastCheckedAt(v)
+	return _c
 }
 
 // SetNillableLastCheckedAt sets the "last_checked_at" field if the given value is not nil.
-func (fc *FeedCreate) SetNillableLastCheckedAt(t *time.Time) *FeedCreate {
-	if t != nil {
-		fc.SetLastCheckedAt(*t)
+func (_c *FeedCreate) SetNillableLastCheckedAt(v *time.Time) *FeedCreate {
+	if v != nil {
+		_c.SetLastCheckedAt(*v)
 	}
-	return fc
+	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (fc *FeedCreate) SetCreatedAt(t time.Time) *FeedCreate {
-	fc.mutation.SetCreatedAt(t)
-	return fc
+func (_c *FeedCreate) SetCreatedAt(v time.Time) *FeedCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (fc *FeedCreate) SetNillableCreatedAt(t *time.Time) *FeedCreate {
-	if t != nil {
-		fc.SetCreatedAt(*t)
+func (_c *FeedCreate) SetNillableCreatedAt(v *time.Time) *FeedCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
 	}
-	return fc
+	return _c
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (fc *FeedCreate) SetUpdatedAt(t time.Time) *FeedCreate {
-	fc.mutation.SetUpdatedAt(t)
-	return fc
+func (_c *FeedCreate) SetUpdatedAt(v time.Time) *FeedCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
 }
 
 // SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (fc *FeedCreate) SetNillableUpdatedAt(t *time.Time) *FeedCreate {
-	if t != nil {
-		fc.SetUpdatedAt(*t)
+func (_c *FeedCreate) SetNillableUpdatedAt(v *time.Time) *FeedCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
 	}
-	return fc
+	return _c
 }
 
 // SetID sets the "id" field.
-func (fc *FeedCreate) SetID(u uuid.UUID) *FeedCreate {
-	fc.mutation.SetID(u)
-	return fc
+func (_c *FeedCreate) SetID(v uuid.UUID) *FeedCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // SetNillableID sets the "id" field if the given value is not nil.
-func (fc *FeedCreate) SetNillableID(u *uuid.UUID) *FeedCreate {
-	if u != nil {
-		fc.SetID(*u)
+func (_c *FeedCreate) SetNillableID(v *uuid.UUID) *FeedCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
-	return fc
+	return _c
 }
 
 // AddArticleIDs adds the "articles" edge to the Article entity by IDs.
-func (fc *FeedCreate) AddArticleIDs(ids ...uuid.UUID) *FeedCreate {
-	fc.mutation.AddArticleIDs(ids...)
-	return fc
+func (_c *FeedCreate) AddArticleIDs(ids ...uuid.UUID) *FeedCreate {
+	_c.mutation.AddArticleIDs(ids...)
+	return _c
 }
 
 // AddArticles adds the "articles" edges to the Article entity.
-func (fc *FeedCreate) AddArticles(a ...*Article) *FeedCreate {
-	ids := make([]uuid.UUID, len(a))
-	for i := range a {
-		ids[i] = a[i].ID
+func (_c *FeedCreate) AddArticles(v ...*Article) *FeedCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return fc.AddArticleIDs(ids...)
+	return _c.AddArticleIDs(ids...)
 }
 
 // AddSummaryIDs adds the "summaries" edge to the Summary entity by IDs.
-func (fc *FeedCreate) AddSummaryIDs(ids ...uuid.UUID) *FeedCreate {
-	fc.mutation.AddSummaryIDs(ids...)
-	return fc
+func (_c *FeedCreate) AddSummaryIDs(ids ...uuid.UUID) *FeedCreate {
+	_c.mutation.AddSummaryIDs(ids...)
+	return _c
 }
 
 // AddSummaries adds the "summaries" edges to the Summary entity.
-func (fc *FeedCreate) AddSummaries(s ...*Summary) *FeedCreate {
-	ids := make([]uuid.UUID, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+func (_c *FeedCreate) AddSummaries(v ...*Summary) *FeedCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return fc.AddSummaryIDs(ids...)
+	return _c.AddSummaryIDs(ids...)
 }
 
 // Mutation returns the FeedMutation object of the builder.
-func (fc *FeedCreate) Mutation() *FeedMutation {
-	return fc.mutation
+func (_c *FeedCreate) Mutation() *FeedMutation {
+	return _c.mutation
 }
 
 // Save creates the Feed in the database.
-func (fc *FeedCreate) Save(ctx context.Context) (*Feed, error) {
-	fc.defaults()
-	return withHooks(ctx, fc.sqlSave, fc.mutation, fc.hooks)
+func (_c *FeedCreate) Save(ctx context.Context) (*Feed, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (fc *FeedCreate) SaveX(ctx context.Context) *Feed {
-	v, err := fc.Save(ctx)
+func (_c *FeedCreate) SaveX(ctx context.Context) *Feed {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -198,81 +198,81 @@ func (fc *FeedCreate) SaveX(ctx context.Context) *Feed {
 }
 
 // Exec executes the query.
-func (fc *FeedCreate) Exec(ctx context.Context) error {
-	_, err := fc.Save(ctx)
+func (_c *FeedCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (fc *FeedCreate) ExecX(ctx context.Context) {
-	if err := fc.Exec(ctx); err != nil {
+func (_c *FeedCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (fc *FeedCreate) defaults() {
-	if _, ok := fc.mutation.Order(); !ok {
+func (_c *FeedCreate) defaults() {
+	if _, ok := _c.mutation.Order(); !ok {
 		v := feed.DefaultOrder
-		fc.mutation.SetOrder(v)
+		_c.mutation.SetOrder(v)
 	}
-	if _, ok := fc.mutation.IsBookmark(); !ok {
+	if _, ok := _c.mutation.IsBookmark(); !ok {
 		v := feed.DefaultIsBookmark
-		fc.mutation.SetIsBookmark(v)
+		_c.mutation.SetIsBookmark(v)
 	}
-	if _, ok := fc.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := feed.DefaultCreatedAt()
-		fc.mutation.SetCreatedAt(v)
+		_c.mutation.SetCreatedAt(v)
 	}
-	if _, ok := fc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		v := feed.DefaultUpdatedAt()
-		fc.mutation.SetUpdatedAt(v)
+		_c.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := fc.mutation.ID(); !ok {
+	if _, ok := _c.mutation.ID(); !ok {
 		v := feed.DefaultID()
-		fc.mutation.SetID(v)
+		_c.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (fc *FeedCreate) check() error {
-	if _, ok := fc.mutation.URL(); !ok {
+func (_c *FeedCreate) check() error {
+	if _, ok := _c.mutation.URL(); !ok {
 		return &ValidationError{Name: "url", err: errors.New(`ent: missing required field "Feed.url"`)}
 	}
-	if v, ok := fc.mutation.URL(); ok {
+	if v, ok := _c.mutation.URL(); ok {
 		if err := feed.URLValidator(v); err != nil {
 			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Feed.url": %w`, err)}
 		}
 	}
-	if _, ok := fc.mutation.Title(); !ok {
+	if _, ok := _c.mutation.Title(); !ok {
 		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "Feed.title"`)}
 	}
-	if v, ok := fc.mutation.Title(); ok {
+	if v, ok := _c.mutation.Title(); ok {
 		if err := feed.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Feed.title": %w`, err)}
 		}
 	}
-	if _, ok := fc.mutation.Order(); !ok {
+	if _, ok := _c.mutation.Order(); !ok {
 		return &ValidationError{Name: "order", err: errors.New(`ent: missing required field "Feed.order"`)}
 	}
-	if _, ok := fc.mutation.IsBookmark(); !ok {
+	if _, ok := _c.mutation.IsBookmark(); !ok {
 		return &ValidationError{Name: "is_bookmark", err: errors.New(`ent: missing required field "Feed.is_bookmark"`)}
 	}
-	if _, ok := fc.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Feed.created_at"`)}
 	}
-	if _, ok := fc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Feed.updated_at"`)}
 	}
 	return nil
 }
 
-func (fc *FeedCreate) sqlSave(ctx context.Context) (*Feed, error) {
-	if err := fc.check(); err != nil {
+func (_c *FeedCreate) sqlSave(ctx context.Context) (*Feed, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := fc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, fc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -285,57 +285,57 @@ func (fc *FeedCreate) sqlSave(ctx context.Context) (*Feed, error) {
 			return nil, err
 		}
 	}
-	fc.mutation.id = &_node.ID
-	fc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (fc *FeedCreate) createSpec() (*Feed, *sqlgraph.CreateSpec) {
+func (_c *FeedCreate) createSpec() (*Feed, *sqlgraph.CreateSpec) {
 	var (
-		_node = &Feed{config: fc.config}
+		_node = &Feed{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(feed.Table, sqlgraph.NewFieldSpec(feed.FieldID, field.TypeUUID))
 	)
-	if id, ok := fc.mutation.ID(); ok {
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
-	if value, ok := fc.mutation.URL(); ok {
+	if value, ok := _c.mutation.URL(); ok {
 		_spec.SetField(feed.FieldURL, field.TypeString, value)
 		_node.URL = value
 	}
-	if value, ok := fc.mutation.Title(); ok {
+	if value, ok := _c.mutation.Title(); ok {
 		_spec.SetField(feed.FieldTitle, field.TypeString, value)
 		_node.Title = value
 	}
-	if value, ok := fc.mutation.Description(); ok {
+	if value, ok := _c.mutation.Description(); ok {
 		_spec.SetField(feed.FieldDescription, field.TypeString, value)
 		_node.Description = value
 	}
-	if value, ok := fc.mutation.Link(); ok {
+	if value, ok := _c.mutation.Link(); ok {
 		_spec.SetField(feed.FieldLink, field.TypeString, value)
 		_node.Link = value
 	}
-	if value, ok := fc.mutation.Order(); ok {
+	if value, ok := _c.mutation.Order(); ok {
 		_spec.SetField(feed.FieldOrder, field.TypeInt, value)
 		_node.Order = value
 	}
-	if value, ok := fc.mutation.IsBookmark(); ok {
+	if value, ok := _c.mutation.IsBookmark(); ok {
 		_spec.SetField(feed.FieldIsBookmark, field.TypeBool, value)
 		_node.IsBookmark = value
 	}
-	if value, ok := fc.mutation.LastCheckedAt(); ok {
+	if value, ok := _c.mutation.LastCheckedAt(); ok {
 		_spec.SetField(feed.FieldLastCheckedAt, field.TypeTime, value)
 		_node.LastCheckedAt = value
 	}
-	if value, ok := fc.mutation.CreatedAt(); ok {
+	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(feed.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if value, ok := fc.mutation.UpdatedAt(); ok {
+	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(feed.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
-	if nodes := fc.mutation.ArticlesIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.ArticlesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -351,7 +351,7 @@ func (fc *FeedCreate) createSpec() (*Feed, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := fc.mutation.SummariesIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.SummariesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -378,16 +378,16 @@ type FeedCreateBulk struct {
 }
 
 // Save creates the Feed entities in the database.
-func (fcb *FeedCreateBulk) Save(ctx context.Context) ([]*Feed, error) {
-	if fcb.err != nil {
-		return nil, fcb.err
+func (_c *FeedCreateBulk) Save(ctx context.Context) ([]*Feed, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(fcb.builders))
-	nodes := make([]*Feed, len(fcb.builders))
-	mutators := make([]Mutator, len(fcb.builders))
-	for i := range fcb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*Feed, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := fcb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*FeedMutation)
@@ -401,11 +401,11 @@ func (fcb *FeedCreateBulk) Save(ctx context.Context) ([]*Feed, error) {
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, fcb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, fcb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -425,7 +425,7 @@ func (fcb *FeedCreateBulk) Save(ctx context.Context) ([]*Feed, error) {
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, fcb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -433,8 +433,8 @@ func (fcb *FeedCreateBulk) Save(ctx context.Context) ([]*Feed, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (fcb *FeedCreateBulk) SaveX(ctx context.Context) []*Feed {
-	v, err := fcb.Save(ctx)
+func (_c *FeedCreateBulk) SaveX(ctx context.Context) []*Feed {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -442,14 +442,14 @@ func (fcb *FeedCreateBulk) SaveX(ctx context.Context) []*Feed {
 }
 
 // Exec executes the query.
-func (fcb *FeedCreateBulk) Exec(ctx context.Context) error {
-	_, err := fcb.Save(ctx)
+func (_c *FeedCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (fcb *FeedCreateBulk) ExecX(ctx context.Context) {
-	if err := fcb.Exec(ctx); err != nil {
+func (_c *FeedCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
