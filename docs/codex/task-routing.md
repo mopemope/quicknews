@@ -24,11 +24,23 @@ Codex が最初の探索で読む範囲を絞るための導線。
 - podcast publish / R2
   - `cmd/publish.go`
   - `storage/r2.go`
-  - `rss/`
+  - `rss/`(podcast RSS 生成)
+  - `tts/`(音声再生成が必要な場合)
 - MCP server (`search_articles`)
   - `cmd/mcp.go`
   - `mcpserver/server.go`
   - `models/article/`
+- 記事本文の取得・スクレイピング
+  - `scraper/scraper.go`(colly)
+  - 呼び出し元は `cmd/fetch/article_processor.go`
+- org export
+  - `org/org.go`
+  - 呼び出し元は `cmd/fetch/article_processor.go`
+- config 読み込み・表示
+  - `config/config.go`
+  - `cmd/config_inspect.go`
+- DB 接続・transaction
+  - `database/db.go`
 
 ## 初手で避ける場所
 - `ent/` generated code 全体

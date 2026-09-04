@@ -1,11 +1,11 @@
 # quicknews Verification Matrix
 
 ## 基本コマンド
-- `make test-fast`
+- `make test-fast`(config / database / gemini / log / models / rss / scraper / storage / tts / tui(components, progress) / cmd / cmd/fetch / mcpserver)
 - `make test-all`
 - `make test-integration`
 - `make smoke-config`
-- `make lint`(golangci-lint 未インストール時は `go vet ./...` のみ)
+- `make lint`(go vet + golangci-lint。CI と同じバージョンを `go run ...@v2.13.2` で実行する)
 - `make gen`(ent schema 変更後の再生成)
 
 ## 変更種別ごとの最小検証

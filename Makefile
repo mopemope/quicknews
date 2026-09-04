@@ -6,18 +6,16 @@ gen:
 fmt:
 	gofmt -w $(shell git ls-files --cached --others --exclude-standard '*.go')
 
+GOLANGCI_LINT_VERSION ?= v2.13.2
+
 lint:
 	GOCACHE=$(GOCACHE) go vet ./...
-	@if command -v golangci-lint >/dev/null 2>&1; then \
-		GOCACHE=$(GOCACHE) golangci-lint run; \
-	else \
-		echo "golangci-lint not installed; ran go vet only"; \
-	fi
+	GOCACHE=$(GOCACHE) go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION) run
 
 check: lint test-fast
 
 test-fast:
-	GOCACHE=$(GOCACHE) go test ./config ./database ./gemini ./log ./models/... ./rss ./scraper ./storage ./tts ./tui/components
+	GOCACHE=$(GOCACHE) go test ./config ./database ./gemini ./log ./models/... ./rss ./scraper ./storage ./tts ./tui/components ./tui/progress ./cmd ./cmd/fetch ./mcpserver
 
 test-all:
 	GOCACHE=$(GOCACHE) go test ./...
