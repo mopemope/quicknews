@@ -12,11 +12,11 @@ Codex / opencode / Claude Code 共通のガイド。
 ## タスク別の最短参照先
 - CLI コマンド追加・修正: `main.go` → `cmd/` → [cmd/AGENTS.md](cmd/AGENTS.md)
 - repository / data access の修正: `models/` → [models/AGENTS.md](models/AGENTS.md)
-- fetch / 要約 / 音声生成: `cmd/fetch/` → `gemini/` / `tts/` / `models/summary/`
+- fetch pipeline (feed fetch / 要約 / 音声 / org export): `cmd/fetch/` → [cmd/fetch/AGENTS.md](cmd/fetch/AGENTS.md)
 - TUI 表示・キー操作: `tui/model.go`、`tui/update_handlers.go`、各 view ファイル → [tui/AGENTS.md](tui/AGENTS.md)
 - DB schema / relation / migration の影響確認: `ent/schema/` → `models/` → [ent/AGENTS.md](ent/AGENTS.md)
 - Gemini / TTS / R2 など外部連携: `gemini/`、`tts/`、`storage/` → [gemini/AGENTS.md](gemini/AGENTS.md)
-- MCP server (`search_articles`): `cmd/mcp.go` → `mcpserver/server.go` → `models/article/`
+- MCP server (`search_articles`): `cmd/mcp.go` → [mcpserver/AGENTS.md](mcpserver/AGENTS.md)
 
 ## 見てはいけない場所
 - `ent/article*.go`、`ent/feed*.go`、`ent/summary*.go` などの generated code を初手で読まない。
@@ -27,9 +27,11 @@ Codex / opencode / Claude Code 共通のガイド。
 - 最速確認: `make test-fast`
 - 全体確認: `make test-all`
 - 外部連携込みの確認: `make test-integration`
+- 並行処理 (fetch pipeline / TUI) に触れたら: `make test-race`
 - config 読み込み smoke test: `make smoke-config`
 - lint: `make lint`(未インストール環境では `go vet ./...` のみ実行される)
-- formatter: `gofmt -w <files>`
+- commit 前: `make check`(lint + test-fast)
+- formatter: `make fmt`(全 `.go` への gofmt)
 - 単一テスト: `GOCACHE=/tmp/quicknews-go-build go test ./<pkg> -run <TestName>`
 
 ## 変更種別ごとの追加確認
@@ -38,16 +40,32 @@ Codex / opencode / Claude Code 共通のガイド。
 - schema / repository 変更: `make gen` 後に `go test ./database ./models/... ./cmd/...`
 - Gemini / TTS / storage 変更: `go test ./gemini ./tts ./storage`
 
+## テストの書き方
+- パッケージ種別ごとのパターンは [docs/codex/testing-conventions.md](docs/codex/testing-conventions.md) を参照。
+- repository は `enttest` + in-memory SQLite、command 層は手書き fake、外部連携は env 未設定時 skip。
+
+## コミット規約
+- Conventional Commits 形式: `feat(scope): ...` / `fix: ...` / `chore: ...` / `refactor(scope): ...` / `test: ...`。
+- scope は対象領域(`tui`, `fetch`, `gemini` など)。既存履歴に合わせる。
+
 ## Skills (opencode / Claude Code)
 - `.claude/skills/` 配下にタスク別 skill がある。該当タスクでは最初に読む。
   - `quicknews-routing`: ファイル導線の判断
   - `quicknews-schema-change`: schema 変更の手順と checklist
   - `quicknews-integration-test`: 外部連携の最小検証
   - `quicknews-cli-command`: サブコマンド追加の定型手順
+  - `quicknews-tui-change`: TUI の view 遷移・キー追加
+  - `quicknews-fetch-pipeline`: fetch 処理チェーンの拡張
+  - `quicknews-testing`: テストパターンの選び方
+
+## MCP dogfooding
+- 開発中はエージェントから本プロダクト自身の MCP server (`search_articles`) を使える。`opencode.json` / `.mcp.json` に `go run . --config ./config.example.toml mcp` として登録済み。
+- 開発タスクの記事検索はこの tool 経由にする(対象は `config.example.toml` の dev DB)。ユーザーの実 DB や実 config を直接開かない。
 
 ## 追加資料
 - [docs/codex/task-routing.md](docs/codex/task-routing.md)
 - [docs/codex/verification-matrix.md](docs/codex/verification-matrix.md)
 - [docs/codex/config-and-secrets.md](docs/codex/config-and-secrets.md)
+- [docs/codex/testing-conventions.md](docs/codex/testing-conventions.md)
 - [docs/codex/product-context.md](docs/codex/product-context.md)
 - [docs/codex/evals.md](docs/codex/evals.md)

@@ -29,9 +29,9 @@
 - 期待する検証: `go test ./gemini ./config`
 
 ## Eval 5: publish / R2 変更 (`publish-r2`)
-- 課題: publish 対象日リストの生成を関数化して unit test を追加する。
-- 最初に見るべき場所: `cmd/publish.go`, `storage/r2.go`
-- 見てはいけない場所: `tui/`
+- 課題: `processFeed` 内の audio file 収集(summary 未生成なら再生成して infile リストを作る)を pure function に切り出し、unit test を追加する。`resolvePublishDates` は既に実装済みなので触らない。
+- 最初に見るべき場所: `cmd/publish.go`, `cmd/publish_test.go`
+- 見てはいけない場所: `tui/`, `storage/` 内部実装(fake で差し替え可能)
 - 期待する検証: `go test ./cmd/... ./storage`
 
 ## Eval 6: MCP search 変更 (`mcp-search`)

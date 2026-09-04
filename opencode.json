@@ -1,5 +1,12 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "quicknews": {
+      "type": "local",
+      "command": ["go", "run", ".", "--config", "./config.example.toml", "--log", "/tmp/quicknews-mcp.log", "mcp"],
+      "enabled": true
+    }
+  },
   "formatter": {
     "gofmt": {
       "disabled": false

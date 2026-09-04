@@ -5,6 +5,7 @@
 - `cmd/*.go`
 
 ## fetch / summary / audio
+- `cmd/fetch/AGENTS.md` を最初に読む
 - `cmd/fetch/feed_processor.go`
 - `cmd/fetch/article_processor.go`
 - `models/article/article.go`
@@ -26,3 +27,9 @@
 - `cmd/publish.go`
 - `storage/r2.go`
 - `rss/rss.go`
+
+## MCP server
+- `mcpserver/AGENTS.md` を最初に読む
+- `cmd/mcp.go`
+- `mcpserver/server.go`
+- `models/article/article.go`

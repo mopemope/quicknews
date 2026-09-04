@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(.env)",
+      "Read(.envrc)",
+      "Read(quicknews.log)",
+      "Read(quicknews)"
+    ],
+    "ask": [
+      "Bash(git push:*)"
+    ]
+  }
+}

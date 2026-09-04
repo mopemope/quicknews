@@ -5,3 +5,9 @@ quicknews
 .env
 .envrc
 .amazonq
+
+# Track shared agent skills and settings (override global ~/.gitignore's .claude rule).
+!.claude/
+.claude/*
+!.claude/skills/
+!.claude/settings.json

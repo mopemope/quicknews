@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "quicknews": {
+      "type": "stdio",
+      "command": "go",
+      "args": ["run", ".", "--config", "./config.example.toml", "--log", "/tmp/quicknews-mcp.log", "mcp"]
+    }
+  }
+}
