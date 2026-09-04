@@ -3,6 +3,8 @@ package tts
 import (
 	"bytes"
 	"context"
+	"log/slog"
+	"os"
 	"os/exec"
 
 	"github.com/cockroachdb/errors"
@@ -12,7 +14,10 @@ import (
 
 var ModelName = "gemini-2.5-flash-preview-tts"
 var VoiceName = "Aoede"
-var FFmpegBin = "/usr/bin/ffmpeg"
+
+// ffmpegFallbackPath is used only when ffmpeg is neither in PATH nor
+// specified via the FFMPEG_BIN environment variable.
+const ffmpegFallbackPath = "/usr/bin/ffmpeg"
 
 type GeminiTTS struct {
 	config *config.Config
@@ -24,11 +29,30 @@ func NewGeminiTTS(config *config.Config) TTSEngine {
 	}
 }
 
+// resolveFFmpegBin finds the ffmpeg binary: FFMPEG_BIN env var, then PATH,
+// then the compiled-in fallback.
+func resolveFFmpegBin() string {
+	if bin := os.Getenv("FFMPEG_BIN"); bin != "" {
+		return bin
+	}
+	if path, err := exec.LookPath("ffmpeg"); err == nil {
+		return path
+	}
+	return ffmpegFallbackPath
+}
+
 func runFFmpeg(data []byte) ([]byte, error) {
-	cmd := exec.Command(FFmpegBin, "-f", "s16le", "-ar", "24k", "-ac", "1", "-i", "-", "-f", "mp3", "-")
+	bin := resolveFFmpegBin()
+	cmd := exec.Command(bin, "-f", "s16le", "-ar", "24k", "-ac", "1", "-i", "-", "-f", "mp3", "-")
 	cmd.Stdin = (bytes.NewReader(data))
 	b, err := cmd.Output()
 	if err != nil {
+		var exitErr *exec.ExitError
+		if errors.As(err, &exitErr) && len(exitErr.Stderr) > 0 {
+			slog.Error("ffmpeg conversion failed", "bin", bin, "error", err, "stderr", string(exitErr.Stderr))
+		} else {
+			slog.Error("ffmpeg conversion failed", "bin", bin, "error", err)
+		}
 		return nil, errors.Wrap(err, "failed to run ffmpeg")
 	}
 	return b, nil

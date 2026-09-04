@@ -9,6 +9,9 @@ import (
 	"github.com/cockroachdb/errors"
 )
 
+// DefaultVoiceVoxEndpoint is the endpoint used when no VoiceVox endpoint is configured.
+const DefaultVoiceVoxEndpoint = "http://localhost:50021"
+
 type Config struct {
 	DB                           string  `toml:"db" env:"DB"`
 	GoogleApplicationCredentials string  `toml:"google_application_credentials" env:"GOOGLE_APPLICATION_CREDENTIALS"`
@@ -44,8 +47,9 @@ type Cloudflare struct {
 }
 
 type VoiceVox struct {
-	Speaker int `toml:"speaker" env:"VOICEVOX_SPEAKER"`
-	Style   int `toml:"style" env:"VOICEVOX_STYLE"`
+	Speaker  int    `toml:"speaker" env:"VOICEVOX_SPEAKER"`
+	Style    int    `toml:"style" env:"VOICEVOX_STYLE"`
+	Endpoint string `toml:"endpoint" env:"VOICEVOX_ENDPOINT"`
 }
 
 type Prompt struct {
@@ -66,6 +70,9 @@ func LoadConfig(path string) (*Config, error) {
 	}
 	if config.SpeakingRate == 0 {
 		config.SpeakingRate = 1.3
+	}
+	if config.VoiceVox != nil && config.VoiceVox.Endpoint == "" {
+		config.VoiceVox.Endpoint = DefaultVoiceVoxEndpoint
 	}
 	if config.DB == "" {
 		home, err := os.UserHomeDir()

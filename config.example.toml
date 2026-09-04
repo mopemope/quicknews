@@ -24,6 +24,8 @@ google_application_credentials = ""
 [voicevox]
 speaker = 10
 style = 1
+# VoiceVox engine endpoint (default: http://localhost:50021).
+endpoint = "http://localhost:50021"
 
 [prompt]
 summary = ""

@@ -67,15 +67,15 @@ func (m parallelProgressModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.errs = append(m.errs, msg.err)
 		}
 
-		if m.index >= m.itemCount-1 {
-			// Everything's been installed. We're done!
+		m.index += msg.finished
+
+		if m.index >= m.itemCount {
+			// Everything's been processed. We're done!
 			m.done = true
 			return m, tea.Sequence(
 				tea.Quit, // exit the program
 			)
 		}
-
-		m.index += msg.finished
 
 		progressCmd := m.progress.SetPercent(float64(m.index) / float64(m.itemCount))
 
@@ -130,11 +130,8 @@ func (m *parallelProgressModel) processItem() tea.Cmd {
 		errs := make([]error, 0)
 		var errsMu sync.Mutex
 
-		for range m.numParallel {
-			if m.index >= m.itemCount {
-				break
-			}
-			idx := min(m.index+fin, m.itemCount-1)
+		for fin < m.numParallel && m.index+fin < m.itemCount {
+			idx := m.index + fin
 			item := m.items[idx]
 			fin++
 			wg.Add(1)

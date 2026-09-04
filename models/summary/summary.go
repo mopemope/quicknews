@@ -21,6 +21,11 @@ import (
 	"github.com/mopemope/quicknews/tts"
 )
 
+// MaxAudioTextLength is the maximum combined title+summary length for which
+// audio is generated. Longer texts are skipped to keep TTS cost and duration
+// reasonable.
+const MaxAudioTextLength = 4500
+
 type SummaryRepository interface {
 	GetAll(ctx context.Context) ([]*ent.Summary, error)
 	GetFromURL(ctx context.Context, url string) (*ent.Summary, error)

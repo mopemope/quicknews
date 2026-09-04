@@ -194,13 +194,16 @@ func NewVoiceVox(config *config.Config) *VoiceVox {
 func (v *VoiceVox) SynthesizeText(ctx context.Context, text string) ([]byte, error) {
 
 	cfg := voicevoxConfig{
-		endpoint:   "http://localhost:50021",
+		endpoint:   config.DefaultVoiceVoxEndpoint,
 		speaker:    v.Speaker,
 		style:      v.Style,
 		speed:      SpeachOpt.SpeakingRate,
 		intonation: 1.0,
 		volume:     1.0,
 		pitch:      0,
+	}
+	if v.Config != nil && v.Config.VoiceVox != nil && v.Config.VoiceVox.Endpoint != "" {
+		cfg.endpoint = v.Config.VoiceVox.Endpoint
 	}
 
 	speakers, err := getSpeakers(ctx, cfg)

@@ -2,6 +2,7 @@ package gemini
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"os"
@@ -22,20 +23,17 @@ const defaultSummaryPrompt = `
 URL: %s
 
 出力する際は、以下のルールを厳守してください。
-1.  出力: 出力結果をプログラムで整形するのでタイトル、解説のみをシンプルなテキストで出力します。了解しました。などの返事は出力しません。
+1.  出力: 出力は JSON オブジェクトのみとします。了解しました。などの返事やコードブロックは出力しません。
 2.  タイトル: Webサイトのタイトルを正確に日本語に翻訳し、キーワードをバッククォートで囲むなどの余計な修飾は加えないで下さい。
 3.  解説: 記事の主要な内容を、客観的で分かりやすいニュース記事のようなスタイルで詳しく解説してください。**などのキーワードの強調を行わないで下さい。同様にキーワードをバッククォートで囲むなどの余計な修飾は加えないで下さい。
 4.  1行の文字数: 解説の1行あたりの文字数は80文字程度にして下さい。長くなる場合は改行して下さい。1行あたりの文字が長くなりすぎないよう適度に句読点で改行を入れて下さい。
 5.  文字数: 解説の文字数は800文字以上を目安とし、内容を十分に伝えられるように詳しく記述してください。ただし、情報量が少ない場合は、可能な範囲で内容を補って詳細に記述してください。
-6.  区切り文字: タイトルと解説の間には、必ず「-----」という区切り文字を入れてください。
-7.  エラー処理:
-    * 指定されたURLが存在しない場合や、アクセスできない場合は、「指定されたURLにアクセスできませんでした。」と出力してください。
-    * Webサイトの内容が解説に適さない場合（例：画像や動画が主体である、内容が極めて短いなど）は、「このWebサイトは解説に適していません。」と出力してください。
-8.  出力形式は以下です。
+6.  エラー処理:
+    * 指定されたURLが存在しない場合や、アクセスできない場合は、解説に「指定されたURLにアクセスできませんでした。」と記載してください。
+    * Webサイトの内容が解説に適さない場合（例：画像や動画が主体である、内容が極めて短いなど）は、解説に「このWebサイトは解説に適していません。」と記載してください。
+7.  出力形式は以下の JSON オブジェクトです。title と summary の2つのキーのみを含みます。
 
-<記事のタイトル>
------
-<記事の解説>
+{"title": "<記事のタイトル>", "summary": "<記事の解説>"}
 
 `
 
@@ -99,7 +97,9 @@ func (c *Client) Summarize(ctx context.Context, url string) (*PageSummary, error
 	prompt := fmt.Sprintf(summaryPrompt, url)
 
 	modelName := c.modelName()
-	res, err := c.client.Models.GenerateContent(ctx,
+	callCtx, cancel := context.WithTimeout(ctx, DefaultSummarizeTimeout)
+	defer cancel()
+	res, err := c.client.Models.GenerateContent(callCtx,
 		modelName,
 		genai.Text(prompt),
 		&genai.GenerateContentConfig{
@@ -148,9 +148,90 @@ func (c *Client) modelName() string {
 	return defaultModelName
 }
 
-// parseResponse parses JSON from text that may be wrapped in code blocks
+// parseResponse parses the model output into a PageSummary.
+// It prefers a JSON object ({"title": ..., "summary": ...}) and falls back to
+// the legacy "-----" separated text format for older prompts and custom prompts.
 func parseResponse(text string) (*PageSummary, error) {
 	text = strings.TrimSpace(text)
+	if result, ok := parseJSONResponse(text); ok {
+		return result, nil
+	}
+	return parseLegacyResponse(text)
+}
+
+// stripCodeFence removes markdown code fences wrapping a JSON object.
+func stripCodeFence(text string) string {
+	text = strings.TrimSpace(text)
+	if !strings.HasPrefix(text, "```") {
+		return text
+	}
+	// Drop the opening fence (with optional language tag) and the closing fence.
+	if idx := strings.Index(text, "\n"); idx >= 0 {
+		text = text[idx+1:]
+	}
+	text = strings.TrimSuffix(strings.TrimSpace(text), "```")
+	return strings.TrimSpace(text)
+}
+
+// extractJSONObject finds the first balanced JSON object in the text.
+func extractJSONObject(text string) (string, bool) {
+	start := strings.Index(text, "{")
+	if start < 0 {
+		return "", false
+	}
+	depth := 0
+	inString := false
+	escaped := false
+	for i := start; i < len(text); i++ {
+		c := text[i]
+		switch {
+		case escaped:
+			escaped = false
+		case c == '\\' && inString:
+			escaped = true
+		case c == '"':
+			inString = !inString
+		case inString:
+			// ignore braces inside strings
+		case c == '{':
+			depth++
+		case c == '}':
+			depth--
+			if depth == 0 {
+				return text[start : i+1], true
+			}
+		}
+	}
+	return "", false
+}
+
+// parseJSONResponse parses a {"title": ..., "summary": ...} JSON object.
+func parseJSONResponse(text string) (*PageSummary, bool) {
+	candidate, ok := extractJSONObject(stripCodeFence(text))
+	if !ok {
+		return nil, false
+	}
+	var payload struct {
+		Title   string `json:"title"`
+		Summary string `json:"summary"`
+	}
+	if err := json.Unmarshal([]byte(candidate), &payload); err != nil {
+		return nil, false
+	}
+	payload.Title = strings.TrimSpace(payload.Title)
+	payload.Summary = strings.TrimSpace(payload.Summary)
+	if payload.Title == "" || payload.Summary == "" {
+		return nil, false
+	}
+	return &PageSummary{
+		URL:     "",
+		Title:   payload.Title,
+		Summary: payload.Summary,
+	}, true
+}
+
+// parseLegacyResponse parses the "-----" separated text format.
+func parseLegacyResponse(text string) (*PageSummary, error) {
 	result := strings.Split(text, "-----")
 	if len(result) != 2 {
 		return nil, errors.New("response format is incorrect")

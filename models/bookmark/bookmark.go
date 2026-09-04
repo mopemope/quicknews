@@ -4,7 +4,6 @@ import (
 	"context"
 	"log/slog"
 	"sync"
-	"time"
 
 	"github.com/cockroachdb/errors"
 	"github.com/mopemope/quicknews/clock"
@@ -180,7 +179,7 @@ func (r *RepositoryImpl) createNewBookmarkArticle(ctx context.Context, tx *ent.T
 	sum.Edges.Feed = bookmarkFeed // Set the feed edge for the summary
 
 	if r.config.SaveAudioData {
-		if len(sum.Summary)+len(sum.Title) > 4500 {
+		if len(sum.Summary)+len(sum.Title) > summary.MaxAudioTextLength {
 			// skip
 			slog.Warn("Skip summary because it is too long", slog.Any("title", sum.Title))
 		} else {
@@ -207,35 +206,15 @@ func (r *RepositoryImpl) createNewBookmarkArticle(ctx context.Context, tx *ent.T
 }
 
 func (r *RepositoryImpl) summarizePage(ctx context.Context, url string) (*gemini.PageSummary, error) {
-	var pageSummary *gemini.PageSummary
-	var err error
-	const maxRetries = 3
-	const baseWaitSeconds = 1
-
 	if err := r.ensureGeminiClient(ctx); err != nil {
 		return nil, errors.Wrap(err, "failed to initialize gemini client")
 	}
 
-	for i := range maxRetries {
-		pageSummary, err = r.geminiClient.Summarize(ctx, url)
-		if err == nil && pageSummary != nil {
-			return pageSummary, nil // Success
-		}
-
-		slog.Warn("retrying to summarize page", "link", url, "attempt", i+1, "error", err)
-		if i == maxRetries-1 {
-			break
-		}
-		waitDuration := time.Duration(baseWaitSeconds*(i+1)*(i+1)) * time.Second // Exponential backoff (1, 4, 9 seconds)
-		if waitErr := waitWithContext(ctx, waitDuration); waitErr != nil {
-			return nil, waitErr
-		}
+	pageSummary, err := gemini.SummarizeWithRetry(ctx, r.geminiClient, url, gemini.DefaultRetryWait)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to summarize page")
 	}
-
-	if err == nil {
-		err = errors.New("summarizer returned nil summary")
-	}
-	return nil, errors.Wrapf(err, "failed to summarize page after %d attempts", maxRetries)
+	return pageSummary, nil
 }
 
 func (r *RepositoryImpl) ensureGeminiClient(ctx context.Context) error {
@@ -252,16 +231,4 @@ func (r *RepositoryImpl) ensureGeminiClient(ctx context.Context) error {
 	}
 	r.geminiClient = client
 	return nil
-}
-
-func waitWithContext(ctx context.Context, duration time.Duration) error {
-	timer := time.NewTimer(duration)
-	defer timer.Stop()
-
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	case <-timer.C:
-		return nil
-	}
 }
