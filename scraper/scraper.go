@@ -31,6 +31,34 @@ type PageContent struct {
 	Content string
 }
 
+// HTTPStatusError is returned when the target server answers with an error
+// status. Callers can inspect StatusCode to decide whether a retry makes
+// sense (e.g. 404 vs 503).
+type HTTPStatusError struct {
+	StatusCode int
+	URL        string
+	Err        error
+}
+
+func (e *HTTPStatusError) Error() string {
+	return fmt.Sprintf("request to %s failed: status %d: %v", e.URL, e.StatusCode, e.Err)
+}
+
+func (e *HTTPStatusError) Unwrap() error { return e.Err }
+
+// PermanentError marks failures that must not be retried (e.g. unsupported
+// content types, malformed pages).
+type PermanentError struct {
+	Err error
+}
+
+func (e *PermanentError) Error() string { return e.Err.Error() }
+
+func (e *PermanentError) Unwrap() error { return e.Err }
+
+// NonRetryable marks the error as non-retryable for summarizer.SummarizeWithRetry.
+func (e *PermanentError) NonRetryable() bool { return true }
+
 // GetTitle fetches the HTML title from the given URL.
 func GetTitle(ctx context.Context, targetURL string) (string, error) {
 	page, err := GetPageContent(ctx, targetURL)
@@ -38,16 +66,18 @@ func GetTitle(ctx context.Context, targetURL string) (string, error) {
 		return "", err
 	}
 	if page.Title == "" {
-		return "", fmt.Errorf("could not find title tag on %s", targetURL)
+		return "", &PermanentError{Err: fmt.Errorf("could not find title tag on %s", targetURL)}
 	}
 	return page.Title, nil
 }
 
 // GetPageContent fetches the page and extracts its title and main text.
-// The text is truncated to MaxContentRunes runes.
+// The text is truncated to MaxContentRunes runes. Network failures surface
+// as *HTTPStatusError when the server responded, *PermanentError for
+// structurally unusable responses.
 func GetPageContent(ctx context.Context, targetURL string) (*PageContent, error) {
 	if _, err := url.ParseRequestURI(targetURL); err != nil {
-		return nil, fmt.Errorf("invalid URL %s: %w", targetURL, err)
+		return nil, &PermanentError{Err: fmt.Errorf("invalid URL %s: %w", targetURL, err)}
 	}
 
 	c := colly.NewCollector(
@@ -63,7 +93,7 @@ func GetPageContent(ctx context.Context, targetURL string) (*PageContent, error)
 
 	c.OnResponse(func(r *colly.Response) {
 		if !isHTMLContentType(r.Headers.Get("Content-Type")) {
-			visitError = fmt.Errorf("unsupported content type %q for %s", r.Headers.Get("Content-Type"), targetURL)
+			visitError = &PermanentError{Err: fmt.Errorf("unsupported content type %q for %s", r.Headers.Get("Content-Type"), targetURL)}
 			return
 		}
 		text := decodeBytes(r.Body)
@@ -76,7 +106,11 @@ func GetPageContent(ctx context.Context, targetURL string) (*PageContent, error)
 	})
 
 	c.OnError(func(r *colly.Response, err error) {
-		visitError = fmt.Errorf("request to %s failed: status %d, error: %w", r.Request.URL, r.StatusCode, err)
+		visitError = &HTTPStatusError{
+			StatusCode: r.StatusCode,
+			URL:        r.Request.URL.String(),
+			Err:        err,
+		}
 	})
 
 	if err := c.Visit(targetURL); err != nil {
@@ -89,7 +123,7 @@ func GetPageContent(ctx context.Context, targetURL string) (*PageContent, error)
 		return nil, visitError
 	}
 	if page == nil || (page.Title == "" && page.Content == "") {
-		return nil, fmt.Errorf("could not extract page content from %s", targetURL)
+		return nil, &PermanentError{Err: fmt.Errorf("could not extract page content from %s", targetURL)}
 	}
 	return page, nil
 }

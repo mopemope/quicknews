@@ -9,6 +9,7 @@
 - query の意図と eager loading を先に確認する。`WithFeed()` / `WithSummary()` の有無を見落とさない。
 - repository 変更で済むなら command や TUI へ不用意に広げない。
 - schema 変更が絡む場合だけ `ent/schema/` を見て、generated `ent/` は手編集しない。
+- トランザクション内でネットワーク I/O (scraper / summarizer / TTS) を実行しない。SQLite の書き込みロックを長時間保持するため、tx 外で準備して tx 内は DB 書き込みのみにする (`models/bookmark/bookmark.go` の prepareNewBookmark / saveNewBookmark パターン)。
 
 ## 最小検証
 - `go test ./models/... ./database`

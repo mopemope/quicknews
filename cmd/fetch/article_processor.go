@@ -136,18 +136,21 @@ func (ap *ArticleProcessor) processSummary(ctx context.Context, article *ent.Art
 		} else {
 			filename, err := summary.SaveAudioData(ctx, created, ap.config)
 			if err != nil {
-				return err
-			}
-			if filename != nil {
+				// The summary is already saved; an audio failure must not fail
+				// the item (it would never be retried because the summary exists).
+				slog.Error("failed to save audio data", slog.Any("summary_id", created.ID), slog.Any("error", err))
+			} else if filename != nil {
 				if err := ap.summaryRepos.UpdateAudioFile(ctx, created.ID, *filename); err != nil {
-					return err
+					slog.Error("failed to update audio file", slog.Any("summary_id", created.ID), slog.Any("error", err))
 				}
 			}
 		}
 	}
 
 	if err := org.ExportOrg(ap.config, created); err != nil {
-		return err
+		// The summary is already saved; an org export failure must not fail
+		// the item (it would never be retried because the summary exists).
+		slog.Error("failed to export org", slog.Any("summary_id", created.ID), slog.Any("error", err))
 	}
 
 	return nil

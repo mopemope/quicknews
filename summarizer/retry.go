@@ -2,11 +2,11 @@ package summarizer
 
 import (
 	"context"
-	"log/slog"
 	"net/http"
 	"time"
 
 	"github.com/cockroachdb/errors"
+	"github.com/mopemope/quicknews/scraper"
 	openai "github.com/openai/openai-go/v3"
 	"google.golang.org/genai"
 )
@@ -39,46 +39,43 @@ func DefaultRetryWait(ctx context.Context, duration time.Duration) error {
 // errors) abort immediately. wait overrides the sleep function (useful for
 // tests). It returns the last error if all attempts fail.
 func SummarizeWithRetry(ctx context.Context, s Summarizer, url string, wait RetryWaiter) (*PageSummary, error) {
-	if wait == nil {
-		wait = DefaultRetryWait
-	}
+	return summarizeWithRetry(ctx, func() (*PageSummary, error) {
+		return s.Summarize(ctx, url)
+	}, url, wait)
+}
 
-	var lastErr error
-	for attempt := range DefaultMaxAttempts {
-		pageSummary, err := s.Summarize(ctx, url)
-		if err == nil && pageSummary != nil {
-			return pageSummary, nil
-		}
-		lastErr = err
-		if lastErr == nil {
-			lastErr = errors.New("summarizer returned nil summary")
-		}
+// permanentError wraps failures that must not be retried (e.g. pages with
+// no readable content).
+type permanentError struct {
+	err error
+}
 
-		if attempt == DefaultMaxAttempts-1 {
-			break
-		}
-		if !retryableError(lastErr) {
-			slog.Warn("non-retryable summarize failure", "link", url, "error", lastErr)
-			return nil, errors.Wrapf(lastErr, "non-retryable summarize failure for %s", url)
-		}
+func (e *permanentError) Error() string { return e.err.Error() }
 
-		slog.Warn("retrying to summarize page", "link", url, "attempt", attempt+1, "error", lastErr)
-		backoff := time.Duration((attempt+1)*(attempt+1)) * time.Second
-		if waitErr := wait(ctx, backoff); waitErr != nil {
-			return nil, waitErr
-		}
-	}
-	return nil, errors.Wrapf(lastErr, "failed to summarize page after %d attempts", DefaultMaxAttempts)
+func (e *permanentError) Unwrap() error { return e.err }
+
+// NonRetryable marks the error as non-retryable for SummarizeWithRetry.
+func (e *permanentError) NonRetryable() bool { return true }
+
+// nonRetryable is implemented by errors that will not succeed on retry.
+type nonRetryable interface {
+	NonRetryable() bool
 }
 
 // retryableError reports whether err is worth another attempt.
-// Known client errors (4xx other than 408/429) and context cancellation are
-// not retryable; unknown failures are treated as transient.
+// Known client errors (4xx other than 408/429), context cancellation and
+// errors marked NonRetryable are not retried; unknown failures are treated
+// as transient.
 func retryableError(err error) bool {
 	if err == nil {
 		return false
 	}
 	if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+		return false
+	}
+
+	var nr nonRetryable
+	if errors.As(err, &nr) {
 		return false
 	}
 
@@ -90,7 +87,8 @@ func retryableError(err error) bool {
 	return true
 }
 
-// httpStatusFromError extracts an HTTP status code from provider API errors.
+// httpStatusFromError extracts an HTTP status code from provider API errors
+// and scraped-page fetch errors.
 func httpStatusFromError(err error) (int, bool) {
 	var oaErr *openai.Error
 	if errors.As(err, &oaErr) && oaErr.StatusCode > 0 {
@@ -103,6 +101,10 @@ func httpStatusFromError(err error) (int, bool) {
 	var gPtr *genai.APIError
 	if errors.As(err, &gPtr) && gPtr.Code > 0 {
 		return gPtr.Code, true
+	}
+	var scrapeErr *scraper.HTTPStatusError
+	if errors.As(err, &scrapeErr) && scrapeErr.StatusCode > 0 {
+		return scrapeErr.StatusCode, true
 	}
 	return 0, false
 }

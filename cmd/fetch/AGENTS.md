@@ -11,6 +11,7 @@
 - 各 feed の item は `QueueItemWrapper`(`progress.QueueItem` 実装)に包まれてキューに入る。
 - `ArticleProcessor.Process`: `GetFromURL` で重複チェック → 未保存なら記事保存 → `Edges.Summary == nil` なら要約生成。
 - 要約後のチェーン順序: summary 保存 → (`config.SaveAudioData` が有効なら) `summary.SaveAudioData` + `UpdateAudioFile` → `org.ExportOrg`。
+- `org.ExportOrg` / audio 生成 (`SaveAudioData` / `UpdateAudioFile`) の失敗は log して item 成功扱い。summary は保存済みなので失敗を item エラーにすると再試行されない。
 
 ## この層で守ること
 - 重複排除は `GetFromURL` が正。新規保存の可否判断を別の query で増やさない。

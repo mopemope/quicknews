@@ -1,6 +1,7 @@
 package summarizer
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/mopemope/quicknews/config"
@@ -12,7 +13,7 @@ func pageContentForTest() *scraper.PageContent {
 	return &scraper.PageContent{
 		URL:     "https://example.com/article",
 		Title:   "テスト記事",
-		Content: "本文のテキストです",
+		Content: strings.Repeat("本文のテキストです。", 40),
 	}
 }
 

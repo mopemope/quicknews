@@ -16,8 +16,14 @@
 - `summarizer.go`: `Summarizer` interface / `New` ファクトリ
 - `interface.go`: interface 定義
 - `gemini.go`: Gemini 実装 + `promptFor` / `applyPromptTemplate` / `parseResponse` 系
-- `openai.go`: OpenAI 実装 (`openai-go/v3` Responses API、`openai_base_url` 対応)
+- `openai.go`: OpenAI 実装 (`openai-go/v3` Responses API、`openai_base_url` 対応、`SummarizeContent` で取得済みページを再利用)
+- `content.go`: `ContentAwareSummarizer` / `WithContent` / `SummarizeContentWithRetry` / `MinContentRunes` ガード
 - `retry.go`: `SummarizeWithRetry` / `retryableError`
+
+## リトライ分類
+- 429 / 408 / 5xx と未知のエラーはリトライする。
+- 4xx (408/429 除く)、context cancellation、`NonRetryable() bool` を実装するエラー (`scraper.PermanentError`、`summarizer.permanentError` など) は即失敗。
+- OpenAI パスは本文が `MinContentRunes` (200 runes) 未満のページを permanent エラーにする (bot 拒否・JS-only ページのゴミ要約を防止)。
 
 ## 読みすぎ防止
 - 外部連携の修正でも `README.md` 全体や unrelated package を読み直さない。

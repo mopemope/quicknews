@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/cockroachdb/errors"
+	"github.com/mopemope/quicknews/scraper"
 	openai "github.com/openai/openai-go/v3"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -30,8 +31,14 @@ func TestRetryableError(t *testing.T) {
 		{name: "genai 429", err: genai.APIError{Code: http.StatusTooManyRequests}, want: true},
 		{name: "genai 503", err: genai.APIError{Code: http.StatusServiceUnavailable}, want: true},
 		{name: "genai 403", err: genai.APIError{Code: http.StatusForbidden}, want: false},
+		{name: "scrape 404", err: &scraper.HTTPStatusError{StatusCode: http.StatusNotFound, URL: "https://example.com"}, want: false},
+		{name: "scrape 403", err: &scraper.HTTPStatusError{StatusCode: http.StatusForbidden, URL: "https://example.com"}, want: false},
+		{name: "scrape 429", err: &scraper.HTTPStatusError{StatusCode: http.StatusTooManyRequests, URL: "https://example.com"}, want: true},
+		{name: "scrape 503", err: &scraper.HTTPStatusError{StatusCode: http.StatusServiceUnavailable, URL: "https://example.com"}, want: true},
+		{name: "scrape permanent", err: &scraper.PermanentError{Err: errors.New("unsupported content type")}, want: false},
 		{name: "wrapped openai 429", err: errors.Wrap(&openai.Error{StatusCode: 429}, "wrapped"), want: true},
 		{name: "wrapped genai 500", err: errors.Wrap(genai.APIError{Code: 500}, "wrapped"), want: true},
+		{name: "wrapped scrape 404", err: errors.Wrap(&scraper.HTTPStatusError{StatusCode: 404}, "wrapped"), want: false},
 	}
 
 	for _, tt := range tests {

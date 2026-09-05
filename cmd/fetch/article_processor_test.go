@@ -271,3 +271,36 @@ func TestQueueItemWrapper_Process_ReturnsArticleError(t *testing.T) {
 	require.ErrorContains(t, err, "failed to process article")
 	require.ErrorContains(t, err, "database unavailable")
 }
+
+func TestArticleProcessor_Process_ContinuesWhenOrgExportFails(t *testing.T) {
+	feedEntity := &ent.Feed{ID: uuid.New(), Title: "Tech", URL: "https://example.com/feed"}
+	item := &gofeed.Item{
+		Title: "Article title",
+		Link:  "https://example.com/article",
+	}
+	articleRepo := &fakeArticleRepository{}
+	summaryRepo := &fakeSummaryRepository{}
+	fakeSummarizerInstance := &fakeSummarizer{
+		result: &summarizer.PageSummary{
+			Title:   "Summary title",
+			Summary: "Summary body",
+		},
+	}
+
+	// export_org points to a file path so MkdirAll fails and ExportOrg errors.
+	exportPath := "article_processor_test.go/not-a-directory"
+	processor := NewArticleProcessorWithSummarizer(
+		feedEntity,
+		item,
+		articleRepo,
+		summaryRepo,
+		&config.Config{ExportOrg: exportPath},
+		func(context.Context, *config.Config) (summarizer.Summarizer, error) {
+			return fakeSummarizerInstance, nil
+		},
+	)
+
+	err := processor.Process(context.Background())
+	require.NoError(t, err)
+	require.Equal(t, 1, summaryRepo.saveCalls)
+}

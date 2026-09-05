@@ -78,10 +78,19 @@ func (c *OpenAIClient) Summarize(ctx context.Context, url string) (*PageSummary,
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to fetch page content")
 	}
+	return c.SummarizeContent(ctx, page)
+}
+
+// SummarizeContent implements ContentAwareSummarizer: it validates the given
+// page content and asks the model for a JSON summary without re-fetching.
+func (c *OpenAIClient) SummarizeContent(ctx context.Context, page *scraper.PageContent) (*PageSummary, error) {
+	if err := validatePageContent(page); err != nil {
+		return nil, err
+	}
 
 	modelName := c.modelName()
 	prompt := openaiPromptFor(c.config, page)
-	slog.Debug("Sending request to OpenAI API", slog.String("model", modelName), slog.String("url", url))
+	slog.Debug("Sending request to OpenAI API", slog.String("model", modelName), slog.String("url", page.URL))
 	callCtx, cancel := context.WithTimeout(ctx, DefaultSummarizeTimeout)
 	defer cancel()
 
@@ -111,7 +120,7 @@ func (c *OpenAIClient) Summarize(ctx context.Context, url string) (*PageSummary,
 		return nil, errors.New("parsed result is nil")
 	}
 
-	result.URL = url
+	result.URL = page.URL
 	slog.Debug("Successfully received summary from OpenAI API")
 	return result, nil
 }
@@ -154,13 +163,7 @@ func formatPageContent(page *scraper.PageContent) string {
 }
 
 // fetchPageContent retrieves the page body used as model input.
+// Content validation (e.g. minimum length) happens in SummarizeContent.
 func fetchPageContent(ctx context.Context, url string) (*scraper.PageContent, error) {
-	page, err := scraper.GetPageContent(ctx, url)
-	if err != nil {
-		return nil, err
-	}
-	if page.Content == "" && page.Title == "" {
-		return nil, errors.New("page has no readable content")
-	}
-	return page, nil
+	return scraper.GetPageContent(ctx, url)
 }
