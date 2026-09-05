@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/BurntSushi/toml"
 	"github.com/caarlos0/env/v11"
@@ -12,11 +13,24 @@ import (
 // DefaultVoiceVoxEndpoint is the endpoint used when no VoiceVox endpoint is configured.
 const DefaultVoiceVoxEndpoint = "http://localhost:50021"
 
+// Summarize providers supported by the summarizer layer.
+const (
+	SummarizeProviderGemini = "gemini"
+	SummarizeProviderOpenAI = "openai"
+)
+
+// DefaultOpenAIModel is the OpenAI model used when openai_model is not configured.
+const DefaultOpenAIModel = "gpt-5-mini"
+
 type Config struct {
 	DB                           string  `toml:"db" env:"DB"`
 	GoogleApplicationCredentials string  `toml:"google_application_credentials" env:"GOOGLE_APPLICATION_CREDENTIALS"`
+	SummarizeProvider            string  `toml:"summarize_provider" env:"SUMMARIZE_PROVIDER"`
 	GeminiApiKey                 string  `toml:"gemini_api_key" env:"GEMINI_API_KEY"`
 	GeminiModel                  string  `toml:"gemini_model" env:"GEMINI_MODEL"`
+	OpenAIApiKey                 string  `toml:"openai_api_key" env:"OPENAI_API_KEY"`
+	OpenAIModel                  string  `toml:"openai_model" env:"OPENAI_MODEL"`
+	OpenAIBaseURL                string  `toml:"openai_base_url" env:"OPENAI_BASE_URL"`
 	ExportOrg                    string  `toml:"export_org" env:"EXPORT_ORG"`
 	AudioPath                    *string `toml:"audio" env:"AUDIO"`
 	UseGeminiTTS                 bool    `toml:"use_gemini_tts" env:"USE_GEMINI_TTS"`
@@ -68,6 +82,7 @@ func LoadConfig(path string) (*Config, error) {
 			return nil, errors.Wrap(err, "failed to parse game config")
 		}
 	}
+	config.SummarizeProvider = normalizeSummarizeProvider(config.SummarizeProvider)
 	if config.SpeakingRate == 0 {
 		config.SpeakingRate = 1.3
 	}
@@ -86,6 +101,14 @@ func LoadConfig(path string) (*Config, error) {
 	}
 	config.SourcePath = path
 	return &config, nil
+}
+
+func normalizeSummarizeProvider(provider string) string {
+	provider = strings.ToLower(strings.TrimSpace(provider))
+	if provider == "" {
+		return SummarizeProviderGemini
+	}
+	return provider
 }
 
 func ensureOutputDirectories(config *Config) error {

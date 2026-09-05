@@ -29,5 +29,5 @@
 - CLI 入口: `main.go`, `cmd/`
 - TUI: `tui/`
 - 永続化: `models/`, `database/`, `ent/schema/`
-- 外部連携: `gemini/`, `tts/`, `storage/`, `rss/`
+- 外部連携: `summarizer/`, `tts/`, `storage/`, `rss/`
 - MCP: `cmd/mcp.go`, `mcpserver/`

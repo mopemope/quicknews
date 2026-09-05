@@ -1,7 +1,7 @@
 # quicknews Verification Matrix
 
 ## 基本コマンド
-- `make test-fast`(config / database / gemini / log / models / rss / scraper / storage / tts / tui(components, progress) / cmd / cmd/fetch / mcpserver)
+- `make test-fast`(config / database / summarizer / log / models / rss / scraper / storage / tts / tui(components, progress) / cmd / cmd/fetch / mcpserver)
 - `make test-all`
 - `make test-integration`
 - `make smoke-config`
@@ -19,7 +19,7 @@
 - command へ波及したら `go test ./cmd/...`
 
 ### Gemini / TTS / R2
-- `go test ./gemini ./tts ./storage`
+- `go test ./summarizer ./tts ./storage`
 - publish を触ったら `go test ./cmd/... ./storage`
 
 ### TUI

@@ -12,10 +12,10 @@ import (
 	"github.com/mopemope/quicknews/ent"
 	"github.com/mopemope/quicknews/ent/article"
 	"github.com/mopemope/quicknews/ent/feed"
-	"github.com/mopemope/quicknews/gemini"
 	"github.com/mopemope/quicknews/models/summary"
 	"github.com/mopemope/quicknews/org"
 	"github.com/mopemope/quicknews/scraper"
+	"github.com/mopemope/quicknews/summarizer"
 )
 
 type Repository interface {
@@ -24,10 +24,10 @@ type Repository interface {
 }
 
 type RepositoryImpl struct {
-	client       *ent.Client
-	config       *config.Config
-	geminiClient *gemini.Client
-	initMu       sync.Mutex
+	client           *ent.Client
+	config           *config.Config
+	summarizerClient summarizer.Summarizer
+	initMu           sync.Mutex
 }
 
 func NewRepository(ctx context.Context, client *ent.Client, cfg *config.Config) (Repository, error) {
@@ -117,7 +117,7 @@ func (r *RepositoryImpl) handleExistingArticle(ctx context.Context, tx *ent.Tx, 
 // createNewBookmarkArticle creates a new article, summary, and exports it.
 func (r *RepositoryImpl) createNewBookmarkArticle(ctx context.Context, tx *ent.Tx, url string, bookmarkFeed *ent.Feed) error {
 	// get title from url
-	title, err := scraper.GetTitle(url)
+	title, err := scraper.GetTitle(ctx, url)
 	if err != nil {
 		return errors.Wrap(err, "failed to get title")
 	}
@@ -141,7 +141,7 @@ func (r *RepositoryImpl) createNewBookmarkArticle(ctx context.Context, tx *ent.T
 	if err != nil {
 		// Log the error but proceed to create the summary entry without the AI summary
 		slog.Error("failed to summarize page, creating summary entry without AI summary", slog.Any("url", url), slog.Any("error", err))
-		pageSummary = &gemini.PageSummary{
+		pageSummary = &summarizer.PageSummary{
 			URL:     url,
 			Title:   title, // Use scraped title as fallback
 			Summary: "",    // Empty summary
@@ -205,30 +205,30 @@ func (r *RepositoryImpl) createNewBookmarkArticle(ctx context.Context, tx *ent.T
 	return nil
 }
 
-func (r *RepositoryImpl) summarizePage(ctx context.Context, url string) (*gemini.PageSummary, error) {
-	if err := r.ensureGeminiClient(ctx); err != nil {
-		return nil, errors.Wrap(err, "failed to initialize gemini client")
+func (r *RepositoryImpl) summarizePage(ctx context.Context, url string) (*summarizer.PageSummary, error) {
+	if err := r.ensureSummarizer(ctx); err != nil {
+		return nil, errors.Wrap(err, "failed to initialize summarizer")
 	}
 
-	pageSummary, err := gemini.SummarizeWithRetry(ctx, r.geminiClient, url, gemini.DefaultRetryWait)
+	pageSummary, err := summarizer.SummarizeWithRetry(ctx, r.summarizerClient, url, summarizer.DefaultRetryWait)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to summarize page")
 	}
 	return pageSummary, nil
 }
 
-func (r *RepositoryImpl) ensureGeminiClient(ctx context.Context) error {
+func (r *RepositoryImpl) ensureSummarizer(ctx context.Context) error {
 	r.initMu.Lock()
 	defer r.initMu.Unlock()
 
-	if r.geminiClient != nil {
+	if r.summarizerClient != nil {
 		return nil
 	}
 
-	client, err := gemini.NewClient(ctx, r.config)
+	client, err := summarizer.New(ctx, r.config)
 	if err != nil {
-		return errors.Wrap(err, "failed to create gemini client")
+		return errors.Wrap(err, "failed to create summarizer client")
 	}
-	r.geminiClient = client
+	r.summarizerClient = client
 	return nil
 }

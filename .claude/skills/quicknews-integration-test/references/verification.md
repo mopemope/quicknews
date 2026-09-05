@@ -1,7 +1,7 @@
 # integration verification
 
-## Gemini
-- `go test ./gemini ./config`
+## Gemini / OpenAI (summarizer)
+- `go test ./summarizer ./config`
 
 ## TTS
 - `go test ./tts`

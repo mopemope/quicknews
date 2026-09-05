@@ -12,7 +12,9 @@
 
 ## 主な設定
 - DB: `db`
+- 要約: `summarize_provider` (`gemini` 既定 / `openai`)
 - Gemini: `gemini_api_key`, `gemini_model`
+- OpenAI: `openai_api_key`, `openai_model`, `openai_base_url`
 - TTS: `use_gemini_tts`, `google_application_credentials`, `voicevox.*`
 - export: `export_org`, `audio`
 - publish: `cloudflare.*`, `podcast.*`

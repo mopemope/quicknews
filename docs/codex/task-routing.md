@@ -12,7 +12,7 @@ Codex が最初の探索で読む範囲を絞るための導線。
   - `cmd/fetch/feed_processor.go`
   - `cmd/fetch/article_processor.go`
   - `models/article/`, `models/summary/`
-  - `gemini/`, `tts/`
+  - `summarizer/`, `tts/`
 - TUI の一覧表示、入力操作、レイアウト
   - `tui/model.go`
   - `tui/update_handlers.go`
@@ -50,5 +50,5 @@ Codex が最初の探索で読む範囲を絞るための導線。
 
 ## よくある依存の見方
 - CLI から永続化へ: `main.go` → `cmd/` → `models/` → `database/`
-- fetch から外部連携へ: `cmd/fetch/` → `gemini/` / `tts/` / `org/`
+- fetch から外部連携へ: `cmd/fetch/` → `summarizer/` / `tts/` / `org/`
 - publish から配信へ: `cmd/publish.go` → `tts/` → `storage/` → `rss/`

@@ -15,5 +15,5 @@ description: Use when writing or updating quicknews Go tests and you need to pic
 既存の見本:
 - fake + interface: `cmd/publish_test.go`
 - enttest: `models/article/article_test.go`
-- table-driven: `gemini/parse_test.go`, `mcpserver/server_test.go`
-- env-skip: `gemini/gemini_test.go`
+- table-driven: `summarizer/parse_test.go`, `mcpserver/server_test.go`
+- env-skip: `summarizer/gemini_test.go`

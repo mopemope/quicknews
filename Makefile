@@ -15,7 +15,7 @@ lint:
 check: lint test-fast
 
 test-fast:
-	GOCACHE=$(GOCACHE) go test ./config ./database ./gemini ./log ./models/... ./rss ./scraper ./storage ./tts ./tui/components ./tui/progress ./cmd ./cmd/fetch ./mcpserver
+	GOCACHE=$(GOCACHE) go test ./config ./database ./summarizer ./log ./models/... ./rss ./scraper ./storage ./tts ./tui/components ./tui/progress ./cmd ./cmd/fetch ./mcpserver
 
 test-all:
 	GOCACHE=$(GOCACHE) go test ./...
@@ -24,7 +24,8 @@ test-race:
 	GOCACHE=$(GOCACHE) go test -race ./cmd/... ./tui/...
 
 test-integration:
-	GOCACHE=$(GOCACHE) go test ./gemini ./tts ./storage ./cmd/...
+	GOCACHE=$(GOCACHE) go test ./summarizer ./tts ./storage ./cmd/...
 
 smoke-config:
 	GOCACHE=$(GOCACHE) go run . --config ./config.example.toml --log /tmp/quicknews.log config --format json >/dev/null
+

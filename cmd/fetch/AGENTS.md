@@ -14,8 +14,8 @@
 
 ## この層で守ること
 - 重複排除は `GetFromURL` が正。新規保存の可否判断を別の query で増やさない。
-- Gemini クライアントは `gemini.Summarizer` interface 越しに受け、`newSummarizer` 関数フィールドで差し替え可能に保つ(test はこれで fake を注入)。
-- リトライは `gemini.SummarizeWithRetry` に任せる。個別に sleep/retry を書かない。
+- Summarizer は `summarizer.Summarizer` interface 越しに受け、`newSummarizer` 関数フィールドで差し替え可能に保つ(test はこれで fake を注入)。
+- リトライは `summarizer.SummarizeWithRetry` に任せる。個別に sleep/retry を書かない。
 - 並列度を変える場合は `cmd/fetch.go` 側の progress UI(worker 数、`itemCount > 50` の分岐)との整合も確認する。
 - エラーは個別 item で握りつぶさず `stderrors.Join` で上位に伝搬する。
 
@@ -25,4 +25,4 @@
 
 ## 最小検証
 - `go test ./cmd/...`(processor の test は `cmd/fetch/` 配下)
-- 要約・音声の動線を変えたら `go test ./gemini ./tts ./models/summary`
+- 要約・音声の動線を変えたら `go test ./summarizer ./tts ./models/summary`

@@ -1,4 +1,4 @@
-package gemini
+package summarizer
 
 import (
 	"context"
@@ -16,12 +16,18 @@ import (
 
 const defaultModelName = "gemini-2.5-flash"
 
+// defaultSummaryPrompt asks Gemini to visit the URL using its search
+// grounding tool and output the summary JSON.
 const defaultSummaryPrompt = `
 あなたはWebサイトのコンテンツを詳しく解説するアシスタントです。
 以下のURLのWebサイトにアクセスし、そのページのタイトルと主要な内容を正確に把握し、テキスト形式で出力してください。
 
 URL: %s
 
+` + defaultInstructionBlock
+
+// defaultInstructionBlock contains the shared output rules for both prompts.
+const defaultInstructionBlock = `
 出力する際は、以下のルールを厳守してください。
 1.  出力: 出力は JSON オブジェクトのみとします。了解しました。などの返事やコードブロックは出力しません。
 2.  タイトル: Webサイトのタイトルを正確に日本語に翻訳し、キーワードをバッククォートで囲むなどの余計な修飾は加えないで下さい。
@@ -29,14 +35,14 @@ URL: %s
 4.  1行の文字数: 解説の1行あたりの文字数は80文字程度にして下さい。長くなる場合は改行して下さい。1行あたりの文字が長くなりすぎないよう適度に句読点で改行を入れて下さい。
 5.  文字数: 解説の文字数は800文字以上を目安とし、内容を十分に伝えられるように詳しく記述してください。ただし、情報量が少ない場合は、可能な範囲で内容を補って詳細に記述してください。
 6.  エラー処理:
-    * 指定されたURLが存在しない場合や、アクセスできない場合は、解説に「指定されたURLにアクセスできませんでした。」と記載してください。
-    * Webサイトの内容が解説に適さない場合（例：画像や動画が主体である、内容が極めて短いなど）は、解説に「このWebサイトは解説に適していません。」と記載してください。
+    * ページの内容が解説に適さない場合（例：画像や動画が主体である、内容が極めて短いなど）は、解説に「このWebサイトは解説に適していません。」と記載してください。
 7.  出力形式は以下の JSON オブジェクトです。title と summary の2つのキーのみを含みます。
 
 {"title": "<記事のタイトル>", "summary": "<記事の解説>"}
 
 `
 
+// PageSummary is a summarized page returned by any Summarizer implementation.
 type PageSummary struct {
 	URL     string `json:"url"`
 	Title   string `json:"title"`
@@ -49,9 +55,9 @@ type Client struct {
 	config *config.Config
 }
 
-// NewClient creates a new Gemini client.
+// NewGeminiClient creates a new Gemini client.
 // It expects the Google API Key to be set in the GEMINI_API_KEY environment variable if not provided via config.
-func NewClient(ctx context.Context, cfg *config.Config) (*Client, error) {
+func NewGeminiClient(ctx context.Context, cfg *config.Config) (*Client, error) {
 	var apiKey string
 	if cfg != nil {
 		apiKey = cfg.GeminiApiKey
@@ -88,15 +94,10 @@ func (c *Client) Close() error {
 
 // Summarize sends a request to the Gemini API to summarize the given text.
 func (c *Client) Summarize(ctx context.Context, url string) (*PageSummary, error) {
-
-	summaryPrompt := defaultSummaryPrompt
-	if c.config.Prompt != nil && c.config.Prompt.Summary != nil {
-		// custom prompt
-		summaryPrompt = *c.config.Prompt.Summary
-	}
-	prompt := fmt.Sprintf(summaryPrompt, url)
+	prompt := promptFor(c.config, url)
 
 	modelName := c.modelName()
+	slog.Debug("Sending request to Gemini API", slog.String("model", modelName), slog.String("url", url))
 	callCtx, cancel := context.WithTimeout(ctx, DefaultSummarizeTimeout)
 	defer cancel()
 	res, err := c.client.Models.GenerateContent(callCtx,
@@ -112,22 +113,18 @@ func (c *Client) Summarize(ctx context.Context, url string) (*PageSummary, error
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to generate content")
 	}
-	slog.Debug("Sending request to Gemini API", slog.String("model", modelName), slog.String("url", url))
 
 	// Aggregate text parts from the response
-	var summary string
-	if len(res.Candidates) > 0 && len(res.Candidates[0].Content.Parts) > 0 {
-		for _, part := range res.Candidates[0].Content.Parts {
-			summary += part.Text
-		}
-	} else {
+	if len(res.Candidates) == 0 || res.Candidates[0].Content == nil || len(res.Candidates[0].Content.Parts) == 0 {
 		slog.Warn("Gemini API returned no content or candidates")
 		return nil, errors.New("gemini API returned no content")
 	}
+	var sb strings.Builder
+	for _, part := range res.Candidates[0].Content.Parts {
+		sb.WriteString(part.Text)
+	}
+	summary := strings.TrimSpace(sb.String())
 
-	summary = strings.TrimSpace(summary)
-
-	// Parse JSON if the response is wrapped in code blocks
 	result, err := parseResponse(summary)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to parse llm response")
@@ -146,6 +143,28 @@ func (c *Client) modelName() string {
 		return c.config.GeminiModel
 	}
 	return defaultModelName
+}
+
+// promptFor resolves the summary prompt for the page url.
+// A custom prompt from config takes precedence. The %s placeholder is
+// replaced with the url (never via fmt.Sprintf so literal '%' characters
+// in custom prompts are preserved).
+func promptFor(cfg *config.Config, url string) string {
+	tmpl := defaultSummaryPrompt
+	if cfg != nil && cfg.Prompt != nil && cfg.Prompt.Summary != nil && strings.TrimSpace(*cfg.Prompt.Summary) != "" {
+		tmpl = *cfg.Prompt.Summary
+	}
+	return applyPromptTemplate(tmpl, url)
+}
+
+// applyPromptTemplate substitutes the first %s placeholder in tmpl with value.
+// When the template has no placeholder the value is appended so custom prompts
+// without a slot still receive the target text.
+func applyPromptTemplate(tmpl, value string) string {
+	if strings.Contains(tmpl, "%s") {
+		return strings.Replace(tmpl, "%s", value, 1)
+	}
+	return tmpl + "\n\n" + value
 }
 
 // parseResponse parses the model output into a PageSummary.
@@ -234,7 +253,7 @@ func parseJSONResponse(text string) (*PageSummary, bool) {
 func parseLegacyResponse(text string) (*PageSummary, error) {
 	result := strings.Split(text, "-----")
 	if len(result) != 2 {
-		return nil, errors.New("response format is incorrect")
+		return nil, fmt.Errorf("response format is incorrect: %q", truncateForLog(text))
 	}
 
 	// clean up the title
@@ -252,4 +271,13 @@ func parseLegacyResponse(text string) (*PageSummary, error) {
 		Summary: strings.TrimSpace(sum),
 	}
 	return &summaryResponse, nil
+}
+
+// truncateForLog shortens a raw model response for error messages.
+func truncateForLog(text string) string {
+	runes := []rune(text)
+	if len(runes) <= 200 {
+		return text
+	}
+	return string(runes[:200]) + "..."
 }

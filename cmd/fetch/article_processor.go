@@ -8,10 +8,10 @@ import (
 	"github.com/mmcdole/gofeed"
 	"github.com/mopemope/quicknews/config"
 	"github.com/mopemope/quicknews/ent"
-	"github.com/mopemope/quicknews/gemini"
 	"github.com/mopemope/quicknews/models/article"
 	"github.com/mopemope/quicknews/models/summary"
 	"github.com/mopemope/quicknews/org"
+	"github.com/mopemope/quicknews/summarizer"
 )
 
 // ArticleProcessor handles the processing of individual articles
@@ -21,8 +21,8 @@ type ArticleProcessor struct {
 	articleRepos  article.ArticleRepository
 	summaryRepos  summary.SummaryRepository
 	config        *config.Config
-	newSummarizer func(context.Context, *config.Config) (gemini.Summarizer, error)
-	retryWait     gemini.RetryWaiter
+	newSummarizer func(context.Context, *config.Config) (summarizer.Summarizer, error)
+	retryWait     summarizer.RetryWaiter
 }
 
 // NewArticleProcessor creates a new ArticleProcessor
@@ -33,14 +33,14 @@ func NewArticleProcessor(feed *ent.Feed, item *gofeed.Item, articleRepos article
 		articleRepos: articleRepos,
 		summaryRepos: summaryRepos,
 		config:       cfg,
-		newSummarizer: func(ctx context.Context, cfg *config.Config) (gemini.Summarizer, error) {
-			return gemini.NewClient(ctx, cfg)
+		newSummarizer: func(ctx context.Context, cfg *config.Config) (summarizer.Summarizer, error) {
+			return summarizer.New(ctx, cfg)
 		},
-		retryWait: gemini.DefaultRetryWait,
+		retryWait: summarizer.DefaultRetryWait,
 	}
 }
 
-func NewArticleProcessorWithSummarizer(feed *ent.Feed, item *gofeed.Item, articleRepos article.ArticleRepository, summaryRepos summary.SummaryRepository, cfg *config.Config, newSummarizer func(context.Context, *config.Config) (gemini.Summarizer, error)) *ArticleProcessor {
+func NewArticleProcessorWithSummarizer(feed *ent.Feed, item *gofeed.Item, articleRepos article.ArticleRepository, summaryRepos summary.SummaryRepository, cfg *config.Config, newSummarizer func(context.Context, *config.Config) (summarizer.Summarizer, error)) *ArticleProcessor {
 	processor := NewArticleProcessor(feed, item, articleRepos, summaryRepos, cfg)
 	if newSummarizer != nil {
 		processor.newSummarizer = newSummarizer
@@ -91,18 +91,18 @@ func (ap *ArticleProcessor) Process(ctx context.Context) error {
 
 // processSummary handles the summarization of an article
 func (ap *ArticleProcessor) processSummary(ctx context.Context, article *ent.Article) error {
-	geminiClient, err := ap.newSummarizer(ctx, ap.config)
+	summarizerClient, err := ap.newSummarizer(ctx, ap.config)
 	if err != nil {
-		return errors.Wrap(err, "error creating gemini client")
+		return errors.Wrap(err, "error creating summarizer client")
 	}
 	defer func() {
-		if err := geminiClient.Close(); err != nil {
+		if err := summarizerClient.Close(); err != nil {
 			slog.Warn("failed to close summarizer", "error", err)
 		}
 	}()
 
 	url := article.URL
-	pageSummary, err := gemini.SummarizeWithRetry(ctx, geminiClient, url, ap.retryWait)
+	pageSummary, err := summarizer.SummarizeWithRetry(ctx, summarizerClient, url, ap.retryWait)
 	if err != nil {
 		return errors.Wrap(err, "error summarizing page")
 	}

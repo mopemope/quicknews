@@ -7,7 +7,7 @@
 - config 出力: `cmd/config_inspect.go`
 
 ## この層で守ること
-- コマンド層は orchestration に寄せる。永続化や外部 API の詳細は `models/`、`gemini/`、`tts/`、`storage/` に押し込む。
+- コマンド層は orchestration に寄せる。永続化や外部 API の詳細は `models/`、`summarizer/`、`tts/`、`storage/` に押し込む。
 - 追加ロジックが分岐だらけになるなら pure function に切り出して test を先に足す。
 - TTY 判定や date 解決のような条件分岐は単体テストしやすい形に保つ。
 

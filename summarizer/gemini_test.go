@@ -1,4 +1,4 @@
-package gemini
+package summarizer
 
 import (
 	"context"
@@ -12,13 +12,13 @@ import (
 // TestNewClient tests the creation of a new Gemini client.
 // It requires the GEMINI_API_KEY environment variable to be set.
 // Skip this test if the API key is not available.
-func TestNewClient(t *testing.T) {
+func TestNewGeminiClient(t *testing.T) {
 	apiKey := os.Getenv("GEMINI_API_KEY")
 	if apiKey == "" {
 		t.Skip("Skipping test: GEMINI_API_KEY environment variable not set")
 	}
 
-	client, err := NewClient(context.Background(), nil)
+	client, err := NewGeminiClient(context.Background(), nil)
 
 	require.NoError(t, err, "NewClient should not return an error with a valid API key")
 	require.NotNil(t, client, "NewClient should return a non-nil client")
@@ -42,7 +42,7 @@ func TestNewClient_NoApiKey(t *testing.T) {
 		}
 	}()
 
-	client, err := NewClient(context.Background(), nil)
+	client, err := NewGeminiClient(context.Background(), nil)
 
 	assert.Error(t, err, "NewClient should return an error when API key is missing")
 	assert.Nil(t, client, "NewClient should return a nil client when API key is missing")
@@ -56,7 +56,7 @@ func TestSummarizeText(t *testing.T) {
 		t.Skip("Skipping test: GEMINI_API_KEY environment variable not set")
 	}
 
-	client, err := NewClient(context.Background(), nil)
+	client, err := NewGeminiClient(context.Background(), nil)
 	require.NoError(t, err)
 	defer func() {
 		err := client.Close()

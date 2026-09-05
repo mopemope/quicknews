@@ -10,7 +10,7 @@
 - `cmd/fetch/article_processor.go`
 - `models/article/article.go`
 - `models/summary/summary.go`
-- `gemini/gemini.go`
+- `summarizer/gemini.go`
 - `tts/tts.go`
 
 ## TUI

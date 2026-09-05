@@ -135,6 +135,39 @@ func TestLoadConfig_WithInvalidPath(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func TestLoadConfig_SummarizeProviderDefault(t *testing.T) {
+	tempDir := t.TempDir()
+	configPath := filepath.Join(tempDir, "config.toml")
+
+	file, err := os.Create(configPath)
+	require.NoError(t, err)
+	defer func() { _ = file.Close() }()
+
+	require.NoError(t, toml.NewEncoder(file).Encode(map[string]interface{}{"db": "test.db"}))
+
+	loaded, err := LoadConfig(configPath)
+	require.NoError(t, err)
+	assert.Equal(t, SummarizeProviderGemini, loaded.SummarizeProvider)
+}
+
+func TestLoadConfig_SummarizeProviderNormalized(t *testing.T) {
+	tempDir := t.TempDir()
+	configPath := filepath.Join(tempDir, "config.toml")
+
+	file, err := os.Create(configPath)
+	require.NoError(t, err)
+	defer func() { _ = file.Close() }()
+
+	require.NoError(t, toml.NewEncoder(file).Encode(map[string]interface{}{
+		"db":                 "test.db",
+		"summarize_provider": " OpenAI ",
+	}))
+
+	loaded, err := LoadConfig(configPath)
+	require.NoError(t, err)
+	assert.Equal(t, SummarizeProviderOpenAI, loaded.SummarizeProvider)
+}
+
 func assertDirExists(t *testing.T, path string) {
 	t.Helper()
 

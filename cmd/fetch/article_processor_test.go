@@ -10,9 +10,9 @@ import (
 	"github.com/mmcdole/gofeed"
 	"github.com/mopemope/quicknews/config"
 	"github.com/mopemope/quicknews/ent"
-	"github.com/mopemope/quicknews/gemini"
 	"github.com/mopemope/quicknews/models/article"
 	"github.com/mopemope/quicknews/models/summary"
+	"github.com/mopemope/quicknews/summarizer"
 	"github.com/stretchr/testify/require"
 )
 
@@ -118,12 +118,12 @@ func (r *fakeSummaryRepository) Delete(context.Context, uuid.UUID) error {
 }
 
 type fakeSummarizer struct {
-	result     *gemini.PageSummary
+	result     *summarizer.PageSummary
 	calls      int
 	closeCalls int
 }
 
-func (s *fakeSummarizer) Summarize(context.Context, string) (*gemini.PageSummary, error) {
+func (s *fakeSummarizer) Summarize(context.Context, string) (*summarizer.PageSummary, error) {
 	s.calls++
 	return s.result, nil
 }
@@ -135,7 +135,7 @@ func (s *fakeSummarizer) Close() error {
 
 var _ article.ArticleRepository = (*fakeArticleRepository)(nil)
 var _ summary.SummaryRepository = (*fakeSummaryRepository)(nil)
-var _ gemini.Summarizer = (*fakeSummarizer)(nil)
+var _ summarizer.Summarizer = (*fakeSummarizer)(nil)
 
 func TestArticleProcessor_Process_SavesArticleAndSummary(t *testing.T) {
 	feedEntity := &ent.Feed{ID: uuid.New(), Title: "Tech", URL: "https://example.com/feed"}
@@ -147,8 +147,8 @@ func TestArticleProcessor_Process_SavesArticleAndSummary(t *testing.T) {
 	}
 	articleRepo := &fakeArticleRepository{}
 	summaryRepo := &fakeSummaryRepository{}
-	summarizer := &fakeSummarizer{
-		result: &gemini.PageSummary{
+	fakeSummarizerInstance := &fakeSummarizer{
+		result: &summarizer.PageSummary{
 			Title:   "Summary title",
 			Summary: "Summary body",
 		},
@@ -160,8 +160,8 @@ func TestArticleProcessor_Process_SavesArticleAndSummary(t *testing.T) {
 		articleRepo,
 		summaryRepo,
 		&config.Config{},
-		func(context.Context, *config.Config) (gemini.Summarizer, error) {
-			return summarizer, nil
+		func(context.Context, *config.Config) (summarizer.Summarizer, error) {
+			return fakeSummarizerInstance, nil
 		},
 	)
 
@@ -169,8 +169,8 @@ func TestArticleProcessor_Process_SavesArticleAndSummary(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 1, articleRepo.saveCalls)
 	require.Equal(t, 1, summaryRepo.saveCalls)
-	require.Equal(t, 1, summarizer.calls)
-	require.Equal(t, 1, summarizer.closeCalls)
+	require.Equal(t, 1, fakeSummarizerInstance.calls)
+	require.Equal(t, 1, fakeSummarizerInstance.closeCalls)
 	require.NotNil(t, articleRepo.savedArticle)
 	require.Equal(t, feedEntity, articleRepo.savedArticle.Edges.Feed)
 	require.NotNil(t, summaryRepo.savedSummary)
@@ -194,8 +194,8 @@ func TestArticleProcessor_Process_SkipsSummarizerWhenSummaryExists(t *testing.T)
 		},
 	}
 	summaryRepo := &fakeSummaryRepository{}
-	summarizer := &fakeSummarizer{
-		result: &gemini.PageSummary{
+	fakeSummarizerInstance := &fakeSummarizer{
+		result: &summarizer.PageSummary{
 			Title:   "Summary title",
 			Summary: "Summary body",
 		},
@@ -207,8 +207,8 @@ func TestArticleProcessor_Process_SkipsSummarizerWhenSummaryExists(t *testing.T)
 		articleRepo,
 		summaryRepo,
 		&config.Config{},
-		func(context.Context, *config.Config) (gemini.Summarizer, error) {
-			return summarizer, nil
+		func(context.Context, *config.Config) (summarizer.Summarizer, error) {
+			return fakeSummarizerInstance, nil
 		},
 	)
 
@@ -216,8 +216,8 @@ func TestArticleProcessor_Process_SkipsSummarizerWhenSummaryExists(t *testing.T)
 	require.NoError(t, err)
 	require.Equal(t, 0, articleRepo.saveCalls)
 	require.Equal(t, 0, summaryRepo.saveCalls)
-	require.Equal(t, 0, summarizer.calls)
-	require.Equal(t, 0, summarizer.closeCalls)
+	require.Equal(t, 0, fakeSummarizerInstance.calls)
+	require.Equal(t, 0, fakeSummarizerInstance.closeCalls)
 }
 
 func TestArticleProcessor_Process_ErrorsWhenSummarizerReturnsNil(t *testing.T) {
@@ -228,7 +228,7 @@ func TestArticleProcessor_Process_ErrorsWhenSummarizerReturnsNil(t *testing.T) {
 	}
 	articleRepo := &fakeArticleRepository{}
 	summaryRepo := &fakeSummaryRepository{}
-	summarizer := &fakeSummarizer{}
+	fakeSummarizerInstance := &fakeSummarizer{}
 
 	processor := NewArticleProcessorWithSummarizer(
 		feedEntity,
@@ -236,8 +236,8 @@ func TestArticleProcessor_Process_ErrorsWhenSummarizerReturnsNil(t *testing.T) {
 		articleRepo,
 		summaryRepo,
 		&config.Config{},
-		func(context.Context, *config.Config) (gemini.Summarizer, error) {
-			return summarizer, nil
+		func(context.Context, *config.Config) (summarizer.Summarizer, error) {
+			return fakeSummarizerInstance, nil
 		},
 	)
 	processor.retryWait = func(context.Context, time.Duration) error {
@@ -247,7 +247,7 @@ func TestArticleProcessor_Process_ErrorsWhenSummarizerReturnsNil(t *testing.T) {
 	err := processor.Process(context.Background())
 	require.Error(t, err)
 	require.ErrorContains(t, err, "summarizer returned nil summary")
-	require.Equal(t, 3, summarizer.calls)
+	require.Equal(t, 3, fakeSummarizerInstance.calls)
 	require.Equal(t, 0, summaryRepo.saveCalls)
 }
 

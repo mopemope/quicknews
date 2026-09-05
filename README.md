@@ -215,10 +215,21 @@ db = "/path/to/your/quicknews.db"
 # Required if using Google TTS and not using environment variables (when override is enabled).
 google_application_credentials = "/path/to/your/keyfile.json"
 
-# Gemini API settings
+# Summarizer settings
+# AI provider used for article summarization: "gemini" (default) or "openai".
+# summarize_provider = "gemini"
+
+# Gemini API settings (used when summarize_provider = "gemini")
 # Your Google Gemini API key.
 # Required for article summarization if not using environment variables (when override is enabled).
 gemini_api_key = "YOUR_API_KEY"
+# gemini_model = "gemini-2.5-flash"
+
+# OpenAI API settings (used when summarize_provider = "openai")
+# Your OpenAI API key.
+# openai_api_key = "YOUR_OPENAI_API_KEY"
+# openai_model = "gpt-5-mini"
+# openai_base_url = "" # Optional: for OpenAI-compatible endpoints (e.g., Azure, OpenRouter, local LLMs)
 
 # Org Mode Export settings (Optional)
 # Directory path to export summaries as Org mode files.

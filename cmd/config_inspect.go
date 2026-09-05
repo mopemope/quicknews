@@ -57,7 +57,12 @@ func sanitizeConfigEntries(cfg *config.Config, showSecrets bool) []configEntry {
 	add("speaking_rate", cfg.SpeakingRate)
 	add("require_confirm", cfg.RequireConfirm)
 	add("save_audio_data", cfg.SaveAudioData)
+	add("summarize_provider", cfg.SummarizeProvider)
 	add("gemini_api_key", maskIfNeeded("gemini_api_key", cfg.GeminiApiKey, showSecrets))
+	add("gemini_model", cfg.GeminiModel)
+	add("openai_api_key", maskIfNeeded("openai_api_key", cfg.OpenAIApiKey, showSecrets))
+	add("openai_model", cfg.OpenAIModel)
+	add("openai_base_url", cfg.OpenAIBaseURL)
 	add("google_application_credentials", maskIfNeeded("google_application_credentials", cfg.GoogleApplicationCredentials, showSecrets))
 
 	if cfg.VoiceVox != nil {

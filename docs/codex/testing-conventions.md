@@ -13,10 +13,10 @@
 - 分岐・日付処理・正規化などの pure function は table-driven(`t.Run(tt.name, ...)`)で書く。
 - 外部依存(merge 音声、audio 保存)は関数フィールド(`mergeAudio` / `saveAudioData`)として注入可能に保つ。
 
-### parser / 変換 (`gemini/` の parse 系, `mcpserver/` の normalize 系, `org/`)
+### parser / 変換 (`summarizer/` の parse 系, `mcpserver/` の normalize 系, `org/`)
 - table-driven。入出力の対応が一覧できる形にする。
 
-### 外部連携 (`gemini/` 実 API, `tts/`, `storage/`)
+### 外部連携 (`summarizer/` 実 API, `tts/`, `storage/`)
 - 認証情報や endpoint が未設定のときは `t.Skip` する。この前提を壊さない(CI は credential 無しで動く)。
 - ロジック本体は fake / interface 越しにテストする。
 

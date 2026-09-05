@@ -18,6 +18,14 @@ audio = "/tmp/quicknews-audio"
 gemini_api_key = ""
 gemini_model = "gemini-2.5-flash"
 
+# Summarizer provider: "gemini" (default) or "openai".
+summarize_provider = "gemini"
+
+# Optional OpenAI settings (used when summarize_provider = "openai").
+openai_api_key = ""
+openai_model = "gpt-5-mini"
+# openai_base_url = "" # Override for OpenAI-compatible endpoints (e.g., Azure, OpenRouter).
+
 # Optional Google TTS credentials path.
 google_application_credentials = ""
 
